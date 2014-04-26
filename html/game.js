@@ -66,8 +66,10 @@ function makeConveyor(x, y, width, height, horizontal, type) {
 			var file= this.files[i];
 			if (this.horizontal) {
 				file.vx = .125;
+				file.vy = 0;
 			}
 			else {
+				file.vx = 0;
 				file.vy = .125;
 			}
 			file.move(elapsedMillis);
@@ -90,7 +92,22 @@ var files = [];
 var fileWidth = 45;
 var fileHeight = 45;
 
-function addFileToConveyor(type, conveyor) {
+
+
+function createFileOnConveyor(type, conveyor) {
+	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
+	file.draw = function(context) {
+		context.fillStyle = "#0000ff";
+		context.fillRect(this.x|0, this.y|0, this.width, this.height);
+	};
+	file.type = type;
+	return addFileToConveyor(file, conveyor, true);
+}
+
+function addFileToConveyor(file, conveyor, ignoreType) {
+	if (!ignoreType && file.type != conveyor.type) {
+		return false;
+	}
 	var x = conveyor.x;
 	var y = conveyor.y;
 	if (conveyor.horizontal) {
@@ -98,15 +115,13 @@ function addFileToConveyor(type, conveyor) {
 	} else {
 		x += (conveyor.width - fileWidth)/2;
 	}
-	var file = new Splat.Entity(x, y, fileWidth, fileHeight);
+	file.x = x;
+	file.y = y;
+
 	if (collidesWithAny(file, conveyor.files)) {
 		return false;
 	}
-	file.draw = function(context) {
-		context.fillStyle = "#0000ff";
-		context.fillRect(this.x|0, this.y|0, this.width, this.height);
-	};
-	file.type = type;
+
 	conveyor.files.push(file);
 	return true;
 }
@@ -114,15 +129,15 @@ function addFileToConveyor(type, conveyor) {
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 	makeConveyor(0, 0, 105, canvas.height, false, "in");
-	makeConveyor(225, 40, 650, 100, true, "a");
-	makeConveyor(225, 240, 650, 100, true, "b");
-	makeConveyor(225, 480, 400, 100, true, "c");
-	addFileToConveyor("picture", conveyors[1]);
-	addFileToConveyor("picture", conveyors[0]);
-	addFileToConveyor("picture", conveyors[2]);
-	addFileToConveyor("picture", conveyors[3]);
+	makeConveyor(225, 40, 650, 100, true, "picture");
+	makeConveyor(225, 240, 650, 100, true, "email");
+	makeConveyor(225, 480, 400, 100, true, "video");
+	createFileOnConveyor("picture", conveyors[1]);
+	createFileOnConveyor("picture", conveyors[0]);
+	createFileOnConveyor("picture", conveyors[2]);
+	createFileOnConveyor("picture", conveyors[3]);
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function(){
-		addFileToConveyor("picture", conveyors[0]);
+		createFileOnConveyor("picture", conveyors[0]);
 		this.reset();
 		this.start();
 	});
@@ -143,12 +158,33 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
 		player.vy = playerSpeed;
 	}
-	
-	for (var i=0; i < conveyors.length; i++){
+
+	for (var i=0; i < conveyors.length; i++) {
 		conveyors[i].move(elapsedMillis);
 	}
-	
+
 	player.move(elapsedMillis);
+
+	for (var i = 0; i < conveyors.length; i++) {
+		collidesWithAny(player, conveyors[i].files, function(other){
+			if (player.file) {
+				return;
+			}
+
+			var pos = conveyors[i].files.indexOf(other);
+			conveyors[i].files.splice(pos,1);
+			player.file = other;
+		});
+	}
+
+	if (player.file) {
+		collidesWithAny(player, conveyors, function(other){
+			if(addFileToConveyor(player.file, other)) {
+				player.file = undefined;
+			}
+		});
+	}
+
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
