@@ -21,25 +21,58 @@ player.draw = function(context) {
 player.frictionX = 0.5;
 player.frictionY = 0.5;
 
-var hotspots = [];
+var conveyors = [];
 
-function makeHotspot(x, y, type) {
-	var hotspot = new Splat.Entity(x, y, 50, 30);
-	hotspots.push(hotspot);
-	hotspot.draw = function(context){
+function isInside(container, item){
+	return item.x >= container.x
+			&& item.x + item.width <= container.x + container.width
+			&& item.y >= container.y
+			&& item.y + item.height <= container.y + container.height;
+}
+
+function makeConveyor(x, y, width, height, horizontal, type) {
+	var conveyor = new Splat.Entity(x, y, width, height);
+	conveyor.draw = function(context){
 		context.strokeStyle = "#00ff00";
 		context.strokeRect(this.x, this.y, this.width, this.height);
+		for (var i=0; i<this.files.length; i++){
+			this.files[i].draw(context);
+		}
+	};
+	conveyor.move = function(elapsedMillis){
+		for (var i=0; i<this.files.length; i++){
+			var file= this.files[i];
+			file.vy = .125;
+			file.move(elapsedMillis);
+			if (!isInside(this, file)){
+				file.x = file.lastX;
+				file.y = file.lastY;
+			}
+		}
 	}
+	conveyor.horizontal = horizontal;
+	conveyor.type = type;
+	conveyor.files = [];
+	
+	conveyors.push(conveyor);
+}
+
+var files = [];
+
+function spawnFile(type){
+	var file = new Splat.Entity(10,10,30,30);
+	file.draw = function(context) {
+		context.fillStyle = "#0000ff";
+		context.fillRect(this.x, this.y, this.width, this.height);
+	};
+	file.type = type;
+	conveyors[0].files.push(file);
 }
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
-	makeHotspot(300,300, "type1in");
-	makeHotspot(300,400, "type1out");
-	makeHotspot(400,300, "type2in");
-	makeHotspot(400,400, "type2out");
-	makeHotspot(500,300, "type3in");
-	makeHotspot(500,400, "type3out");
+	makeConveyor(0, 0, 50, canvas.height, false, "in");
+	spawnFile("picture");
 }, function(elapsedMillis) {
 	// simulation
 
@@ -56,7 +89,11 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
 		player.vy = playerSpeed;
 	}
-
+	
+	for (var i=0; i < conveyors.length; i++){
+		conveyors[i].move(elapsedMillis);
+	}
+	
 	player.move(elapsedMillis);
 }, function(context) {
 	// draw
@@ -69,8 +106,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	centerText(context, "Ludum Dare 29", 0, (canvas.height / 2));
 
 	player.draw(context);
-	for (var i=0; i<hotspots.length; i++){
-		hotspots[i].draw(context);
+	for (var i=0; i < conveyors.length; i++){
+		conveyors[i].draw(context);
 	}
 }));
 
