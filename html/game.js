@@ -21,8 +21,25 @@ player.draw = function(context) {
 player.frictionX = 0.5;
 player.frictionY = 0.5;
 
+var hotspots = [];
+
+function makeHotspot(x, y, type) {
+	var hotspot = new Splat.Entity(x, y, 50, 30);
+	hotspots.push(hotspot);
+	hotspot.draw = function(context){
+		context.strokeStyle = "#00ff00";
+		context.strokeRect(this.x, this.y, this.width, this.height);
+	}
+}
+
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
+	makeHotspot(300,300, "type1in");
+	makeHotspot(300,400, "type1out");
+	makeHotspot(400,300, "type2in");
+	makeHotspot(400,400, "type2out");
+	makeHotspot(500,300, "type3in");
+	makeHotspot(500,400, "type3out");
 }, function(elapsedMillis) {
 	// simulation
 
@@ -44,7 +61,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 }, function(context) {
 	// draw
 
-	context.fillStyle = "#93cbcd";
+	context.fillStyle = "#7a5230";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	context.fillStyle = "#ffffff";
@@ -52,6 +69,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	centerText(context, "Ludum Dare 29", 0, (canvas.height / 2));
 
 	player.draw(context);
+	for (var i=0; i<hotspots.length; i++){
+		hotspots[i].draw(context);
+	}
 }));
 
 function centerText(context, text, offsetX, offsetY) {
