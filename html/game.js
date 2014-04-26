@@ -55,7 +55,7 @@ function collidesWithAny(item, otherItems, collisionHandler) {
 function makeConveyor(x, y, width, height, horizontal, type) {
 	var conveyor = new Splat.Entity(x, y, width, height);
 	conveyor.draw = function(context){
-		context.strokeStyle = "#00ff00";
+		context.strokeStyle = fileColors[type];
 		context.strokeRect(this.x, this.y, this.width, this.height);
 		for (var i=0; i<this.files.length; i++){
 			this.files[i].draw(context);
@@ -90,14 +90,15 @@ function makeConveyor(x, y, width, height, horizontal, type) {
 
 var files = [];
 var fileWidth = 45;
-var fileHeight = 45;
+var fileHeight = 39;
 
-
+var fileTypes = ["picture","video","email"];
+var fileColors = {"picture":"#ff00ff", "video":"#00ff00", "email":"#0000ff"};
 
 function createFileOnConveyor(type, conveyor) {
 	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
 	file.draw = function(context) {
-		context.fillStyle = "#0000ff";
+		context.fillStyle = fileColors[type];
 		context.fillRect(this.x|0, this.y|0, this.width, this.height);
 	};
 	file.type = type;
@@ -126,18 +127,20 @@ function addFileToConveyor(file, conveyor, ignoreType) {
 	return true;
 }
 
+function randomElement(array) {
+	var pos = Math.random()*array.length|0;
+	return array[pos];
+}
+
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 	makeConveyor(0, 0, 105, canvas.height, false, "in");
-	makeConveyor(225, 40, 650, 100, true, "picture");
+	makeConveyor(243, 93, 639, 39, true, "picture");
 	makeConveyor(225, 240, 650, 100, true, "email");
 	makeConveyor(225, 480, 400, 100, true, "video");
-	createFileOnConveyor("picture", conveyors[1]);
-	createFileOnConveyor("picture", conveyors[0]);
-	createFileOnConveyor("picture", conveyors[2]);
-	createFileOnConveyor("picture", conveyors[3]);
+
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function(){
-		createFileOnConveyor("picture", conveyors[0]);
+		createFileOnConveyor(randomElement(fileTypes), conveyors[0]);
 		this.reset();
 		this.start();
 	});
