@@ -2,6 +2,7 @@ var canvas = document.getElementById("canvas");
 
 var manifest = {
 	"images": {
+		"bg": "img/bg.png"
 	},
 	"sounds": {
 	},
@@ -97,13 +98,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	player.move(elapsedMillis);
 }, function(context) {
 	// draw
-
-	context.fillStyle = "#7a5230";
-	context.fillRect(0, 0, canvas.width, canvas.height);
-
-	context.fillStyle = "#ffffff";
-	context.font = "50px mono";
-	centerText(context, "Ludum Dare 29", 0, (canvas.height / 2));
+	context.drawImage(game.images.get("bg"), 0, 0);
 
 	player.draw(context);
 	for (var i=0; i < conveyors.length; i++){
