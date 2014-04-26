@@ -24,11 +24,27 @@ player.frictionY = 0.5;
 
 var conveyors = [];
 
+function resetPosition(entity){
+	entity.x = entity.lastX;
+	entity.y = entity.lastY;
+}
+
 function isInside(container, item){
 	return item.x >= container.x
 			&& item.x + item.width <= container.x + container.width
 			&& item.y >= container.y
 			&& item.y + item.height <= container.y + container.height;
+}
+
+function collidesWithAny(item, otherItems, collisionHandler) {
+	for (var i = 0; i < otherItems.length; i++){
+		if (item === otherItems[i]) {
+			continue;
+		}
+		if (item.collides(otherItems[i])) {
+			collisionHandler(otherItems[i]);
+		}
+	}
 }
 
 function makeConveyor(x, y, width, height, horizontal, type) {
@@ -40,15 +56,17 @@ function makeConveyor(x, y, width, height, horizontal, type) {
 			this.files[i].draw(context);
 		}
 	};
-	conveyor.move = function(elapsedMillis){
-		for (var i=0; i<this.files.length; i++){
+	conveyor.move = function(elapsedMillis) {
+		for (var i=0; i<this.files.length; i++) {
 			var file= this.files[i];
 			file.vy = .125;
 			file.move(elapsedMillis);
-			if (!isInside(this, file)){
-				file.x = file.lastX;
-				file.y = file.lastY;
+			if (!isInside(this, file)) {
+				resetPosition(file);
 			}
+			collidesWithAny(file, this.files, function(other) {
+				file.resolveCollisionWith(other);
+			});
 		}
 	}
 	conveyor.horizontal = horizontal;
@@ -64,7 +82,7 @@ function spawnFile(type){
 	var file = new Splat.Entity(10,10,30,30);
 	file.draw = function(context) {
 		context.fillStyle = "#0000ff";
-		context.fillRect(this.x, this.y, this.width, this.height);
+		context.fillRect(this.x|0, this.y|0, this.width, this.height);
 	};
 	file.type = type;
 	conveyors[0].files.push(file);
@@ -74,6 +92,12 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 	makeConveyor(0, 0, 50, canvas.height, false, "in");
 	spawnFile("picture");
+	this.timers.fileSpawner = new Splat.Timer(undefined, 4000, function(){
+		spawnFile("picture");
+		this.reset();
+		this.start();
+	});
+	this.timers.fileSpawner.start();
 }, function(elapsedMillis) {
 	// simulation
 
