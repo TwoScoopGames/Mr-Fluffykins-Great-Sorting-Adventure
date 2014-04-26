@@ -116,12 +116,16 @@ function makeConveyor(x, y, width, height,
 				file.vy = .125;
 			}
 			file.move(elapsedMillis);
-			if (!isInside(this, file)) {
+			if (!isInside(this, file) && (!file.filled)) {
 				resetPosition(file);
 			}
 			collidesWithAny(file, this.files, function(other) {
 				file.resolveCollisionWith(other);
 			});
+			if (file.y > canvas.height){
+				this.files.splice(i, 1);
+				i--;
+			}
 		}
 	}
 	conveyor.horizontal = horizontal;
