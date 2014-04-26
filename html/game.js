@@ -14,19 +14,42 @@ var manifest = {
 
 var game = new Splat.Game(canvas, manifest);
 
+
+
 var player = new Splat.Entity(100, 100, 50, 50);
 player.draw = function(context) {
 	context.fillStyle = "#ff0000";
 	context.fillRect(this.x, this.y, this.width, this.height);
 };
+
 player.frictionX = 0.5;
 player.frictionY = 0.5;
+
+var lastClick = new Array();
+//variable that tells whether the player will move toward the last selected point 
+var moveByClick = false;
+
 
 var conveyors = [];
 
 function resetPosition(entity){
 	entity.x = entity.lastX;
 	entity.y = entity.lastY;
+}
+
+function setLastClick()
+{
+	lastClick[0] = game.mouse.x;
+	lastClick[1] = game.mouse.y;
+	moveByClick = true;
+}
+function lastClickX()
+{
+	return lastClick[0];
+}
+function lastClickY()
+{
+	return lastClick[1];
 }
 
 function isInside(container, item){
@@ -88,6 +111,57 @@ function makeConveyor(x, y, width, height, horizontal, type) {
 	conveyors.push(conveyor);
 }
 
+/**
+*	Create a line between two points that the entity moves along 
+*@param {@link Entity} myEntity The entity that i being moved
+*@param {number} x The ending X-coordinate
+*@param {number} y The ending Y-coordinate
+*@param {number} s The speed at which the entity moves
+**/
+function createMovementLine(myEntity, x, y, s){
+	var startX = myEntity.x;
+	var startY = myEntity.y;
+	var endX = x - (myEntity.width/2);
+	var endY = y - (myEntity.height/2);
+	var mySpeed = s;
+	var errMargin =10;
+
+	/**
+	* adjust the velocity of the entity in the x direction
+	**/
+	if(endX > (startX + errMargin))
+	{
+		myEntity.vx = mySpeed;
+		
+	}
+	else if (endX < (startX - errMargin))
+	{
+		myEntity.vx = -mySpeed;
+		
+	}
+	else 
+	{
+		myEntity.vx = 0;
+	}
+
+	/**
+	* adjust the velocity of the entity in the x direction
+	**/
+	if(endY > (startY + errMargin))
+	{
+		myEntity.vy = mySpeed;
+	}
+	else if (endY < (startY - errMargin))
+	{
+		myEntity.vy = -mySpeed;
+	}
+	else
+	{
+		myEntity.vy = 0;
+	}
+
+}
+
 var files = [];
 var fileWidth = 45;
 var fileHeight = 39;
@@ -147,22 +221,38 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.fileSpawner.start();
 }, function(elapsedMillis) {
 	// simulation
+	
+	if (game.mouse.consumePressed(0))
+	{
+		setLastClick();
+	}
 
 	var playerSpeed = 0.7;
 	if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
+		moveByClick = false;
 		player.vx = -playerSpeed;
 	}
 	if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
+		moveByClick = false;
 		player.vx = playerSpeed;
 	}
 	if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
+		moveByClick = false;
 		player.vy = -playerSpeed;
 	}
 	if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
+		moveByClick = false;
 		player.vy = playerSpeed;
 	}
 
-	for (var i=0; i < conveyors.length; i++) {
+	if(moveByClick){
+
+		createMovementLine(player, lastClickX(), lastClickY(), playerSpeed);
+		
+	}
+	
+	
+	for (var i=0; i < conveyors.length; i++){
 		conveyors[i].move(elapsedMillis);
 	}
 
