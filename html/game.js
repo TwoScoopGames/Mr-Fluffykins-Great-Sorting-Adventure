@@ -32,6 +32,25 @@ var moveByClick = false;
 
 var conveyors = [];
 
+function canPickupFile(file, conveyor) {
+	if (conveyor.horizontal) {
+		return file.x >= conveyor.x + conveyor.dropOffWidth + conveyor.enclosedWidth;
+	}
+	else {
+		return file.y >= conveyor.y + conveyor.dropOffWidth + conveyor.enclosedWidth;
+	}
+}
+
+function canDropOff(player, conveyor) {
+	if (conveyor.horizontal) {
+		return player.x + player.width < conveyor.x + conveyor.dropOffWidth;
+	}
+	else {
+		return player.y + player.height < conveyor.y + conveyor.dropOffWidth;
+	}
+}
+
+
 function resetPosition(entity){
 	entity.x = entity.lastX;
 	entity.y = entity.lastY;
@@ -267,15 +286,19 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 				return;
 			}
 
+			if(!canPickupFile(other, conveyors[i])){
+				return;
+			}
 			var pos = conveyors[i].files.indexOf(other);
 			conveyors[i].files.splice(pos,1);
 			player.file = other;
+
 		});
 	}
 
 	if (player.file) {
 		collidesWithAny(player, conveyors, function(other){
-			if(addFileToConveyor(player.file, other)) {
+			if(canDropOff(player, other) && addFileToConveyor(player.file, other)) {
 				player.file = undefined;
 			}
 		});
