@@ -43,7 +43,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	player.move(elapsedMillis);
 }, function(context) {
 	// draw
-	//
+
 	context.fillStyle = "#93cbcd";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
