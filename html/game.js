@@ -296,7 +296,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		player.vy = playerSpeed;
 	}
 
-	if(moveByClick){
+	if (moveByClick){
 
 		createMovementLine(player, lastClickX(), lastClickY(), playerSpeed);
 		
@@ -309,6 +309,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	player.move(elapsedMillis);
 
+	// Pick up files
 	for (var i = 0; i < conveyors.length; i++) {
 		collidesWithAny(player, conveyors[i].files, function(other){
 			if (player.file) {
@@ -325,8 +326,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		});
 	}
 
+	// Drop off files
 	if (player.file) {
-		collidesWithAny(player, conveyors, function(other){
+		collidesWithAny(player, conveyors, function(other) {
 			if(canDropOff(player, other) && addFileToConveyor(player.file, other)) {
 				player.file = undefined;
 			}
@@ -338,7 +340,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	context.drawImage(game.images.get("bg"), 0, 0);
 
 	player.draw(context);
-	for (var i=0; i < conveyors.length; i++){
+	for (var i=0; i < conveyors.length; i++) {
 		conveyors[i].draw(context);
 	}
 }));
