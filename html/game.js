@@ -82,9 +82,18 @@ function makeConveyor(x, y, width, height, horizontal, type) {
 }
 
 var files = [];
+var fileWidth = 45;
+var fileHeight = 45;
 
-function spawnFile(type, conveyor){
-	var file = new Splat.Entity(conveyor.x,conveyor.y,30,30);
+function addFileToConveyor(type, conveyor) {
+	var x = conveyor.x;
+	var y = conveyor.y;
+	if (conveyor.horizontal) {
+		y += (conveyor.height - fileHeight)/2;
+	} else {
+		x += (conveyor.width - fileWidth)/2;
+	}
+	var file = new Splat.Entity(x, y, fileWidth, fileHeight);
 	if (collidesWithAny(file, conveyor.files)) {
 		return false;
 	}
@@ -99,10 +108,10 @@ function spawnFile(type, conveyor){
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
-	makeConveyor(0, 0, 50, canvas.height, false, "in");
-	spawnFile("picture", conveyors[0]);
+	makeConveyor(0, 0, 105, canvas.height, false, "in");
+	addFileToConveyor("picture", conveyors[0]);
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function(){
-		spawnFile("picture", conveyors[0]);
+		addFileToConveyor("picture", conveyors[0]);
 		this.reset();
 		this.start();
 	});
