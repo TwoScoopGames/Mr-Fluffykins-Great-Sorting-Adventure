@@ -1,1 +1,4 @@
 *.swp
+.SyncArchive
+.SyncID
+.SyncIgnore
