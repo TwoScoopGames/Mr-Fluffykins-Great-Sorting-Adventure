@@ -189,7 +189,12 @@ var fileWidth = 45;
 var fileHeight = 39;
 
 var fileTypes = ["picture","video","email"];
-var fileColors = {"picture":"#ff00ff", "video":"#00ff00", "email":"#0000ff"};
+var fileColors = {
+	"picture":"#ff00ff",
+	"video":"#00ff00",
+	"email":"#0000ff",
+	"in":"#ffffff",
+	"out":"#ffffff"};
 
 function createFileOnConveyor(type, conveyor) {
 	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
@@ -199,6 +204,21 @@ function createFileOnConveyor(type, conveyor) {
 	};
 	file.type = type;
 	return addFileToConveyor(file, conveyor, true);
+}
+
+function createToteOnConveyor(type, conveyor) {
+	var tote = new Splat.Entity(0, 0, fileWidth, fileHeight);
+	tote.draw = function(context) {
+		if (this.filled){
+			context.fillStyle = fileColors[type];
+			context.fillRect(this.x|0, this.y|0, this.width, this.height);
+		} else {
+			context.strokeStyle = fileColors[type];
+			context.strokeRect(this.x|0, this.y|0, this.width, this.height);
+		}
+	};
+	tote.type = type;
+	return addFileToConveyor(tote, conveyor, true);
 }
 
 function addFileToConveyor(file, conveyor, ignoreType) {
@@ -234,6 +254,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(243, 93, 639, 39, true, "picture", 54, 369);
 	makeConveyor(225, 240, 650, 100, true, "email", 54, 369);
 	makeConveyor(225, 480, 400, 100, true, "video", 54, 369);
+	makeConveyor(1035, 0, 102, canvas.height, false, "out",
+				canvas.height, canvas.height);
 
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function(){
 		createFileOnConveyor(randomElement(fileTypes), conveyors[0]);
@@ -241,6 +263,13 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.start();
 	});
 	this.timers.fileSpawner.start();
+
+	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function(){
+		createToteOnConveyor(randomElement(fileTypes), conveyors[4]);
+		this.reset();
+		this.start();
+	});
+	this.timers.toteSpawner.start();
 }, function(elapsedMillis) {
 	// simulation
 	
