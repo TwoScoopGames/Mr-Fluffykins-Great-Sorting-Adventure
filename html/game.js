@@ -71,7 +71,7 @@ function lastClickY()
 	return lastClick[1];
 }
 
-function isInside(container, item){
+function isInside(container, item) {
 	return item.x >= container.x
 			&& item.x + item.width <= container.x + container.width
 			&& item.y >= container.y
@@ -80,7 +80,7 @@ function isInside(container, item){
 
 function collidesWithAny(item, otherItems, collisionHandler) {
 	var foundCollision = false;
-	for (var i = 0; i < otherItems.length; i++){
+	for (var i = 0; i < otherItems.length; i++) {
 		if (item === otherItems[i]) {
 			continue;
 		}
@@ -122,7 +122,7 @@ function makeConveyor(x, y, width, height,
 			collidesWithAny(file, this.files, function(other) {
 				file.resolveCollisionWith(other);
 			});
-			if (file.y > canvas.height){
+			if (file.y > canvas.height) {
 				this.files.splice(i, 1);
 				i--;
 			}
@@ -144,7 +144,7 @@ function makeConveyor(x, y, width, height,
 *@param {number} y The ending Y-coordinate
 *@param {number} s The speed at which the entity moves
 **/
-function createMovementLine(myEntity, x, y, s){
+function createMovementLine(myEntity, x, y, s) {
 	var startX = myEntity.x;
 	var startY = myEntity.y;
 	var endX = x - (myEntity.width/2);
@@ -213,7 +213,7 @@ function createFileOnConveyor(type, conveyor) {
 function createToteOnConveyor(type, conveyor) {
 	var tote = new Splat.Entity(0, 0, fileWidth, fileHeight);
 	tote.draw = function(context) {
-		if (this.filled){
+		if (this.filled) {
 			context.fillStyle = fileColors[type];
 			context.fillRect(this.x|0, this.y|0, this.width, this.height);
 		} else {
@@ -261,14 +261,14 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(1035, 0, 102, canvas.height, false, "out",
 				canvas.height, canvas.height);
 
-	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function(){
+	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 		createFileOnConveyor(randomElement(fileTypes), conveyors[0]);
 		this.reset();
 		this.start();
 	});
 	this.timers.fileSpawner.start();
 
-	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function(){
+	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
 		createToteOnConveyor(randomElement(fileTypes), conveyors[4]);
 		this.reset();
 		this.start();
@@ -315,12 +315,12 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	// Pick up files
 	for (var i = 0; i < conveyors.length; i++) {
-		collidesWithAny(player, conveyors[i].files, function(other){
+		collidesWithAny(player, conveyors[i].files, function(other) {
 			if (player.file) {
 				return;
 			}
 
-			if(!canPickupFile(other, conveyors[i])){
+			if(!canPickupFile(other, conveyors[i])) {
 				return;
 			}
 			var pos = conveyors[i].files.indexOf(other);
