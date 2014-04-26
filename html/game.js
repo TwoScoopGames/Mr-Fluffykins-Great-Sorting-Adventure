@@ -251,9 +251,9 @@ function randomElement(array) {
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
-	makeConveyor(243, 93, 639, 39, true, "picture", 54, 369);
-	makeConveyor(225, 240, 650, 100, true, "email", 54, 369);
-	makeConveyor(225, 480, 400, 100, true, "video", 54, 369);
+	makeConveyor(243, 93, 639, 39, true, "video", 54, 369);
+	makeConveyor(243, 309, 639, 39, true, "picture", 102, 276);
+	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
 	makeConveyor(1035, 0, 102, canvas.height, false, "out",
 				canvas.height, canvas.height);
 
