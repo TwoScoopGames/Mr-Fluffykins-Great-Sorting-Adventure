@@ -334,6 +334,14 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			}
 		});
 	}
+	if (player.file) {
+		collidesWithAny(player, conveyors[4].files, function(other) {
+			if (player.file && player.file.type === other.type && !other.filled) {
+				player.file = undefined;
+				other.filled = true;
+			}
+		});
+	}
 
 }, function(context) {
 	// draw
