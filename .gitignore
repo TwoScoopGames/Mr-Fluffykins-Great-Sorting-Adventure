@@ -2,3 +2,4 @@
 .SyncArchive
 .SyncID
 .SyncIgnore
+npm_debug.log
