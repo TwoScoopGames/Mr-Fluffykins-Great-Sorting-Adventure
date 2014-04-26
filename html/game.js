@@ -14,18 +14,15 @@ var manifest = {
 
 var game = new Splat.Game(canvas, manifest);
 
-
-
 var player = new Splat.Entity(100, 100, 50, 50);
 player.draw = function(context) {
 	context.fillStyle = "#ff0000";
 	context.fillRect(this.x, this.y, this.width, this.height);
 };
-
 player.frictionX = 0.5;
 player.frictionY = 0.5;
 
-var lastClick = new Array();
+var lastClick = [];
 //variable that tells whether the player will move toward the last selected point 
 var moveByClick = false;
 
@@ -35,8 +32,7 @@ var conveyors = [];
 function canPickupFile(file, conveyor) {
 	if (conveyor.horizontal) {
 		return file.x >= conveyor.x + conveyor.dropOffWidth + conveyor.enclosedWidth;
-	}
-	else {
+	} else {
 		return file.y >= conveyor.y + conveyor.dropOffWidth + conveyor.enclosedWidth;
 	}
 }
@@ -44,30 +40,25 @@ function canPickupFile(file, conveyor) {
 function canDropOff(player, conveyor) {
 	if (conveyor.horizontal) {
 		return player.x + player.width < conveyor.x + conveyor.dropOffWidth;
-	}
-	else {
+	} else {
 		return player.y + player.height < conveyor.y + conveyor.dropOffWidth;
 	}
 }
 
-
-function resetPosition(entity){
+function resetPosition(entity) {
 	entity.x = entity.lastX;
 	entity.y = entity.lastY;
 }
 
-function setLastClick()
-{
+function setLastClick() {
 	lastClick[0] = game.mouse.x;
 	lastClick[1] = game.mouse.y;
 	moveByClick = true;
 }
-function lastClickX()
-{
+function lastClickX() {
 	return lastClick[0];
 }
-function lastClickY()
-{
+function lastClickY() {
 	return lastClick[1];
 }
 
@@ -94,13 +85,12 @@ function collidesWithAny(item, otherItems, collisionHandler) {
 	return foundCollision;
 }
 
-function makeConveyor(x, y, width, height, 
-					  horizontal, type, dropOffWidth, enclosedWidth) {
+function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclosedWidth) {
 	var conveyor = new Splat.Entity(x, y, width, height);
 	conveyor.draw = function(context){
 		context.strokeStyle = fileColors[type];
 		context.strokeRect(this.x, this.y, this.width, this.height);
-		for (var i=0; i<this.files.length; i++){
+		for (var i = 0; i < this.files.length; i++) {
 			this.files[i].draw(context);
 		}
 	};
@@ -144,61 +134,48 @@ function makeConveyor(x, y, width, height,
 *@param {number} y The ending Y-coordinate
 *@param {number} s The speed at which the entity moves
 **/
-function createMovementLine(myEntity, x, y, s) {
+function createMovementLine(myEntity, x, y, mySpeed) {
 	var startX = myEntity.x;
 	var startY = myEntity.y;
 	var endX = x - (myEntity.width/2);
 	var endY = y - (myEntity.height/2);
-	var mySpeed = s;
-	var errMargin =10;
+	var errMargin = 10;
 
 	/**
 	* adjust the velocity of the entity in the x direction
 	**/
-	if(endX > (startX + errMargin))
-	{
+	if (endX > (startX + errMargin)) {
 		myEntity.vx = mySpeed;
-		
-	}
-	else if (endX < (startX - errMargin))
-	{
+	} else if (endX < (startX - errMargin)) {
 		myEntity.vx = -mySpeed;
-		
-	}
-	else 
-	{
+	} else {
 		myEntity.vx = 0;
 	}
 
 	/**
 	* adjust the velocity of the entity in the x direction
 	**/
-	if(endY > (startY + errMargin))
-	{
+	if(endY > (startY + errMargin)) {
 		myEntity.vy = mySpeed;
-	}
-	else if (endY < (startY - errMargin))
-	{
+	} else if (endY < (startY - errMargin)) {
 		myEntity.vy = -mySpeed;
-	}
-	else
-	{
+	} else {
 		myEntity.vy = 0;
 	}
-
 }
 
 var files = [];
 var fileWidth = 45;
 var fileHeight = 39;
 
-var fileTypes = ["picture","video","email"];
+var fileTypes = ["picture", "video", "email"];
 var fileColors = {
-	"picture":"#ff00ff",
-	"video":"#00ff00",
-	"email":"#0000ff",
-	"in":"#ffffff",
-	"out":"#ffffff"};
+	"picture": "#ff00ff",
+	"video": "#00ff00",
+	"email": "#0000ff",
+	"in": "#ffffff",
+	"out": "#ffffff"
+};
 
 function createFileOnConveyor(type, conveyor) {
 	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
@@ -232,9 +209,9 @@ function addFileToConveyor(file, conveyor, ignoreType) {
 	var x = conveyor.x;
 	var y = conveyor.y;
 	if (conveyor.horizontal) {
-		y += (conveyor.height - fileHeight)/2;
+		y += (conveyor.height - fileHeight) / 2;
 	} else {
-		x += (conveyor.width - fileWidth)/2;
+		x += (conveyor.width - fileWidth) / 2;
 	}
 	file.x = x;
 	file.y = y;
@@ -248,7 +225,7 @@ function addFileToConveyor(file, conveyor, ignoreType) {
 }
 
 function randomElement(array) {
-	var pos = Math.random()*array.length|0;
+	var pos = Math.random() * array.length |0;
 	return array[pos];
 }
 
@@ -258,8 +235,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(243, 93, 639, 39, true, "video", 54, 369);
 	makeConveyor(243, 309, 639, 39, true, "picture", 102, 276);
 	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
-	makeConveyor(1035, 0, 102, canvas.height, false, "out",
-				canvas.height, canvas.height);
+	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 		createFileOnConveyor(randomElement(fileTypes), conveyors[0]);
@@ -276,9 +252,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.toteSpawner.start();
 }, function(elapsedMillis) {
 	// simulation
-	
-	if (game.mouse.consumePressed(0))
-	{
+
+	if (game.mouse.consumePressed(0)) {
 		setLastClick();
 	}
 
@@ -300,14 +275,11 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		player.vy = playerSpeed;
 	}
 
-	if (moveByClick){
-
+	if (moveByClick) {
 		createMovementLine(player, lastClickX(), lastClickY(), playerSpeed);
-		
 	}
-	
-	
-	for (var i=0; i < conveyors.length; i++){
+
+	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].move(elapsedMillis);
 	}
 
@@ -324,9 +296,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 				return;
 			}
 			var pos = conveyors[i].files.indexOf(other);
-			conveyors[i].files.splice(pos,1);
+			conveyors[i].files.splice(pos, 1);
 			player.file = other;
-
 		});
 	}
 
@@ -346,12 +317,12 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			}
 		});
 	}
-
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
 
 	player.draw(context);
+
 	for (var i=0; i < conveyors.length; i++) {
 		conveyors[i].draw(context);
 	}
