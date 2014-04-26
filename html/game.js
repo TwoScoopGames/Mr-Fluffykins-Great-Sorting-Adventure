@@ -64,7 +64,12 @@ function makeConveyor(x, y, width, height, horizontal, type) {
 	conveyor.move = function(elapsedMillis) {
 		for (var i=0; i<this.files.length; i++) {
 			var file= this.files[i];
-			file.vy = .125;
+			if (this.horizontal) {
+				file.vx = .125;
+			}
+			else {
+				file.vy = .125;
+			}
 			file.move(elapsedMillis);
 			if (!isInside(this, file)) {
 				resetPosition(file);
@@ -109,7 +114,13 @@ function addFileToConveyor(type, conveyor) {
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 	makeConveyor(0, 0, 105, canvas.height, false, "in");
+	makeConveyor(225, 40, 650, 100, true, "a");
+	makeConveyor(225, 240, 650, 100, true, "b");
+	makeConveyor(225, 480, 400, 100, true, "c");
+	addFileToConveyor("picture", conveyors[1]);
 	addFileToConveyor("picture", conveyors[0]);
+	addFileToConveyor("picture", conveyors[2]);
+	addFileToConveyor("picture", conveyors[3]);
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function(){
 		addFileToConveyor("picture", conveyors[0]);
 		this.reset();
