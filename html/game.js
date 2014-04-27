@@ -9,18 +9,15 @@ var manifest = {
 	"fonts": {
 	},
 	"animations": {
+		"player-down": {
+			"strip": "img/player-down.png",
+			"frames": 4,
+			"msPerFrame": 100
+		}
 	}
 };
 
 var game = new Splat.Game(canvas, manifest);
-
-var player = new Splat.Entity(100, 100, 50, 50);
-player.draw = function(context) {
-	context.fillStyle = "#ff0000";
-	context.fillRect(this.x, this.y, this.width, this.height);
-};
-player.frictionX = 0.5;
-player.frictionY = 0.5;
 
 var lastClick = [];
 //variable that tells whether the player will move toward the last selected point 
@@ -284,6 +281,10 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
+	this.player = new Splat.AnimatedEntity(100, 100, 50, 50, game.animations.get("player-down"), 0, 0);
+	this.player.frictionX = 0.5;
+	this.player.frictionY = 0.5;
+
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 		var file = getNextFile();
 		if(!addFileToConveyor(file, conveyors[0], true)){
@@ -315,35 +316,36 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	var playerSpeed = 0.7;
 	if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
 		moveByClick = false;
-		player.vx = -playerSpeed;
+		this.player.vx = -playerSpeed;
 	}
 	if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
 		moveByClick = false;
-		player.vx = playerSpeed;
+		this.player.vx = playerSpeed;
 	}
 	if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
 		moveByClick = false;
-		player.vy = -playerSpeed;
+		this.player.vy = -playerSpeed;
 	}
 	if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
 		moveByClick = false;
-		player.vy = playerSpeed;
+		this.player.vy = playerSpeed;
 	}
 
 	if (moveByClick) {
-		createMovementLine(player, lastClickX(), lastClickY(), playerSpeed);
+		createMovementLine(this.player, lastClickX(), lastClickY(), playerSpeed);
 	}
 
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].move(elapsedMillis);
 	}
 
-	player.move(elapsedMillis);
+	this.player.move(elapsedMillis);
 
 	// Pick up files
 	for (var i = 0; i < conveyors.length; i++) {
-		collidesWithAny(player, conveyors[i].files, function(other) {
-			if (player.file) {
+		var me = this.player;
+		collidesWithAny(this.player, conveyors[i].files, function(other) {
+			if (me.file) {
 				return;
 			}
 
@@ -352,48 +354,50 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			}
 			var pos = conveyors[i].files.indexOf(other);
 			conveyors[i].files.splice(pos, 1);
-			player.file = other;
+			me.file = other;
 		});
 	}
 
+	var me = this.player;
+
 	// Drop off files
-	if (player.file) {
-		collidesWithAny(player, conveyors, function(other) {
-			if(canDropOff(player, other) && addFileToConveyor(player.file, other)) {
-				player.file = undefined;
+	if (this.player.file) {
+		collidesWithAny(this.player, conveyors, function(other) {
+			if (canDropOff(me, other) && addFileToConveyor(me.file, other)) {
+				me.file = undefined;
 			}
 		});
 	}
 
-	if (player.file) {
-		collidesWithAny(player, conveyors[4].files, function(other) {
-			if (player.file && player.file.type === other.type && !other.filled) {
-				player.file = undefined;
+	if (this.player.file) {
+		collidesWithAny(this.player, conveyors[4].files, function(other) {
+			if (me.file && me.file.type === other.type && !other.filled) {
+				me.file = undefined;
 				other.filled = true;
 			}
 		});
 	}
 
 	// Shredder
-	if (player.file
-		&& player.collides(shredder)
-		&& player.file.type.indexOf("-bad") > 0){
-			player.file = undefined;
+	if (this.player.file
+		&& this.player.collides(shredder)
+		&& this.player.file.type.indexOf("-bad") > 0){
+			this.player.file = undefined;
 	}
 
 	// player holding file
-	if (player.file){
-		player.file.x = player.x + player.width/2;
-		player.file.y = player.y + player.height/2;
+	if (this.player.file) {
+		this.player.file.x = this.player.x + this.player.width/2;
+		this.player.file.y = this.player.y + this.player.height/2;
 	}
 
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
 	shredder.draw(context);
-	player.draw(context);
-	if (player.file) {
-		player.file.draw(context);
+	this.player.draw(context);
+	if (this.player.file) {
+		this.player.file.draw(context);
 	}
 
 	for (var i=0; i < conveyors.length; i++) {
