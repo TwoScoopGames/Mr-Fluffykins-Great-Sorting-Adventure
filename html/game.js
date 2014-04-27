@@ -514,7 +514,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.setSpriteOffsetY = -85;
 	this.playerWalk.add("right", anim);
 
-	this.playerWalk.current = "down";
+	this.playerWalk.current = "left";
 
 	this.playerCarry = new AnimationGroup();
 
@@ -554,7 +554,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
 	this.playerCarry.add("right", anim);
 
-	this.player = new Splat.AnimatedEntity(150, 250, 65, 20, this.playerWalk, -10, -85);
+	this.player = new Splat.AnimatedEntity(110, 250, 65, 20, this.playerWalk, -10, -85);
 	this.player.frictionX = 0.5;
 	this.player.frictionY = 0.5;
 	var oldPlayerDraw = this.player.draw;
@@ -594,6 +594,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.start();
 	});
 	this.timers.fileSpawner.start();
+	// add first file right away
+	addFileToConveyor(getNextFile(), conveyors[0], true);
 
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
 		var tote = getNextTote();
