@@ -414,6 +414,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.setHeight = 20;
 	anim.setSpriteOffsetX = -10;
 	anim.setSpriteOffsetY = -85;
+	anim.carryOffsetX = 0;
+	anim.carryOffsetY = 0;
 	this.playerCarry.add("up", anim);
 
 	anim = game.animations.get("player-down-carry");
@@ -421,6 +423,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.setHeight = 20;
 	anim.setSpriteOffsetX = -10;
 	anim.setSpriteOffsetY = -85;
+	anim.carryOffsetX = 21 + anim.setSpriteOffsetX;
+	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
 	this.playerCarry.add("down", anim);
 
 	anim = game.animations.get("player-left-carry");
@@ -428,6 +432,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.setHeight = 20;
 	anim.setSpriteOffsetX = 0;
 	anim.setSpriteOffsetY = -85;
+	anim.carryOffsetX = -fileWidth + anim.setSpriteOffsetX;
+	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
 	this.playerCarry.add("left", anim);
 
 	anim = game.animations.get("player-right-carry");
@@ -435,6 +441,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.setHeight = 20;
 	anim.setSpriteOffsetX = -20;
 	anim.setSpriteOffsetY = -85;
+	anim.carryOffsetX = anim.width + anim.setSpriteOffsetX;
+	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
 	this.playerCarry.add("right", anim);
 
 	this.player = new Splat.AnimatedEntity(100, 100, 65, 20, this.playerWalk, -10, -85);
@@ -490,7 +498,6 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	if (moveByClick) {
 		createMovementLine(this.player, lastClickX(), lastClickY(), playerSpeed);
 	}
-
 
 	var animationTolerance = 0.1;
 	if (this.player.vy < -animationTolerance) {
@@ -572,15 +579,15 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	// player holding file
 	if (this.player.file) {
-		this.player.file.x = this.player.x + this.player.width / 2;
-		this.player.file.y = this.player.y + this.player.height / 2;
+		this.player.file.x = this.player.x + this.player.sprite.getCurrent().carryOffsetX;
+		this.player.file.y = this.player.y + this.player.sprite.getCurrent().carryOffsetY;
 	}
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
 	shredder.draw(context);
 	this.player.draw(context);
-	if (this.player.file) {
+	if (this.player.file && this.player.sprite.current !== "up") {
 		this.player.file.draw(context);
 	}
 
