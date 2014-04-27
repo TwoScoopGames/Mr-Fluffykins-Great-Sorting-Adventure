@@ -18,7 +18,8 @@ var manifest = {
 		"placeFileOnConveyor": "sound/placeFile.wav",
 		"shred": "sound/shred.wav",
 		"processFile": "sound/processFile.wav",
-		"placeFileOut": "sound/placeFileOut.wav"
+		"placeFileOut": "sound/placeFileOut.wav",
+		"step1": "sound/step1.wav"
 	},
 	"fonts": {
 	},
@@ -499,6 +500,13 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.start();
 	});
 	this.timers.toteSpawner.start();
+
+	this.timers.playStep = new Splat.Timer(undefined, 100, function() {
+		game.sounds.play("step1");
+		this.reset();
+		this.start();
+	});
+
 }, function(elapsedMillis) {
 	// simulation
 
@@ -553,6 +561,10 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	if (Math.abs(this.player.vx) < animationTolerance && Math.abs(this.player.vy) < animationTolerance) {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
+		this.timers.playStep.stop();
+	}
+	else {
+		this.timers.playStep.start();
 	}
 	this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
 
