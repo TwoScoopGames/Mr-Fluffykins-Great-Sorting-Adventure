@@ -285,7 +285,10 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
-		addFileToConveyor(getNextFile(), conveyors[0], true);
+		var file = getNextFile();
+		if(!addFileToConveyor(file, conveyors[0], true)){
+			batchedFiles.push(file);
+		}
 		this.reset();
 		this.start();
 	});
@@ -294,7 +297,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
 		var tote = getNextTote();
 		if(tote){
-			addFileToConveyor(tote, conveyors[4], true);
+			if(!addFileToConveyor(tote, conveyors[4], true)){
+				batchedTotes.push(tote);
+			}
 		}
 		this.reset();
 		this.start();
