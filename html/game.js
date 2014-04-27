@@ -432,6 +432,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.setSpriteOffsetY = -85;
 	this.playerWalk.add("right", anim);
 
+	this.playerWalk.current = "down";
+
 	this.playerCarry = new AnimationGroup();
 
 	anim = game.animations.get("player-up-carry");
@@ -470,7 +472,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
 	this.playerCarry.add("right", anim);
 
-	this.player = new Splat.AnimatedEntity(100, 100, 65, 20, this.playerWalk, -10, -85);
+	this.player = new Splat.AnimatedEntity(150, 250, 65, 20, this.playerWalk, -10, -85);
 	this.player.frictionX = 0.5;
 	this.player.frictionY = 0.5;
 
