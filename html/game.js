@@ -202,12 +202,14 @@ function generateBatch() {
 }
 
 var floorObstacles = [
-	new Splat.Entity(0, 0, 108, canvas.height), //left conveyor
-	new Splat.Entity(canvas.width - 108, 0, 108, canvas.height), //right conveyor
+	new Splat.Entity(0, -100, 108, canvas.height + 200), //left conveyor
+	new Splat.Entity(canvas.width - 108, -100, 108, canvas.height + 200), //right conveyor
 	new Splat.Entity(243,108,639,60), //top machine
 	new Splat.Entity(243,324,639,60), //middle machine
 	new Splat.Entity(243, 540, 417, 60), //bottom machine
-	new Splat.Entity(774, 540, 108, 60) // shredder
+	new Splat.Entity(774, 540, 108, 60), // shredder
+	new Splat.Entity(-100, 0, (canvas.width + 200), 60), // top border
+	new Splat.Entity(-100, canvas.height, (canvas.width + 200), 60) // bottom border
 ];
 
 
