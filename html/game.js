@@ -408,10 +408,34 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.playerWalk.add("right", anim);
 
 	this.playerCarry = new AnimationGroup();
-	this.playerCarry.add("up", game.animations.get("player-up-carry"));
-	this.playerCarry.add("down", game.animations.get("player-down-carry"));
-	this.playerCarry.add("left", game.animations.get("player-left-carry"));
-	this.playerCarry.add("right", game.animations.get("player-right-carry"));
+
+	anim = game.animations.get("player-up-carry");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = -10;
+	anim.setSpriteOffsetY = -85;
+	this.playerCarry.add("up", anim);
+
+	anim = game.animations.get("player-down-carry");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = -10;
+	anim.setSpriteOffsetY = -85;
+	this.playerCarry.add("down", anim);
+
+	anim = game.animations.get("player-left-carry");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = 0;
+	anim.setSpriteOffsetY = -85;
+	this.playerCarry.add("left", anim);
+
+	anim = game.animations.get("player-right-carry");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = -20;
+	anim.setSpriteOffsetY = -85;
+	this.playerCarry.add("right", anim);
 
 	this.player = new Splat.AnimatedEntity(100, 100, 65, 20, this.playerWalk, -10, -85);
 	this.player.frictionX = 0.5;
@@ -494,6 +518,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
 	}
+	this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
 
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].move(elapsedMillis);
