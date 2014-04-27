@@ -5,10 +5,10 @@ var manifest = {
 		"bg": "img/bg.png",
 		"email": "img/mail.png",
 		"email-good": "img/mail-good.png",
-		"email-bad": "img/mail-good.png",
+		"email-bad": "img/mail-bad.png",
 		"picture": "img/photo.png",
 		"picture-good": "img/photo-good.png",
-		"picture-bad": "img/photo-good.png",
+		"picture-bad": "img/photo-bad.png",
 		"video": "img/video.png",
 		"video-good": "img/video-good.png",
 		"video-bad": "img/video-good.png",
@@ -17,7 +17,13 @@ var manifest = {
 		"machine-video": "img/machine-video.png",
 		"machine-only-mail": "img/machine-only-mail.png",
 		"machine-only-photo": "img/machine-only-photo.png",
-		"machine-only-video": "img/machine-only-video.png"
+		"machine-only-video": "img/machine-only-video.png",
+		"tote-email-good": "img/tote-mail.png",
+		"tote-email-good-full": "img/tote-mail-full.png",
+		"tote-video-good": "img/tote-video.png",
+		"tote-video-good-full": "img/tote-video-full.png",
+		"tote-picture-good": "img/tote-photo.png",
+		"tote-picture-good-full": "img/tote-photo-full.png",
 	},
 	"sounds": {
 		"pickUpFile": "sound/pickUpFile.wav",
@@ -344,7 +350,8 @@ function drawEntities(context, entities) {
 var files = [];
 var fileWidth = 45;
 var fileHeight = 39;
-
+var toteWidth = 63;
+var toteHeight = 60;
 var fileTypes = ["picture", "video", "email"];
 var fileColors = {
 	"picture": "#ff00ff",
@@ -370,14 +377,12 @@ function createFile(type) {
 }
 
 function createTote(type) {
-	var tote = new Splat.Entity(0, 0, fileWidth, fileHeight);
+	var tote = new Splat.Entity(0, 0, toteWidth, toteHeight);
 	tote.draw = function(context) {
 		if (this.filled) {
-			context.fillStyle = fileColors[type];
-			context.fillRect(this.x|0, this.y|0, this.width, this.height);
+			context.drawImage(game.images.get('tote-'+this.type+'-full'), this.x|0, this.y|0);
 		} else {
-			context.strokeStyle = fileColors[type];
-			context.strokeRect(this.x|0, this.y|0, this.width, this.height);
+			context.drawImage(game.images.get('tote-'+this.type), this.x|0, this.y|0);
 		}
 	};
 	tote.type = type;
@@ -391,9 +396,9 @@ function addFileToConveyor(file, conveyor, ignoreType) {
 	var x = conveyor.x;
 	var y = conveyor.y;
 	if (conveyor.horizontal) {
-		y += (conveyor.height - fileHeight) / 2;
+		y += (conveyor.height - file.height) / 2;
 	} else {
-		x += (conveyor.width - fileWidth) / 2;
+		x += (conveyor.width - file.width) / 2;
 	}
 	file.x = x;
 	file.y = y;
@@ -425,7 +430,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(243, 93, 639, 39, true, "picture", 54, 369);
 	makeConveyor(243, 309, 639, 39, true, "video", 102, 276);
 	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
-	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
+	makeConveyor(canvas.width - 108, 0, 108, canvas.height, false, "out", canvas.height, canvas.height);
 
 	this.playerWalk = new AnimationGroup();
 
