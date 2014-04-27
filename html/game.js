@@ -15,6 +15,8 @@ var manifest = {
 		"tote-video-good-full": "img/tote-video-full.png",
 		"tote-picture-good": "img/tote-photo.png",
 		"tote-picture-good-full": "img/tote-photo-full.png",
+		"tube-top-right": "img/tube-top-right.png",
+		"tube-top-left": "img/tube-top-left.png",
 	},
 	"sounds": {
 		"pickUpFile": "sound/pickUpFile.wav",
@@ -574,6 +576,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	var conveyorPicture = game.animations.get("conveyor-picture");
 	var conveyorVideo = game.animations.get("conveyor-video");
 	var conveyorEmail = game.animations.get("conveyor-email");
+	var tubeTopRight = game.images.get("tube-top-right");
+	var tubeTopLeft = game.images.get("tube-top-left");
 	this.drawables = [
 		new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
 		new Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
@@ -582,7 +586,10 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
 		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
 		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
+		new Splat.AnimatedEntity(0, 0, tubeTopLeft.width, 2*tubeTopLeft.height, tubeTopLeft, 0, 0),
+		new Splat.AnimatedEntity(canvas.width - tubeTopRight.width, 0, tubeTopRight.width, 2*tubeTopRight.height, tubeTopRight, 0, 0),
 		this.player
+
 	];
 
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
