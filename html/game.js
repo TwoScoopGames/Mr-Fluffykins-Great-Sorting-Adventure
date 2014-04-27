@@ -9,8 +9,43 @@ var manifest = {
 	"fonts": {
 	},
 	"animations": {
+		"player-up": {
+			"strip": "img/player-up.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
 		"player-down": {
 			"strip": "img/player-down.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-left": {
+			"strip": "img/player-left.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-right": {
+			"strip": "img/player-right.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-up-carry": {
+			"strip": "img/player-up-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-down-carry": {
+			"strip": "img/player-down-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-left-carry": {
+			"strip": "img/player-left-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-right-carry": {
+			"strip": "img/player-right-carry.png",
 			"frames": 4,
 			"msPerFrame": 100
 		}
@@ -18,6 +53,34 @@ var manifest = {
 };
 
 var game = new Splat.Game(canvas, manifest);
+
+function AnimationGroup() {
+	this.animations = {};
+}
+AnimationGroup.prototype.add = function(name, animation) {
+	this.animations[name] = animation;
+	this.current = name;
+};
+AnimationGroup.prototype.each = function(callback) {
+	for (var key in this.animations) {
+		if (this.animations.hasOwnProperty(key)) {
+			callback(this.animations[key]);
+		}
+	}
+};
+AnimationGroup.prototype.move = function(elapsedMillis) {
+	this.each(function(animation) {
+		animation.move(elapsedMillis);
+	});
+};
+AnimationGroup.prototype.reset = function() {
+	this.each(function(animation) {
+		animation.reset();
+	});
+};
+AnimationGroup.prototype.draw = function(context, x, y) {
+	this.animations[this.current].draw(context, x, y);
+}
 
 var lastClick = [];
 //variable that tells whether the player will move toward the last selected point 
@@ -311,7 +374,19 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
-	this.player = new Splat.AnimatedEntity(100, 100, 65, 20, game.animations.get("player-down"), -10, -85);
+	this.playerWalk = new AnimationGroup();
+	this.playerWalk.add("up", game.animations.get("player-up"));
+	this.playerWalk.add("down", game.animations.get("player-down"));
+	this.playerWalk.add("left", game.animations.get("player-left"));
+	this.playerWalk.add("right", game.animations.get("player-right"));
+
+	this.playerCarry = new AnimationGroup();
+	this.playerCarry.add("up", game.animations.get("player-up-carry"));
+	this.playerCarry.add("down", game.animations.get("player-down-carry"));
+	this.playerCarry.add("left", game.animations.get("player-left-carry"));
+	this.playerCarry.add("right", game.animations.get("player-right-carry"));
+
+	this.player = new Splat.AnimatedEntity(100, 100, 65, 20, this.playerWalk, -10, -85);
 	this.player.frictionX = 0.5;
 	this.player.frictionY = 0.5;
 
@@ -363,6 +438,29 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	if (moveByClick) {
 		createMovementLine(this.player, lastClickX(), lastClickY(), playerSpeed);
+	}
+
+
+	var animationTolerance = 0.1;
+	if (this.player.vy < -animationTolerance) {
+		this.playerWalk.current = "up";
+		this.playerCarry.current = "up";
+	}
+	if (this.player.vx < -animationTolerance) {
+		this.playerWalk.current = "left";
+		this.playerCarry.current = "left";
+	}
+	if (this.player.vx > animationTolerance) {
+		this.playerWalk.current = "right";
+		this.playerCarry.current = "right";
+	}
+	if (this.player.vy > animationTolerance) {
+		this.playerWalk.current = "down";
+		this.playerCarry.current = "down";
+	}
+	if (Math.abs(this.player.vx) < animationTolerance && Math.abs(this.player.vy) < animationTolerance) {
+		this.playerWalk.reset();
+		this.playerCarry.reset();
 	}
 
 	for (var i = 0; i < conveyors.length; i++) {
