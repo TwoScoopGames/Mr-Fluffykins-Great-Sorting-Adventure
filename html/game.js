@@ -16,7 +16,9 @@ var manifest = {
 	"sounds": {
 		"pickUpFile": "sound/pickUpFile.wav",
 		"placeFileOnConveyor": "sound/placeFile.wav",
-		"shred": "sound/shred.wav"
+		"shred": "sound/shred.wav",
+		"processFile": "sound/processFile.wav",
+		"placeFileOut": "sound/placeFileOut.wav"
 	},
 	"fonts": {
 	},
@@ -251,6 +253,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 			if (file.lastX < this.x + this.dropOffWidth &&
 			file.x >= this.x + this.dropOffWidth){
 				file.type += file.bad ? "-bad" : "-good";
+				game.sounds.play("processFile");
 			}
 		}
 	}
@@ -594,6 +597,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			if (me.file && me.file.type === other.type && !other.filled) {
 				me.file = undefined;
 				other.filled = true;
+				game.sounds.play("placeFileOut");
 			}
 		});
 	}
