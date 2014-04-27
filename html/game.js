@@ -500,6 +500,14 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.player = new Splat.AnimatedEntity(150, 250, 65, 20, this.playerWalk, -10, -85);
 	this.player.frictionX = 0.5;
 	this.player.frictionY = 0.5;
+	var oldPlayerDraw = this.player.draw;
+
+	this.player.draw = function(context){
+		oldPlayerDraw.call(this,context);
+		if (this.file && this.sprite.current !== "up"){
+			this.file.draw(context);
+		}
+	}
 
 	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
 
@@ -706,9 +714,6 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	var drawables = this.drawables.slice(0);
 	drawables = drawables.concat(conveyors);
-	if (this.player.file && this.player.sprite.current !== "up"){
-		drawables.push(this.player.file);
-	}
 	drawEntities(context, drawables);
 
 	context.font= "50px mono";
