@@ -250,8 +250,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				this.files.splice(i, 1);
 				i--;
 			}
-			if (file.lastX < this.x + this.dropOffWidth &&
-			file.x >= this.x + this.dropOffWidth){
+			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth){
 				file.type += file.bad ? "-bad" : "-good";
 				game.sounds.play("processFile");
 			}
@@ -477,6 +476,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.player.frictionX = 0.5;
 	this.player.frictionY = 0.5;
 
+	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
+
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 		var file = getNextFile();
 		if (!addFileToConveyor(file, conveyors[0], true)) {
@@ -561,15 +562,41 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	validateAndMove(this.player, elapsedMillis, floorObstacles);
 
+	var dir = this.player.sprite.current;
+	if (dir === "up") {
+		this.playerHands.width = 14;
+		this.playerHands.height = 70;
+		this.playerHands.x = this.player.x + (this.player.width / 2) - 7;
+		this.playerHands.y = this.player.y - this.playerHands.height - 13;
+	}
+	if (dir === "down") {
+		this.playerHands.width = 14;
+		this.playerHands.height = 70;
+		this.playerHands.x = this.player.x + (this.player.width / 2) - 7;
+		this.playerHands.y = this.player.y - 13;
+	}
+	if (dir === "left") {
+		this.playerHands.width = 70;
+		this.playerHands.height = 14;
+		this.playerHands.x = this.player.x - this.playerHands.width + 30;
+		this.playerHands.y = this.player.y - 13;
+	}
+	if (dir === "right") {
+		this.playerHands.width = 70;
+		this.playerHands.height = 14;
+		this.playerHands.x = this.player.x + this.player.width - 30;
+		this.playerHands.y = this.player.y - 13;
+	}
+
 	// Pick up files
 	for (var i = 0; i < conveyors.length; i++) {
 		var me = this.player;
-		collidesWithAny(this.player, conveyors[i].files, function(other) {
+		collidesWithAny(this.playerHands, conveyors[i].files, function(other) {
 			if (me.file) {
 				return;
 			}
 
-			if(!canPickupFile(other, conveyors[i])) {
+			if (!canPickupFile(other, conveyors[i])) {
 				return;
 			}
 			var pos = conveyors[i].files.indexOf(other);
@@ -583,7 +610,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	// Drop off files
 	if (this.player.file) {
-		collidesWithAny(this.player, conveyors, function(other) {
+		collidesWithAny(this.playerHands, conveyors, function(other) {
 			if (canDropOff(me, other) && addFileToConveyor(me.file, other)) {
 				me.file = undefined;
 				game.sounds.play("placeFileOnConveyor");
@@ -593,7 +620,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	// Out Conveyor
 	if (this.player.file) {
-		collidesWithAny(this.player, conveyors[4].files, function(other) {
+		collidesWithAny(this.playerHands, conveyors[4].files, function(other) {
 			if (me.file && me.file.type === other.type && !other.filled) {
 				me.file = undefined;
 				other.filled = true;
@@ -604,7 +631,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	// Shredder
 	if (this.player.file
-		&& this.player.collides(shredder)
+		&& this.playerHands.collides(shredder)
 		&& this.player.file.type.indexOf("-bad") > 0) {
 			this.player.file = undefined;
 			game.sounds.play("shred");
