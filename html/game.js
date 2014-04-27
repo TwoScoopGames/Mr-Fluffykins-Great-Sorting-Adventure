@@ -35,6 +35,32 @@ shredder.draw = function(context) {
 	context.fillRect(this.x, this.y, this.width, this.height);
 };
 
+var batchedFiles = [];
+var batchedTotes = [];
+
+function generateBatch(){
+	for (var i = 0; i < 3; i++ ){
+		var type = randomElement(fileTypes);
+		batchedFiles.push(createFile(type));
+		batchedTotes.push(createTote(type+"-good"));
+	}
+	var type = randomElement(fileTypes);
+	var file = createFile(type);
+	file.bad = true;
+	batchedFiles.push(file);
+}
+
+function getNextFile(){
+	if (batchedFiles.length === 0){
+		generateBatch();
+	}
+	return removeRandomElement(batchedFiles);
+}
+
+function getNextTote(){
+	return removeRandomElement(batchedTotes);
+}
+
 function canPickupFile(file, conveyor) {
 	if (conveyor.horizontal) {
 		return file.x >= conveyor.x + conveyor.dropOffWidth + conveyor.enclosedWidth;
@@ -124,7 +150,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 			}
 			if (file.lastX < this.x + this.dropOffWidth &&
 			file.x >= this.x + this.dropOffWidth){
-				file.type += randomElement(["-good", "-bad"]);
+				file.type += file.bad ? "-bad" : "-good";
 			}
 		}
 	}
@@ -245,6 +271,11 @@ function randomElement(array) {
 	return array[pos];
 }
 
+function removeRandomElement(array){
+	var pos = Math.random() * array.length |0;
+	return array.splice(pos,1)[0];
+}
+
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
@@ -254,16 +285,17 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
-		var file = createFile(randomElement(fileTypes));
-		addFileToConveyor(file, conveyors[0], true);
+		addFileToConveyor(getNextFile(), conveyors[0], true);
 		this.reset();
 		this.start();
 	});
 	this.timers.fileSpawner.start();
 
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
-		var tote = createTote(randomElement(fileTypes)+'-good');
-		addFileToConveyor(tote, conveyors[4], true);
+		var tote = getNextTote();
+		if(tote){
+			addFileToConveyor(tote, conveyors[4], true);
+		}
 		this.reset();
 		this.start();
 	});
