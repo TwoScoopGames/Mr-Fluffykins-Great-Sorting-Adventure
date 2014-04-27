@@ -2,5 +2,5 @@
 .SyncArchive
 .SyncID
 .SyncIgnore
-npm_debug.log
+npm-debug.log
 node_modules
