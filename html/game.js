@@ -19,7 +19,8 @@ var manifest = {
 		"shred": "sound/shred.wav",
 		"processFile": "sound/processFile.wav",
 		"placeFileOut": "sound/placeFileOut.wav",
-		"step1": "sound/step1.wav"
+		"step1": "sound/step1.wav",
+		"step2": "sound/step2.wav"
 	},
 	"fonts": {
 	},
@@ -109,6 +110,8 @@ AnimationGroup.prototype.draw = function(context, x, y) {
 AnimationGroup.prototype.getCurrent = function() {
 	return this.animations[this.current];
 };
+
+var stepSounds = ["step1", "step2"];
 
 var lastClick = [];
 //variable that tells whether the player will move toward the last selected point 
@@ -502,7 +505,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.toteSpawner.start();
 
 	this.timers.playStep = new Splat.Timer(undefined, 100, function() {
-		game.sounds.play("step1");
+		game.sounds.play(randomElement(stepSounds));
 		this.reset();
 		this.start();
 	});
