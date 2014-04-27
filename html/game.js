@@ -80,7 +80,10 @@ AnimationGroup.prototype.reset = function() {
 };
 AnimationGroup.prototype.draw = function(context, x, y) {
 	this.animations[this.current].draw(context, x, y);
-}
+};
+AnimationGroup.prototype.getCurrent = function() {
+	return this.animations[this.current];
+};
 
 var lastClick = [];
 //variable that tells whether the player will move toward the last selected point 
@@ -375,10 +378,34 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
 	this.playerWalk = new AnimationGroup();
-	this.playerWalk.add("up", game.animations.get("player-up"));
-	this.playerWalk.add("down", game.animations.get("player-down"));
-	this.playerWalk.add("left", game.animations.get("player-left"));
-	this.playerWalk.add("right", game.animations.get("player-right"));
+
+	var anim = game.animations.get("player-up");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = -10;
+	anim.setSpriteOffsetY = -85;
+	this.playerWalk.add("up", anim);
+
+	anim = game.animations.get("player-down");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = -10;
+	anim.setSpriteOffsetY = -85;
+	this.playerWalk.add("down", anim);
+
+	anim = game.animations.get("player-left");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = 0;
+	anim.setSpriteOffsetY = -85;
+	this.playerWalk.add("left", anim);
+
+	anim = game.animations.get("player-right");
+	anim.setWidth = 65;
+	anim.setHeight = 20;
+	anim.setSpriteOffsetX = -20;
+	anim.setSpriteOffsetY = -85;
+	this.playerWalk.add("right", anim);
 
 	this.playerCarry = new AnimationGroup();
 	this.playerCarry.add("up", game.animations.get("player-up-carry"));
@@ -458,6 +485,11 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.playerWalk.current = "down";
 		this.playerCarry.current = "down";
 	}
+	var currAnim = this.player.sprite.getCurrent();
+	this.player.width = currAnim.setWidth;
+	this.player.height = currAnim.setHeight;
+	this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
+	this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
 	if (Math.abs(this.player.vx) < animationTolerance && Math.abs(this.player.vy) < animationTolerance) {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
