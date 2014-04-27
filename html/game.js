@@ -2,7 +2,16 @@ var canvas = document.getElementById("canvas");
 
 var manifest = {
 	"images": {
-		"bg": "img/bg.png"
+		"bg": "img/bg.png",
+		"email": "img/mail.png",
+		"email-good": "img/mail-good.png",
+		"email-bad": "img/mail-good.png",
+		"picture": "img/photo.png",
+		"picture-good": "img/photo-good.png",
+		"picture-bad": "img/photo-good.png",
+		"video": "img/video.png",
+		"video-good": "img/video-good.png",
+		"video-bad": "img/video-good.png",
 	},
 	"sounds": {
 	},
@@ -326,8 +335,7 @@ var fileColors = {
 function createFile(type) {
 	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
 	file.draw = function(context) {
-		context.fillStyle = fileColors[this.type];
-		context.fillRect(this.x|0, this.y|0, this.width, this.height);
+		context.drawImage(game.images.get(this.type), this.x, this.y);
 	};
 	file.type = type;
 	return file;
@@ -386,8 +394,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
-	makeConveyor(243, 93, 639, 39, true, "video", 54, 369);
-	makeConveyor(243, 309, 639, 39, true, "picture", 102, 276);
+	makeConveyor(243, 93, 639, 39, true, "picture", 54, 369);
+	makeConveyor(243, 309, 639, 39, true, "video", 102, 276);
 	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
