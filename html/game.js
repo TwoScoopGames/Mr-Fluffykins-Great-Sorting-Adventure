@@ -14,6 +14,9 @@ var manifest = {
 		"video-bad": "img/video-good.png",
 	},
 	"sounds": {
+		"pickUpFile": "sound/pickUpFile.wav",
+		"placeFileOnConveyor": "sound/placeFile.wav",
+		"shred": "sound/shred.wav"
 	},
 	"fonts": {
 	},
@@ -569,6 +572,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			var pos = conveyors[i].files.indexOf(other);
 			conveyors[i].files.splice(pos, 1);
 			me.file = other;
+			game.sounds.play("pickUpFile");
 		});
 	}
 
@@ -579,10 +583,12 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		collidesWithAny(this.player, conveyors, function(other) {
 			if (canDropOff(me, other) && addFileToConveyor(me.file, other)) {
 				me.file = undefined;
+				game.sounds.play("placeFileOnConveyor");
 			}
 		});
 	}
 
+	// Out Conveyor
 	if (this.player.file) {
 		collidesWithAny(this.player, conveyors[4].files, function(other) {
 			if (me.file && me.file.type === other.type && !other.filled) {
@@ -597,6 +603,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		&& this.player.collides(shredder)
 		&& this.player.file.type.indexOf("-bad") > 0) {
 			this.player.file = undefined;
+			game.sounds.play("shred");
 	}
 
 	// player holding file
