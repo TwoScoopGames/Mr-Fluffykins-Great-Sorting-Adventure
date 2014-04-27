@@ -443,10 +443,12 @@ function createTote(type) {
 	return tote;
 }
 
-function addFileToConveyor(file, conveyor, ignoreType) {
+function canAddFileToConveyor(file, conveyor, ignoreType) {
 	if (!ignoreType && file.type != conveyor.type) {
 		return false;
 	}
+	var oldX = file.x;
+	var oldY = file.y;
 	var x = conveyor.x;
 	var y = conveyor.y;
 	if (conveyor.horizontal) {
@@ -457,9 +459,19 @@ function addFileToConveyor(file, conveyor, ignoreType) {
 	file.x = x;
 	file.y = y;
 
-	if (collidesWithAny(file, conveyor.files)) {
+	var success = !collidesWithAny(file, conveyor.files);
+	file.x = oldX;
+	file.y = oldY;
+	return success ? [x, y] : false;
+}
+
+function addFileToConveyor(file, conveyor, ignoreType) {
+	var coords = canAddFileToConveyor(file, conveyor, ignoreType);
+	if (!coords) {
 		return false;
 	}
+	file.x = coords[0];
+	file.y = coords[1];
 
 	conveyor.files.push(file);
 	return true;
@@ -725,6 +737,30 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			if (!canPickupFile(other, conveyors[i])) {
 				return;
 			}
+
+			var canPutOnMachine = false;
+			for (var j = 0; j < conveyors.length; j++) {
+				canPutOnMachine = canAddFileToConveyor(other, conveyors[j], false);
+				if (canPutOnMachine) {
+					break;
+				}
+			}
+			if (!canPutOnMachine) {
+				for (var f = 0; f < conveyors[4].files.length; f++) {
+					if (other.type === conveyors[4].files[f].type && !conveyors[4].files[f].filled) {
+						canPutOnMachine = true;
+						break;
+					}
+				}
+			}
+			if (!canPutOnMachine) {
+				canPutOnMachine = other.type.indexOf("-bad") > 0;
+			}
+			if (!canPutOnMachine) {
+				return;
+			}
+
+
 			var pos = conveyors[i].files.indexOf(other);
 			conveyors[i].files.splice(pos, 1);
 			me.file = other;
