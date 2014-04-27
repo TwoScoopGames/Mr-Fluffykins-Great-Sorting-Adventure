@@ -80,6 +80,8 @@ var manifest = {
 
 var game = new Splat.Game(canvas, manifest);
 
+var score = 0;
+
 function AnimationGroup() {
 	this.animations = {};
 }
@@ -251,6 +253,8 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 			if (file.y > canvas.height) {
 				this.files.splice(i, 1);
 				i--;
+				score += 10;
+				console.log(score);
 			}
 			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth){
 				file.type += file.bad ? "-bad" : "-good";
@@ -678,6 +682,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	for (var i=0; i < conveyors.length; i++) {
 		conveyors[i].draw(context);
 	}
+	context.font= "50px mono";
+	context.fillStyle = "#ffffff";
+	context.fillText(score, 950, 50);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
