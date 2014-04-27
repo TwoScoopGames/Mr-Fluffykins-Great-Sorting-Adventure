@@ -29,6 +29,12 @@ var moveByClick = false;
 
 var conveyors = [];
 
+var shredder = new Splat.Entity(800, 500, 150, 100);
+shredder.draw = function(context) {
+	context.fillStyle = "#665866";
+	context.fillRect(this.x, this.y, this.width, this.height);
+};
+
 function canPickupFile(file, conveyor) {
 	if (conveyor.horizontal) {
 		return file.x >= conveyor.x + conveyor.dropOffWidth + conveyor.enclosedWidth;
@@ -116,6 +122,10 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				this.files.splice(i, 1);
 				i--;
 			}
+			if (file.lastX < this.x + this.dropOffWidth &&
+			file.x >= this.x + this.dropOffWidth){
+				file.type += randomElement(["-good", "-bad"]);
+			}
 		}
 	}
 	conveyor.horizontal = horizontal;
@@ -123,7 +133,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 	conveyor.files = [];
 	conveyor.dropOffWidth = dropOffWidth;
 	conveyor.enclosedWidth = enclosedWidth;
-	
+
 	conveyors.push(conveyor);
 }
 
@@ -173,6 +183,12 @@ var fileColors = {
 	"picture": "#ff00ff",
 	"video": "#00ff00",
 	"email": "#0000ff",
+	"picture-bad": "#ff0066",
+	"video-bad": "#006600",
+	"email-bad": "#000066",
+	"picture-good": "#ff00ff",
+	"video-good": "#00ff00",
+	"email-good": "#0000ff",
 	"in": "#ffffff",
 	"out": "#ffffff"
 };
@@ -180,7 +196,7 @@ var fileColors = {
 function createFileOnConveyor(type, conveyor) {
 	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
 	file.draw = function(context) {
-		context.fillStyle = fileColors[type];
+		context.fillStyle = fileColors[this.type];
 		context.fillRect(this.x|0, this.y|0, this.width, this.height);
 	};
 	file.type = type;
@@ -245,7 +261,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.fileSpawner.start();
 
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
-		createToteOnConveyor(randomElement(fileTypes), conveyors[4]);
+		createToteOnConveyor(randomElement(fileTypes)+'-good', conveyors[4]);
 		this.reset();
 		this.start();
 	});
@@ -309,6 +325,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			}
 		});
 	}
+
 	if (player.file) {
 		collidesWithAny(player, conveyors[4].files, function(other) {
 			if (player.file && player.file.type === other.type && !other.filled) {
@@ -317,11 +334,28 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 			}
 		});
 	}
+
+	// Shredder
+	if (player.file
+		&& player.collides(shredder)
+		&& player.file.type.indexOf("-bad") > 0){
+			player.file = undefined;
+	}
+
+	// player holding file
+	if (player.file){
+		player.file.x = player.x + player.width/2;
+		player.file.y = player.y + player.height/2;
+	}
+
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
-
+	shredder.draw(context);
 	player.draw(context);
+	if (player.file) {
+		player.file.draw(context);
+	}
 
 	for (var i=0; i < conveyors.length; i++) {
 		conveyors[i].draw(context);
