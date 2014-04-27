@@ -193,17 +193,17 @@ var fileColors = {
 	"out": "#ffffff"
 };
 
-function createFileOnConveyor(type, conveyor) {
+function createFile(type) {
 	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
 	file.draw = function(context) {
 		context.fillStyle = fileColors[this.type];
 		context.fillRect(this.x|0, this.y|0, this.width, this.height);
 	};
 	file.type = type;
-	return addFileToConveyor(file, conveyor, true);
+	return file;
 }
 
-function createToteOnConveyor(type, conveyor) {
+function createTote(type) {
 	var tote = new Splat.Entity(0, 0, fileWidth, fileHeight);
 	tote.draw = function(context) {
 		if (this.filled) {
@@ -215,7 +215,7 @@ function createToteOnConveyor(type, conveyor) {
 		}
 	};
 	tote.type = type;
-	return addFileToConveyor(tote, conveyor, true);
+	return tote;
 }
 
 function addFileToConveyor(file, conveyor, ignoreType) {
@@ -254,14 +254,16 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
-		createFileOnConveyor(randomElement(fileTypes), conveyors[0]);
+		var file = createFile(randomElement(fileTypes));
+		addFileToConveyor(file, conveyors[0], true);
 		this.reset();
 		this.start();
 	});
 	this.timers.fileSpawner.start();
 
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
-		createToteOnConveyor(randomElement(fileTypes)+'-good', conveyors[4]);
+		var tote = createTote(randomElement(fileTypes)+'-good');
+		addFileToConveyor(tote, conveyors[4], true);
 		this.reset();
 		this.start();
 	});
