@@ -9,6 +9,16 @@ var manifest = {
 	"fonts": {
 	},
 	"animations": {
+		"conveyor-left": {
+			"strip": "img/conveyor-left.png",
+			"frames": 6,
+			"msPerFrame": 100
+		},
+		"conveyor-right": {
+			"strip": "img/conveyor-right.png",
+			"frames": 6,
+			"msPerFrame": 100
+		},
 		"player-up": {
 			"strip": "img/player-up.png",
 			"frames": 4,
@@ -193,6 +203,8 @@ function collidesWithAny(item, otherItems, collisionHandler) {
 	return foundCollision;
 }
 
+var conveyorSpeed = 0.03;
+
 function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclosedWidth) {
 	var conveyor = new Splat.Entity(x, y, width, height);
 	conveyor.draw = function(context){
@@ -206,12 +218,12 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 		for (var i=0; i<this.files.length; i++) {
 			var file= this.files[i];
 			if (this.horizontal) {
-				file.vx = .125;
+				file.vx = conveyorSpeed;
 				file.vy = 0;
 			}
 			else {
 				file.vx = 0;
-				file.vy = .125;
+				file.vy = conveyorSpeed;
 			}
 			file.move(elapsedMillis);
 			if (!isInside(this, file) && (!file.filled)) {
@@ -371,6 +383,8 @@ function removeRandomElement(array) {
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 
+	// derive conveyor speed from conveyor animation speed
+	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
 	makeConveyor(243, 93, 639, 39, true, "video", 54, 369);
 	makeConveyor(243, 309, 639, 39, true, "picture", 102, 276);
@@ -582,9 +596,17 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.player.file.x = this.player.x + this.player.sprite.getCurrent().carryOffsetX;
 		this.player.file.y = this.player.y + this.player.sprite.getCurrent().carryOffsetY;
 	}
+
+	game.animations.get("conveyor-left").move(elapsedMillis);
+	game.animations.get("conveyor-right").move(elapsedMillis);
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
+
+	game.animations.get("conveyor-left").draw(context, 0, 0);
+	var anim = game.animations.get("conveyor-right");
+	anim.draw(context, canvas.width - anim.width, 0);
+
 	shredder.draw(context);
 	this.player.draw(context);
 	if (this.player.file && this.player.sprite.current !== "up") {
