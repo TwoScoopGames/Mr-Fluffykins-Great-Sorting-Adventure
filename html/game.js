@@ -83,6 +83,21 @@ var manifest = {
 			"frames": 6,
 			"msPerFrame": 100
 		},
+		"conveyor-email": {
+			"strip": "img/machine-conveyor-mail.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
+		"conveyor-picture": {
+			"strip": "img/machine-conveyor-photo.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
+		"conveyor-video": {
+			"strip": "img/machine-conveyor-video.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
 		"player-up": {
 			"strip": "img/player-up.png",
 			"frames": 4,
@@ -554,12 +569,17 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	var machinePhoto = game.images.get("machine-only-photo");
 	var machineVideo = game.images.get("machine-only-video");
 	var machineMail = game.images.get("machine-only-mail");
-	//var machinePhoto = game.images.get("shredder");
+	var conveyorPicture = game.animations.get("conveyor-picture");
+	var conveyorVideo = game.animations.get("conveyor-video");
+	var conveyorEmail = game.animations.get("conveyor-email");
 	this.drawables = [
-		new Splat.AnimatedEntity(297,30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
-		new Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0,0),
-		new Splat.AnimatedEntity(297, 432, machineMail.width, machineMail.height, machineMail,0,0),
-		//new Splat.Entity(777,465,0,0),// add shredder image when its created
+		new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
+		new Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
+		new Splat.AnimatedEntity(297, 432, machineMail.width, machineMail.height, machineMail, 0, 0),
+
+		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
+		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
+		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
 		this.player
 	];
 
@@ -656,7 +676,6 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	}
 
 	validateAndMove(this.player, elapsedMillis, floorObstacles);
-	
 
 	var dir = this.player.sprite.current;
 	if (dir === "up") {
@@ -742,6 +761,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	game.animations.get("conveyor-left").move(elapsedMillis);
 	game.animations.get("conveyor-right").move(elapsedMillis);
+	game.animations.get("conveyor-picture").move(elapsedMillis);
+	game.animations.get("conveyor-video").move(elapsedMillis);
+	game.animations.get("conveyor-email").move(elapsedMillis);
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
