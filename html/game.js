@@ -3,15 +3,6 @@ var canvas = document.getElementById("canvas");
 var manifest = {
 	"images": {
 		"bg": "img/bg.png",
-		"email": "img/mail.png",
-		"email-good": "img/mail-good.png",
-		"email-bad": "img/mail-bad.png",
-		"picture": "img/photo.png",
-		"picture-good": "img/photo-good.png",
-		"picture-bad": "img/photo-bad.png",
-		"video": "img/video.png",
-		"video-good": "img/video-good.png",
-		"video-bad": "img/video-good.png",
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
@@ -37,6 +28,51 @@ var manifest = {
 	"fonts": {
 	},
 	"animations": {
+		"email": {
+			"strip": "img/mail.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"email-good": {
+			"strip": "img/mail-good.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"email-bad": {
+			"strip": "img/mail-bad.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"picture": {
+			"strip": "img/photo.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"picture-good": {
+			"strip": "img/photo-good.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"picture-bad": {
+			"strip": "img/photo-bad.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"video": {
+			"strip": "img/video.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"video-good": {
+			"strip": "img/video-good.png",
+			"frames": 1,
+			"msPerFrame": 100
+		},
+		"video-bad": {
+			"strip": "img/video-bad.png",
+			"frames": 11,
+			"msPerFrame": 100
+		},
 		"conveyor-left": {
 			"strip": "img/conveyor-left.png",
 			"frames": 6,
@@ -267,6 +303,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 			}
 			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth){
 				file.type += file.bad ? "-bad" : "-good";
+				file.sprite = game.animations.get(file.type);
 				game.sounds.play("processFile");
 			}
 		}
@@ -368,10 +405,8 @@ var fileColors = {
 };
 
 function createFile(type) {
-	var file = new Splat.Entity(0, 0, fileWidth, fileHeight);
-	file.draw = function(context) {
-		context.drawImage(game.images.get(this.type), this.x, this.y);
-	};
+	var img = game.animations.get(type);
+	var file = new Splat.AnimatedEntity(0, 0, fileWidth, fileHeight, img, 0, 0);
 	file.type = type;
 	return file;
 }
