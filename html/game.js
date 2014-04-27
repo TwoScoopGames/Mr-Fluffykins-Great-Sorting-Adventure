@@ -47,7 +47,7 @@ function generateBatch(){
 	batchedFiles.push(file);
 }
 
-var floorObsticles = [
+var floorObstacles = [
 	new Splat.Entity(0, 0, 74, canvas.height), //left conveyor
 	new Splat.Entity(1070, 0, (canvas.width-1035), canvas.height), //right conveyor
 	new Splat.Entity(243,108,639,60), //top machine
@@ -369,7 +369,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		conveyors[i].move(elapsedMillis);
 	}
 
-	validateAndMove(this.player, elapsedMillis, floorObsticles);
+	validateAndMove(this.player, elapsedMillis, floorObstacles);
 
 	// Pick up files
 	for (var i = 0; i < conveyors.length; i++) {
