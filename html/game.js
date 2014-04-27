@@ -12,6 +12,12 @@ var manifest = {
 		"video": "img/video.png",
 		"video-good": "img/video-good.png",
 		"video-bad": "img/video-good.png",
+		"machine-mail": "img/machine-mail.png",
+		"machine-photo": "img/machine-photo.png",
+		"machine-video": "img/machine-video.png",
+		"machine-only-mail": "img/machine-only-mail.png",
+		"machine-only-photo": "img/machine-only-photo.png",
+		"machine-only-video": "img/machine-only-video.png"
 	},
 	"sounds": {
 		"pickUpFile": "sound/pickUpFile.wav",
@@ -115,11 +121,6 @@ AnimationGroup.prototype.getCurrent = function() {
 
 var stepSounds = ["step1", "step2"];
 
-var lastClick = [];
-//variable that tells whether the player will move toward the last selected point 
-var moveByClick = false;
-
-
 var conveyors = [];
 
 var shredder = new Splat.Entity(800, 500, 150, 100);
@@ -152,9 +153,11 @@ var floorObstacles = [
 	new Splat.Entity(774, 540, 108, 60) // shredder
 ];
 
+
 var lastClick = [];
 //variable that tells whether the player will move toward the last selected point 
 var moveByClick = false;
+
 
 function getNextFile(){
 	if (batchedFiles.length === 0) {
@@ -323,6 +326,20 @@ function validateAndMove(myEnt, elapsedMillis, entArray) {
 		}
 	}
 }
+/**
+*	sorts Entities by virtual z-axis and draws them in order so that those closer to the viewer are drawn over those further away
+*@param {@link external:CanvasRenderingContext2D} context browser native that allows interaction with the canvas
+*@param {@link Entity} entities array of drawable entities
+
+**/
+function drawEntities(context, entities) {
+	entities.sort(function(a, b) {
+		return (a.y + a.height) - (b.y + b.height);
+	});
+	for (var i in entities) {
+		entities[i].draw(context);
+	}
+}
 
 var files = [];
 var fileWidth = 45;
@@ -486,6 +503,18 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
 
+	var machinePhoto = game.images.get("machine-only-photo");
+	var machineVideo = game.images.get("machine-only-video");
+	var machineMail = game.images.get("machine-only-mail");
+	//var machinePhoto = game.images.get("shredder");
+	this.drawables = [
+		new Splat.AnimatedEntity(297,30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
+		new Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0,0),
+		new Splat.AnimatedEntity(297, 432, machineMail.width, machineMail.height, machineMail,0,0),
+		//new Splat.Entity(777,465,0,0),// add shredder image when its created
+		this.player
+	];
+
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 		var file = getNextFile();
 		if (!addFileToConveyor(file, conveyors[0], true)) {
@@ -513,7 +542,6 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.reset();
 		this.start();
 	});
-
 }, function(elapsedMillis) {
 	// simulation
 
@@ -580,6 +608,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	}
 
 	validateAndMove(this.player, elapsedMillis, floorObstacles);
+	
 
 	var dir = this.player.sprite.current;
 	if (dir === "up") {
@@ -674,14 +703,14 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.draw(context, canvas.width - anim.width, 0);
 
 	shredder.draw(context);
-	this.player.draw(context);
-	if (this.player.file && this.player.sprite.current !== "up") {
-		this.player.file.draw(context);
-	}
 
-	for (var i=0; i < conveyors.length; i++) {
-		conveyors[i].draw(context);
+	var drawables = this.drawables.slice(0);
+	drawables = drawables.concat(conveyors);
+	if (this.player.file && this.player.sprite.current !== "up"){
+		drawables.push(this.player.file);
 	}
+	drawEntities(context, drawables);
+
 	context.font= "50px mono";
 	context.fillStyle = "#ffffff";
 	context.fillText(score, 950, 50);
