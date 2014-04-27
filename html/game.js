@@ -46,6 +46,26 @@ function generateBatch(){
 	file.bad = true;
 	batchedFiles.push(file);
 }
+//Array holding the entities that 
+var floorObsticles = [];
+function genFloors(){
+	//left conveyor
+	floorObsticles.push(new Splat.Entity(0, 0, 74, canvas.height));
+	//right conveyor
+	floorObsticles.push(new Splat.Entity(1070, 0, (canvas.width-1035), canvas.height));
+	//top machine
+	floorObsticles.push(new Splat.Entity(243,108,639,60));
+	//middle machine
+	floorObsticles.push(new Splat.Entity(243,324,639,60));
+	//bottom machine
+	floorObsticles.push(new Splat.Entity(243, 540, 417, 60));
+	// shredder
+	floorObsticles.push(new Splat.Entity(774, 540, 108, 60));
+	
+}
+var lastClick = [];
+//variable that tells whether the player will move toward the last selected point 
+var moveByClick = false;
 
 function getNextFile(){
 	if (batchedFiles.length === 0){
@@ -196,6 +216,22 @@ function createMovementLine(myEntity, x, y, mySpeed) {
 		myEntity.vy = 0;
 	}
 }
+/**
+*	verifies that moving along a given path does not carry a given entity into another entity 
+*@param {@link Entity} myEnt The entity that is being moved
+*@param {number} elapsedMillis The number of milliseconds since the last frame.
+*@param {@link Entity} entArray The Array of potential obstructing Entities
+**/
+function validateAndMove(myEnt, elapsedMillis, entArray){
+	myEnt.move(elapsedMillis);
+
+	for(var i = 0; i < entArray.length; i++){
+		var thisEnt = entArray[i];
+		if (myEnt.collides(thisEnt)){
+			myEnt.resolveCollisionWith(thisEnt);
+		}
+	}
+}
 
 var files = [];
 var fileWidth = 45;
@@ -275,6 +311,7 @@ function removeRandomElement(array){
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
+	genFloors();
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
 	makeConveyor(243, 93, 639, 39, true, "video", 54, 369);
 	makeConveyor(243, 309, 639, 39, true, "picture", 102, 276);
@@ -339,7 +376,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		conveyors[i].move(elapsedMillis);
 	}
 
-	this.player.move(elapsedMillis);
+	validateAndMove(this.player, elapsedMillis, floorObsticles);
 
 	// Pick up files
 	for (var i = 0; i < conveyors.length; i++) {
