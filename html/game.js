@@ -129,7 +129,7 @@ var stepSounds = ["step1", "step2"];
 
 var conveyors = [];
 
-var shredder = new Splat.Entity(800, 500, 150, 100);
+var shredder = new Splat.Entity(776, 541, 108, 60);
 shredder.draw = function(context) {
 	context.fillStyle = "#665866";
 	context.fillRect(this.x, this.y, this.width, this.height);
