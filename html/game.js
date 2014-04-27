@@ -35,8 +35,8 @@ shredder.draw = function(context) {
 var batchedFiles = [];
 var batchedTotes = [];
 
-function generateBatch(){
-	for (var i = 0; i < 3; i++ ){
+function generateBatch() {
+	for (var i = 0; i < 3; i++) {
 		var type = randomElement(fileTypes);
 		batchedFiles.push(createFile(type));
 		batchedTotes.push(createTote(type+"-good"));
@@ -61,7 +61,7 @@ var lastClick = [];
 var moveByClick = false;
 
 function getNextFile(){
-	if (batchedFiles.length === 0){
+	if (batchedFiles.length === 0) {
 		generateBatch();
 	}
 	return removeRandomElement(batchedFiles);
@@ -215,12 +215,12 @@ function createMovementLine(myEntity, x, y, mySpeed) {
 *@param {number} elapsedMillis The number of milliseconds since the last frame.
 *@param {@link Entity} entArray The Array of potential obstructing Entities
 **/
-function validateAndMove(myEnt, elapsedMillis, entArray){
+function validateAndMove(myEnt, elapsedMillis, entArray) {
 	myEnt.move(elapsedMillis);
 
-	for(var i = 0; i < entArray.length; i++){
+	for(var i = 0; i < entArray.length; i++) {
 		var thisEnt = entArray[i];
-		if (myEnt.collides(thisEnt)){
+		if (myEnt.collides(thisEnt)) {
 			myEnt.resolveCollisionWith(thisEnt);
 		}
 	}
@@ -297,7 +297,7 @@ function randomElement(array) {
 	return array[pos];
 }
 
-function removeRandomElement(array){
+function removeRandomElement(array) {
 	var pos = Math.random() * array.length |0;
 	return array.splice(pos,1)[0];
 }
@@ -317,7 +317,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 		var file = getNextFile();
-		if(!addFileToConveyor(file, conveyors[0], true)){
+		if (!addFileToConveyor(file, conveyors[0], true)) {
 			batchedFiles.push(file);
 		}
 		this.reset();
@@ -327,8 +327,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
 		var tote = getNextTote();
-		if(tote){
-			if(!addFileToConveyor(tote, conveyors[4], true)){
+		if (tote) {
+			if (!addFileToConveyor(tote, conveyors[4], true)) {
 				batchedTotes.push(tote);
 			}
 		}
@@ -411,16 +411,15 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// Shredder
 	if (this.player.file
 		&& this.player.collides(shredder)
-		&& this.player.file.type.indexOf("-bad") > 0){
+		&& this.player.file.type.indexOf("-bad") > 0) {
 			this.player.file = undefined;
 	}
 
 	// player holding file
 	if (this.player.file) {
-		this.player.file.x = this.player.x + this.player.width/2;
-		this.player.file.y = this.player.y + this.player.height/2;
+		this.player.file.x = this.player.x + this.player.width / 2;
+		this.player.file.y = this.player.y + this.player.height / 2;
 	}
-
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
