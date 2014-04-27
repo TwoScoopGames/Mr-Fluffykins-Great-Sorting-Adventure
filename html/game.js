@@ -318,7 +318,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
 	makeConveyor(1035, 0, 102, canvas.height, false, "out", canvas.height, canvas.height);
 
-	this.player = new Splat.AnimatedEntity(100, 100, 50, 50, game.animations.get("player-down"), 0, 0);
+	this.player = new Splat.AnimatedEntity(100, 100, 65, 20, game.animations.get("player-down"), -10, -85);
 	this.player.frictionX = 0.5;
 	this.player.frictionY = 0.5;
 
