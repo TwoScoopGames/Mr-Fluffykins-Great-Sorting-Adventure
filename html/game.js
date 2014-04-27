@@ -46,23 +46,16 @@ function generateBatch(){
 	file.bad = true;
 	batchedFiles.push(file);
 }
-//Array holding the entities that 
-var floorObsticles = [];
-function genFloors(){
-	//left conveyor
-	floorObsticles.push(new Splat.Entity(0, 0, 74, canvas.height));
-	//right conveyor
-	floorObsticles.push(new Splat.Entity(1070, 0, (canvas.width-1035), canvas.height));
-	//top machine
-	floorObsticles.push(new Splat.Entity(243,108,639,60));
-	//middle machine
-	floorObsticles.push(new Splat.Entity(243,324,639,60));
-	//bottom machine
-	floorObsticles.push(new Splat.Entity(243, 540, 417, 60));
-	// shredder
-	floorObsticles.push(new Splat.Entity(774, 540, 108, 60));
-	
-}
+
+var floorObsticles = [
+	new Splat.Entity(0, 0, 74, canvas.height), //left conveyor
+	new Splat.Entity(1070, 0, (canvas.width-1035), canvas.height), //right conveyor
+	new Splat.Entity(243,108,639,60), //top machine
+	new Splat.Entity(243,324,639,60), //middle machine
+	new Splat.Entity(243, 540, 417, 60), //bottom machine
+	new Splat.Entity(774, 540, 108, 60) // shredder
+];
+
 var lastClick = [];
 //variable that tells whether the player will move toward the last selected point 
 var moveByClick = false;
@@ -311,7 +304,7 @@ function removeRandomElement(array){
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
-	genFloors();
+
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
 	makeConveyor(243, 93, 639, 39, true, "video", 54, 369);
 	makeConveyor(243, 309, 639, 39, true, "picture", 102, 276);
