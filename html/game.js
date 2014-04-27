@@ -146,6 +146,7 @@ var manifest = {
 var game = new Splat.Game(canvas, manifest);
 
 var score = 0;
+var hearts = 3;
 
 function AnimationGroup() {
 	this.animations = {};
@@ -608,6 +609,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		var file = getNextFile();
 		if (!addFileToConveyor(file, conveyors[0], true)) {
 			batchedFiles.push(file);
+			hearts -= 1;
 		}
 		this.reset();
 		this.start();
@@ -828,6 +830,11 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	context.font= "50px mono";
 	context.fillStyle = "#ffffff";
 	context.fillText(score, 950, 50);
+
+	context.font= "50px mono";
+	context.fillStyle = "#ffffff";
+	context.fillText(hearts, 150, 50);
+
 }));
 
 function centerText(context, text, offsetX, offsetY) {
