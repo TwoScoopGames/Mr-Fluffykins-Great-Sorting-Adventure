@@ -898,7 +898,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 game.scenes.add("end", new Splat.Scene(canvas, function() {
 	// init
 	this.timers.switch= new Splat.Timer(undefined, 3000, function() {
-		game.scenes.switchTo("title");
+		//game.scenes.switchTo("title");
+		document.location.reload(true);
 	});
 	this.timers.switch.start();
 
