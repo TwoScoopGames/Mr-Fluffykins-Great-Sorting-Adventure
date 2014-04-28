@@ -589,8 +589,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	var conveyorPicture = game.animations.get("conveyor-picture");
 	var conveyorVideo = game.animations.get("conveyor-video");
 	var conveyorEmail = game.animations.get("conveyor-email");
-	var tubeTopRight = game.images.get("tube-top-right");
-	var tubeTopLeft = game.images.get("tube-top-left");
+	
 	this.drawables = [
 		new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
 		new Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
@@ -599,8 +598,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
 		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
 		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
-		new Splat.AnimatedEntity(0, 0, tubeTopLeft.width, 2*tubeTopLeft.height, tubeTopLeft, 0, 0),
-		new Splat.AnimatedEntity(canvas.width - tubeTopRight.width, 0, tubeTopRight.width, 2*tubeTopRight.height, tubeTopRight, 0, 0),
+		
 		this.player
 
 	];
@@ -822,10 +820,17 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.draw(context, canvas.width - anim.width, 0);
 
 	shredder.draw(context);
-
+	var tubeTopRightImage = game.images.get("tube-top-right");
+	var tubeTopLeftImage = game.images.get("tube-top-left");
 	var drawables = this.drawables.slice(0);
 	drawables = drawables.concat(conveyors);
 	drawEntities(context, drawables);
+
+
+	var tubeTopLeft = new Splat.AnimatedEntity(0, 0, tubeTopLeftImage.width, tubeTopLeftImage.height, tubeTopLeftImage, 0, 0);
+	var tubeTopRight = new Splat.AnimatedEntity(canvas.width - tubeTopRightImage.width, 0, tubeTopRightImage.width, tubeTopRightImage.height, tubeTopRightImage, 0, 0);
+	tubeTopRight.draw(context);
+	tubeTopLeft.draw(context);
 
 	context.font= "50px mono";
 	context.fillStyle = "#ffffff";
