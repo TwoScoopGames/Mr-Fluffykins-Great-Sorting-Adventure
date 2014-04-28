@@ -610,11 +610,15 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	];
 
+	var scene = this;
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 		var file = getNextFile();
 		if (!addFileToConveyor(file, conveyors[0], true)) {
 			batchedFiles.push(file);
 			hearts -= 1;
+
+			scene.timers.flash.reset();
+			scene.timers.flash.start();
 		}
 		this.reset();
 		this.start();
@@ -642,6 +646,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	});
 
 	this.timers.shredder = new Splat.Timer(undefined, 2000, undefined);
+	this.timers.flash = new Splat.Timer(undefined, 200, undefined);
 }, function(elapsedMillis) {
 	// simulation
 
@@ -854,13 +859,26 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	context.fillStyle = "#ffffff";
 	context.fillText(hearts, 150, 50);
 
-	if (conveyors[0].files.length === 14){
+	if (conveyors[0].files.length >= 14){
 		console.log("conveyor warning");
 		context.font = "50px mono";
 		context.fillStyle = "#ff0000";
 		context.fillText('Reaching File Limit', 50, 200);
 	}
+
+	drawFlash(context, this);
 }));
+
+function drawFlash(context, scene) {
+	var flashTime = scene.timers.flash.time;
+	var flashLen = scene.timers.flash.expireMillis;
+
+	if (flashTime > 0) {
+		var opacity = Splat.math.oscillate(flashTime, flashLen);
+		context.fillStyle = "rgba(255, 0, 0, " + opacity + ")";
+		context.fillRect(scene.camera.x, scene.camera.y, canvas.width, canvas.height);
+	}
+}
 
 function centerText(context, text, offsetX, offsetY) {
 	var w = context.measureText(text).width;
