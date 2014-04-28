@@ -100,6 +100,11 @@ var manifest = {
 			"frames": 2,
 			"msPerFrame": 100
 		},
+		"shredder": {
+			"strip": "img/shredder.png",
+			"frames": 3,
+			"msPerFrame": 100
+		},
 		"player-up": {
 			"strip": "img/player-up.png",
 			"frames": 4,
@@ -589,6 +594,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	var conveyorPicture = game.animations.get("conveyor-picture");
 	var conveyorVideo = game.animations.get("conveyor-video");
 	var conveyorEmail = game.animations.get("conveyor-email");
+
+	var shredder = game.animations.get("shredder");
 	
 	this.drawables = [
 		new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
@@ -598,7 +605,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
 		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
 		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
-		
+		new Splat.AnimatedEntity(774, 462, shredder.width, shredder.height, shredder, 0, 0),
 		this.player
 
 	];
@@ -633,6 +640,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		this.reset();
 		this.start();
 	});
+
+	this.timers.shredder = new Splat.Timer(undefined, 2000, undefined);
 }, function(elapsedMillis) {
 	// simulation
 
@@ -798,6 +807,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		&& this.player.file.type.indexOf("-bad") > 0) {
 			this.player.file = undefined;
 			game.sounds.play("shred");
+			this.timers.shredder.reset();
+			this.timers.shredder.start();
 	}
 
 	// player holding file
@@ -811,6 +822,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	game.animations.get("conveyor-picture").move(elapsedMillis);
 	game.animations.get("conveyor-video").move(elapsedMillis);
 	game.animations.get("conveyor-email").move(elapsedMillis);
+	if (this.timers.shredder.running) {
+		game.animations.get("shredder").move(elapsedMillis);
+	}
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
