@@ -498,7 +498,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	makeConveyor(243, 93, 639, 39, true, "picture", 54, 369);
 	makeConveyor(243, 309, 639, 39, true, "video", 102, 276);
 	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
-	makeConveyor(canvas.width - 108, 0, 108, canvas.height, false, "out", canvas.height, canvas.height);
+	makeConveyor(canvas.width - 108, 0, 108, canvas.height - 60, false, "out", canvas.height, canvas.height);
 
 	this.playerWalk = new AnimationGroup();
 
