@@ -189,10 +189,6 @@ var stepSounds = ["step1", "step2"];
 var conveyors = [];
 
 var shredder = new Splat.Entity(776, 541, 108, 60);
-shredder.draw = function(context) {
-	context.fillStyle = "#665866";
-	context.fillRect(this.x, this.y, this.width, this.height);
-};
 
 var batchedFiles = [];
 var batchedTotes = [];
@@ -838,7 +834,6 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	var anim = game.animations.get("conveyor-right");
 	anim.draw(context, canvas.width - anim.width, 0);
 
-	shredder.draw(context);
 	var tubeTopRightImage = game.images.get("tube-top-right");
 	var tubeTopLeftImage = game.images.get("tube-top-left");
 	var drawables = this.drawables.slice(0);
