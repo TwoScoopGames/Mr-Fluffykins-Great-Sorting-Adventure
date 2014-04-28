@@ -858,7 +858,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.fillText(hearts, 150, 50);
 
 	if (conveyors[0].files.length >= 14){
-		console.log("conveyor warning");
 		context.font = "50px mono";
 		context.fillStyle = "#ff0000";
 		context.fillText('Reaching File Limit', 50, 200);
