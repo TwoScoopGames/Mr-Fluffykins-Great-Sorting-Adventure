@@ -3,6 +3,7 @@ var canvas = document.getElementById("canvas");
 var manifest = {
 	"images": {
 		"bg": "img/bg.png",
+		"bg-intro": "img/title-screen.png",
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
@@ -16,7 +17,7 @@ var manifest = {
 		"tote-picture-good": "img/tote-photo.png",
 		"tote-picture-good-full": "img/tote-photo-full.png",
 		"tube-top-right": "img/tube-top-right.png",
-		"tube-top-left": "img/tube-top-left.png",
+		"tube-top-left": "img/tube-top-left.png"
 	},
 	"sounds": {
 		"pickUpFile": "sound/pickUpFile.wav",
@@ -888,18 +889,25 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	}
 }, function(context) {
 	// draw
+	context.drawImage(game.images.get("bg-intro"), 0, 0);
 }));
 
 game.scenes.add("end", new Splat.Scene(canvas, function() {
 	// init
+	this.timers.switch= new Splat.Timer(undefined, 3000, function() {
+		game.scenes.switchTo("title");
+	});
+	this.timers.switch.start();
+
 }, function(elapsedMillis) {
 	// simulation
-	if(game.mouse.consumePressed(0)){
-		game.scenes.switchTo("main");
-	}
+
 }, function(context) {
 	// draw
-	
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.font = "70px mono";
+	context.fillStyle = "#ff0000";
+	context.fillText("Game Over", 100, 100);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
