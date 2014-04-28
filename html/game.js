@@ -17,7 +17,8 @@ var manifest = {
 		"tote-picture-good": "img/tote-photo.png",
 		"tote-picture-good-full": "img/tote-photo-full.png",
 		"tube-top-right": "img/tube-top-right.png",
-		"tube-top-left": "img/tube-top-left.png"
+		"tube-top-left": "img/tube-top-left.png",
+		"tube-bottom-right": "img/tube-bottom-right.png"
 	},
 	"sounds": {
 		"pickUpFile": "sound/pickUpFile.wav",
@@ -848,6 +849,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var tubeTopRight = new Splat.AnimatedEntity(canvas.width - tubeTopRightImage.width, 0, tubeTopRightImage.width, tubeTopRightImage.height, tubeTopRightImage, 0, 0);
 	tubeTopRight.draw(context);
 	tubeTopLeft.draw(context);
+
+	var tubeBottomLeft = game.images.get("tube-bottom-right");
+	context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
 
 	context.font= "50px mono";
 	context.fillStyle = "#ffffff";
