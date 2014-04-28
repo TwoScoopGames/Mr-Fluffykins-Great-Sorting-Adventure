@@ -489,7 +489,7 @@ function removeRandomElement(array) {
 	return array.splice(pos,1)[0];
 }
 
-game.scenes.add("title", new Splat.Scene(canvas, function() {
+game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// init
 
 	// derive conveyor speed from conveyor animation speed
@@ -612,7 +612,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		if (!addFileToConveyor(file, conveyors[0], true)) {
 			batchedFiles.push(file);
 			hearts -= 1;
-
+			if (hearts === 0) {
+				game.scenes.switchTo("end");
+			}
 			scene.timers.flash.reset();
 			scene.timers.flash.start();
 		}
@@ -874,6 +876,31 @@ function drawFlash(context, scene) {
 		context.fillRect(scene.camera.x, scene.camera.y, canvas.width, canvas.height);
 	}
 }
+
+game.scenes.add("title", new Splat.Scene(canvas, function() {
+	// init
+	var start = new Splat.Entity(canvas.width/2, canvas.height/2, 100, 100);
+
+}, function(elapsedMillis) {
+	// simulation
+	if(game.mouse.consumePressed(0)){
+		game.scenes.switchTo("main");
+	}
+}, function(context) {
+	// draw
+}));
+
+game.scenes.add("end", new Splat.Scene(canvas, function() {
+	// init
+}, function(elapsedMillis) {
+	// simulation
+	if(game.mouse.consumePressed(0)){
+		game.scenes.switchTo("main");
+	}
+}, function(context) {
+	// draw
+	
+}));
 
 function centerText(context, text, offsetX, offsetY) {
 	var w = context.measureText(text).width;
