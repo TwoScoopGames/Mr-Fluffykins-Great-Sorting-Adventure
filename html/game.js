@@ -22,6 +22,10 @@ var manifest = {
 		"warning-backing-up": "img/warning-backing-up.png"
 	},
 	"sounds": {
+		"intro": "music/intro.mp3",
+		"main": "music/main.mp3",
+		"win": "music/win.mp3",
+		"fail": "music/fail.mp3",
 		"pickUpFile": "sound/pickUpFile.wav",
 		"placeFileOnConveyor": "sound/placeFile.wav",
 		"shred": "sound/shred.wav",
@@ -494,7 +498,10 @@ function removeRandomElement(array) {
 }
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
+	
 	// init
+	//game.sounds.stop("intro");
+	game.sounds.play("main", true);
 	//reset files to zero
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].files.length=0;
@@ -887,21 +894,32 @@ function drawFlash(context, scene) {
 }
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
+	
 	// init
+	game.sounds.stop("fail");
+	//game.sounds.play("intro");
 	var start = new Splat.Entity(canvas.width/2, canvas.height/2, 100, 100);
 
 }, function(elapsedMillis) {
 	// simulation
+	
 	if(game.mouse.consumePressed(0)){
 		game.scenes.switchTo("main");
+		
+		
 	}
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg-intro"), 0, 0);
+
+	
 }));
 
 game.scenes.add("end", new Splat.Scene(canvas, function() {
+	
 	// init
+	game.sounds.stop("main");
+	game.sounds.play("fail");
 	this.timers.switch= new Splat.Timer(undefined, 3000, function() {
 		game.scenes.switchTo("title");
 		//document.location.reload(true);
@@ -910,13 +928,16 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 
 }, function(elapsedMillis) {
 	// simulation
+	
 
 }, function(context) {
+	
 	// draw
+
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	context.font = "70px mono";
-	context.fillStyle = "#ff0000";
-	context.fillText("Game Over", 100, 100);
+	context.fillStyle = "#fff";
+	context.fillText("Game Over", canvas.width / 2, canvas.height / 2);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
