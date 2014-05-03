@@ -151,6 +151,11 @@ var manifest = {
 			"strip": "img/player-right-carry.png",
 			"frames": 4,
 			"msPerFrame": 100
+		},
+		"mail": {
+			"strip": "img/machine-only-mail-anim-f14.png",
+			"frames": 21,
+			"msPerFrame": 100
 		}
 	}
 };
@@ -334,6 +339,12 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				file.type += file.bad ? "-bad" : "-good";
 				file.sprite = game.animations.get(file.type);
 				game.sounds.play("processFile");
+
+				if(file.type === "email-good" || file.type === "email-bad") {
+					var scene = game.scenes.get("main");
+					scene.timers.mail.reset();
+					scene.timers.mail.start();
+				}
 			}
 		}
 	}
@@ -609,16 +620,18 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var conveyorEmail = game.animations.get("conveyor-email");
 
 	var shredder = game.animations.get("shredder");
+	var mail = game.animations.get("mail");
 	
 	this.drawables = [
 		new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
 		new Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
-		new Splat.AnimatedEntity(297, 432, machineMail.width, machineMail.height, machineMail, 0, 0),
+		// new Splat.AnimatedEntity(297, 432, machineMail.width, machineMail.height, machineMail, 0, 0),
 
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
 		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
 		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
 		new Splat.AnimatedEntity(774, 462, shredder.width, shredder.height, shredder, 0, 0),
+		new Splat.AnimatedEntity(297, 432, mail.width, mail.height, mail, 0, 0),
 		this.player
 
 	];
@@ -661,6 +674,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	});
 
 	this.timers.shredder = new Splat.Timer(undefined, 2000, undefined);
+	this.timers.mail = new Splat.Timer(undefined, 2000, undefined);
 	this.timers.flash = new Splat.Timer(undefined, 200, undefined);
 }, function(elapsedMillis) {
 	// simulation
@@ -845,6 +859,10 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	if (this.timers.shredder.running) {
 		game.animations.get("shredder").move(elapsedMillis);
 	}
+	if (this.timers.mail.running) {
+		game.animations.get("mail").move(elapsedMillis);
+	}
+
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, 0);
