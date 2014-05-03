@@ -18,7 +18,8 @@ var manifest = {
 		"tote-picture-good-full": "img/tote-photo-full.png",
 		"tube-top-right": "img/tube-top-right.png",
 		"tube-top-left": "img/tube-top-left.png",
-		"tube-bottom-right": "img/tube-bottom-right.png"
+		"tube-bottom-right": "img/tube-bottom-right.png",
+		"warning-backing-up": "img/warning-backing-up.png"
 	},
 	"sounds": {
 		"pickUpFile": "sound/pickUpFile.wav",
@@ -189,11 +190,12 @@ AnimationGroup.prototype.getCurrent = function() {
 var stepSounds = ["step1", "step2"];
 
 var conveyors = [];
+var batchedFiles = [];
+var batchedTotes = [];
 
 var shredder = new Splat.Entity(776, 541, 108, 60);
 
-var batchedFiles = [];
-var batchedTotes = [];
+
 
 function generateBatch() {
 	for (var i = 0; i < 3; i++) {
@@ -493,6 +495,12 @@ function removeRandomElement(array) {
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// init
+	//reset files to zero
+	for (var i = 0; i < conveyors.length; i++) {
+		conveyors[i].files.length=0;
+	}
+	hearts = 3;
+	score = 0;
 
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
@@ -861,12 +869,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.fillStyle = "#ffffff";
 	context.fillText(hearts, 150, 50);
 
-	if (conveyors[0].files.length >= 14){
-		context.font = "50px mono";
-		context.fillStyle = "#ff0000";
-		context.fillText('Reaching File Limit', 50, 200);
+	if (conveyors[0].files.length >= 14) {
+		context.drawImage(game.images.get("warning-backing-up"), 100, 50);
 	}
-
 	drawFlash(context, this);
 }));
 
@@ -898,8 +903,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 game.scenes.add("end", new Splat.Scene(canvas, function() {
 	// init
 	this.timers.switch= new Splat.Timer(undefined, 3000, function() {
-		//game.scenes.switchTo("title");
-		document.location.reload(true);
+		game.scenes.switchTo("title");
+		//document.location.reload(true);
 	});
 	this.timers.switch.start();
 
