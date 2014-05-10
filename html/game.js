@@ -35,6 +35,12 @@ var manifest = {
 		"step2": "sound/step2.wav"
 	},
 	"fonts": {
+		"pixelmix1": {
+			"embedded-opentype": "font/pixelmix1-webfont.eot",
+			"woff": "font/pixelmix1-webfont.woff",
+			"truetype": "font/pixelmix1-webfont.ttf",
+			"svg": "font/pixelmix1-webfont.svg#pixeladeregular"
+		}
 	},
 	"animations": {
 		"email": {
@@ -155,6 +161,16 @@ var manifest = {
 		"mail": {
 			"strip": "img/machine-only-mail-anim-f20.png",
 			"frames": 20,
+			"msPerFrame": 100
+		},
+		"photo": {
+			"strip": "img/machine-only-photo-anim-f29.png",
+			"frames": 29,
+			"msPerFrame": 100
+		},
+		"vid": {
+			"strip": "img/machine-only-video-anim-f13.png",
+			"frames": 13,
 			"msPerFrame": 100
 		}
 	}
@@ -344,6 +360,16 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 					var scene = game.scenes.get("main");
 					scene.timers.mail.reset();
 					scene.timers.mail.start();
+				}
+				if(file.type === "video-good" || file.type === "video-bad") {
+					var scene = game.scenes.get("main");
+					scene.timers.vid.reset();
+					scene.timers.vid.start();
+				}
+				if(file.type === "picture-good" || file.type === "picture-bad") {
+					var scene = game.scenes.get("main");
+					scene.timers.photo.reset();
+					scene.timers.photo.start();
 				}
 			}
 		}
@@ -621,10 +647,13 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var shredder = game.animations.get("shredder");
 	var mail = game.animations.get("mail");
+	var vid = game.animations.get("vid");
+	var photo = game.animations.get("photo");
+	
 	
 	this.drawables = [
-		new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
-		new Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
+		//new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
+		//ew Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
 		// new Splat.AnimatedEntity(297, 432, machineMail.width, machineMail.height, machineMail, 0, 0),
 
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
@@ -632,6 +661,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
 		new Splat.AnimatedEntity(774, 462, shredder.width, shredder.height, shredder, 0, 0),
 		new Splat.AnimatedEntity(297, 432, mail.width, mail.height, mail, 0, 0),
+		new Splat.AnimatedEntity(297, 30, photo.width, photo.height, photo, 0, 0),
+		new Splat.AnimatedEntity(345, 153, vid.width, vid.height, vid, 0, 0),
 		this.player
 
 	];
@@ -675,6 +706,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	this.timers.shredder = new Splat.Timer(undefined, 2000, undefined);
 	this.timers.mail = new Splat.Timer(undefined, 2000, undefined);
+	this.timers.vid = new Splat.Timer(undefined, 4500, undefined);
+	this.timers.photo = new Splat.Timer(undefined, 8500, undefined);
 	this.timers.flash = new Splat.Timer(undefined, 200, undefined);
 }, function(elapsedMillis) {
 	// simulation
@@ -862,6 +895,12 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	if (this.timers.mail.running) {
 		game.animations.get("mail").move(elapsedMillis);
 	}
+	if (this.timers.vid.running) {
+		game.animations.get("vid").move(elapsedMillis);
+	}
+	if (this.timers.photo.running) {
+		game.animations.get("photo").move(elapsedMillis);
+	}
 
 }, function(context) {
 	// draw
@@ -938,11 +977,11 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	// init
 	game.sounds.stop("main");
 	game.sounds.play("fail");
-	this.timers.switch= new Splat.Timer(undefined, 3000, function() {
-		game.scenes.switchTo("title");
+	//this.timers.switch= new Splat.Timer(undefined, 3000, function() {
+		//game.scenes.switchTo("title");
 		//document.location.reload(true);
-	});
-	this.timers.switch.start();
+	//});
+	//this.timers.switch.start();
 
 }, function(elapsedMillis) {
 	// simulation
@@ -953,9 +992,11 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	// draw
 
 	context.fillRect(0, 0, canvas.width, canvas.height);
-	context.font = "70px mono";
+
+	context.font = "70px pixelmix1";
 	context.fillStyle = "#fff";
-	context.fillText("Game Over", canvas.width / 2, canvas.height / 2);
+	centerText(context,"Game Over", 0, (canvas.height / 2) - 70);
+	centerText(context,"Score: "+score,0,canvas.height / 2 + 20)
 }));
 
 function centerText(context, text, offsetX, offsetY) {
