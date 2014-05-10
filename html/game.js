@@ -223,12 +223,13 @@ var shredder = new Splat.Entity(776, 541, 108, 60);
 
 
 function generateBatch() {
+	var type;
 	for (var i = 0; i < 3; i++) {
-		var type = randomElement(fileTypes);
+		type = randomElement(fileTypes);
 		batchedFiles.push(createFile(type));
 		batchedTotes.push(createTote(type+"-good"));
 	}
-	var type = randomElement(fileTypes);
+	type = randomElement(fileTypes);
 	var file = createFile(type);
 	file.bad = true;
 	batchedFiles.push(file);
@@ -264,7 +265,7 @@ function adjustHorizontally(x, y, width, height, obstacle) {
 	} else {
 		return adjustRight(x, y, width, height, obstacle);
 	}
-};
+}
 
 var floorObstacles = [
 	new Splat.Entity(0, -100, 108, canvas.height + 200), //left conveyor
@@ -437,10 +438,10 @@ function lastClickY() {
 }
 
 function isInside(container, item) {
-	return item.x >= container.x
-			&& item.x + item.width <= container.x + container.width
-			&& item.y >= container.y
-			&& item.y + item.height <= container.y + container.height;
+	return item.x >= container.x &&
+		item.x + item.width <= container.x + container.width &&
+		item.y >= container.y &&
+		item.y + item.height <= container.y + container.height;
 }
 
 function collidesWithAny(item, otherItems, collisionHandler) {
@@ -469,8 +470,8 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 		}
 	};
 	conveyor.move = function(elapsedMillis) {
-		for (var i=0; i<this.files.length; i++) {
-			var file= this.files[i];
+		for (var i = 0; i < this.files.length; i++) {
+			var file = this.files[i];
 			if (this.horizontal) {
 				file.vx = conveyorSpeed;
 				file.vy = 0;
@@ -483,38 +484,34 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 			if (!isInside(this, file) && (!file.filled)) {
 				resetPosition(file);
 			}
-			collidesWithAny(file, this.files, function(other) {
-				file.resolveCollisionWith(other);
-			});
+			collidesWithAny(file, this.files, file.resolveCollisionWith.bind(file));
 			if (file.y > canvas.height) {
 				this.files.splice(i, 1);
 				i--;
 				score += 10;
 				console.log(score);
 			}
-			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth){
+			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth) {
 				file.type += file.bad ? "-bad" : "-good";
 				file.sprite = game.animations.get(file.type);
 				game.sounds.play("processFile");
 
-				if(file.type === "email-good" || file.type === "email-bad") {
-					var scene = game.scenes.get("main");
+				var scene = game.scenes.get("main");
+				if (file.type === "email-good" || file.type === "email-bad") {
 					scene.timers.mail.reset();
 					scene.timers.mail.start();
 				}
-				if(file.type === "video-good" || file.type === "video-bad") {
-					var scene = game.scenes.get("main");
+				if (file.type === "video-good" || file.type === "video-bad") {
 					scene.timers.vid.reset();
 					scene.timers.vid.start();
 				}
-				if(file.type === "picture-good" || file.type === "picture-bad") {
-					var scene = game.scenes.get("main");
+				if (file.type === "picture-good" || file.type === "picture-bad") {
 					scene.timers.photo.reset();
 					scene.timers.photo.start();
 				}
 			}
 		}
-	}
+	};
 	conveyor.horizontal = horizontal;
 	conveyor.type = type;
 	conveyor.files = [];
@@ -740,7 +737,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		if (this.file && this.sprite.current !== "up"){
 			this.file.draw(context);
 		}
-	}
+	};
 
 	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
 
@@ -922,50 +919,50 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.playerHands.y = this.player.y - 13;
 	}
 
+	var me = this.player;
+	var myHands = this.playerHands;
+
 	// Pick up files
-	for (var i = 0; i < conveyors.length; i++) {
-		var me = this.player;
-		collidesWithAny(this.playerHands, conveyors[i].files, function(other) {
-			if (me.file) {
-				return;
-			}
+	var pickUpFile = function(other) {
+		if (me.file) {
+			return;
+		}
 
-			if (!canPickupFile(other, conveyors[i])) {
-				return;
-			}
+		if (!canPickupFile(other, conveyors[i])) {
+			return;
+		}
 
-			var canPutOnMachine = false;
-			for (var j = 0; j < conveyors.length; j++) {
-				canPutOnMachine = canAddFileToConveyor(other, conveyors[j], false);
-				if (canPutOnMachine) {
+		var canPutOnMachine = false;
+		for (var j = 0; j < conveyors.length; j++) {
+			canPutOnMachine = canAddFileToConveyor(other, conveyors[j], false);
+			if (canPutOnMachine) {
+				break;
+			}
+		}
+		if (!canPutOnMachine) {
+			for (var f = 0; f < conveyors[4].files.length; f++) {
+				if (other.type === conveyors[4].files[f].type && !conveyors[4].files[f].filled) {
+					canPutOnMachine = true;
 					break;
 				}
 			}
-			if (!canPutOnMachine) {
-				for (var f = 0; f < conveyors[4].files.length; f++) {
-					if (other.type === conveyors[4].files[f].type && !conveyors[4].files[f].filled) {
-						canPutOnMachine = true;
-						break;
-					}
-				}
-			}
-			if (!canPutOnMachine) {
-				canPutOnMachine = other.type.indexOf("-bad") > 0;
-			}
-			if (!canPutOnMachine) {
-				return;
-			}
+		}
+		if (!canPutOnMachine) {
+			canPutOnMachine = other.type.indexOf("-bad") > 0;
+		}
+		if (!canPutOnMachine) {
+			return;
+		}
 
 
-			var pos = conveyors[i].files.indexOf(other);
-			conveyors[i].files.splice(pos, 1);
-			me.file = other;
-			game.sounds.play("pickUpFile");
-		});
+		var pos = conveyors[i].files.indexOf(other);
+		conveyors[i].files.splice(pos, 1);
+		me.file = other;
+		game.sounds.play("pickUpFile");
+	};
+	for (i = 0; i < conveyors.length; i++) {
+		collidesWithAny(this.playerHands, conveyors[i].files, pickUpFile);
 	}
-
-	var me = this.player;
-	var myHands = this.playerHands;
 
 	// Drop off files
 	if (this.player.file) {
@@ -989,13 +986,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	}
 
 	// Shredder
-	if (this.player.file
-		&& this.playerHands.collides(shredder)
-		&& this.player.file.type.indexOf("-bad") > 0) {
-			this.player.file = undefined;
-			game.sounds.play("shred");
-			this.timers.shredder.reset();
-			this.timers.shredder.start();
+	if (this.player.file && this.playerHands.collides(shredder) && this.player.file.type.indexOf("-bad") > 0) {
+		this.player.file = undefined;
+		game.sounds.play("shred");
+		this.timers.shredder.reset();
+		this.timers.shredder.start();
 	}
 
 	// player holding file
@@ -1071,29 +1066,19 @@ function drawFlash(context, scene) {
 }
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
-	
 	// init
 	game.sounds.stop("fail");
-	//game.sounds.play("intro");
-	var start = new Splat.Entity(canvas.width/2, canvas.height/2, 100, 100);
-
 }, function(elapsedMillis) {
 	// simulation
-	
-	if(game.mouse.consumePressed(0)){
+	if (game.mouse.consumePressed(0)) {
 		game.scenes.switchTo("main");
-		
-		
 	}
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg-intro"), 0, 0);
-
-	
 }));
 
 game.scenes.add("end", new Splat.Scene(canvas, function() {
-	
 	// init
 	game.sounds.stop("main");
 	game.sounds.play("fail");
@@ -1105,18 +1090,14 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 
 }, function(elapsedMillis) {
 	// simulation
-	
-
 }, function(context) {
-	
 	// draw
-
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	context.font = "70px pixelmix1";
 	context.fillStyle = "#fff";
-	centerText(context,"Game Over", 0, (canvas.height / 2) - 70);
-	centerText(context,"Score: "+score,0,canvas.height / 2 + 20)
+	centerText(context, "Game Over", 0, (canvas.height / 2) - 70);
+	centerText(context, "Score: " + score, 0, (canvas.height / 2) + 20);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
