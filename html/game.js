@@ -334,7 +334,7 @@ function playerCollidesWithObstacle(x, y, width, height, obstacle) {
 		y < obstacle.y + obstacle.height;
 }
 
-function makePathTimer(player, path) {
+function makePathTimer(player, path, targetX, targetY, playerWalk, playerCarry) {
 	return new Splat.Timer(function() {
 		var pathStep = (this.time * playerSpeed) |0;
 		if (pathStep >= path.length) {
@@ -346,6 +346,35 @@ function makePathTimer(player, path) {
 		player.lastY = player.y;
 		player.x = pos.x;
 		player.y = pos.y;
+
+		var pathVx = player.x - player.lastX;
+		var pathVy = player.y - player.lastY;
+		if (!this.running) {
+			// align the target to the aStar grid, which is scaled
+			targetX = Math.floor(targetX / 3) * 3;
+			targetY = Math.floor(targetY / 3) * 3;
+			// overwrite the typical direction with the un-adjusted player's click
+			// this makes the player end up facing the direction the player meant him to
+			pathVx = targetX - player.x;
+			pathVy = targetY - player.y;
+		}
+		if (pathVy < 0) {
+			playerWalk.current = "up";
+			playerCarry.current = "up";
+		}
+		if (pathVx < 0) {
+			playerWalk.current = "left";
+			playerCarry.current = "left";
+		}
+		if (pathVx > 0) {
+			playerWalk.current = "right";
+			playerCarry.current = "right";
+		}
+		if (pathVy > 0) {
+			playerWalk.current = "down";
+			playerCarry.current = "down";
+		}
+
 	}, undefined, undefined);
 }
 
@@ -796,14 +825,10 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	if (game.mouse.consumePressed(0)) {
 		var targetX = game.mouse.x - (this.player.width / 2 |0);
 		var targetY = game.mouse.y - (this.player.height / 2 |0);
-
 		var adjusted = adjustClickCoordinate(targetX, targetY, this.player.width, this.player.height, floorObstacles);
-		targetX = adjusted[0];
-		targetY = adjusted[1];
-
-		this.path = this.aStar.search(this.player.x, this.player.y, targetX, targetY);
+		this.path = this.aStar.search(this.player.x, this.player.y, adjusted[0], adjusted[1]);
 		if (this.path.length > 0) {
-			this.timers.path = makePathTimer(this.player, this.path);
+			this.timers.path = makePathTimer(this.player, this.path, targetX, targetY, this.playerWalk, this.playerCarry);
 			this.timers.path.start();
 		}
 	}
@@ -833,29 +858,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.player.vy = playerSpeed;
 	}
 
-	var moveByPath = false;
-	if (this.timers.path && this.timers.path.running) {
-		var pathVx = this.player.x - this.player.lastX;
-		var pathVy = this.player.y - this.player.lastY;
-		if (pathVy < 0) {
-			this.playerWalk.current = "up";
-			this.playerCarry.current = "up";
-		}
-		if (pathVx < 0) {
-			this.playerWalk.current = "left";
-			this.playerCarry.current = "left";
-		}
-		if (pathVx > 0) {
-			this.playerWalk.current = "right";
-			this.playerCarry.current = "right";
-		}
-		if (pathVy > 0) {
-			this.playerWalk.current = "down";
-			this.playerCarry.current = "down";
-		}
-		moveByPath = true;
-	}
-
 	var animationTolerance = 0.1;
 	if (this.player.vy < -animationTolerance) {
 		this.playerWalk.current = "up";
@@ -878,7 +880,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.player.height = currAnim.setHeight;
 	this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
 	this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
-	if (!moveByPath && Math.abs(this.player.vx) < animationTolerance && Math.abs(this.player.vy) < animationTolerance) {
+	if (!this.player.moved()) {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
 		this.timers.playStep.stop();
