@@ -234,6 +234,38 @@ function generateBatch() {
 	batchedFiles.push(file);
 }
 
+
+function adjustRight(x, y, width, height, obstacle) {
+	x = obstacle.x + obstacle.width;
+	return [x, y];
+}
+function adjustLeft(x, y, width, height, obstacle) {
+	x = obstacle.x - width - 1;
+	return [x, y];
+}
+function adjustUp(x, y, width, height, obstacle) {
+	y = obstacle.y - height;
+	return [x, y];
+}
+function adjustDown(x, y, width, height, obstacle) {
+	y = obstacle.y + obstacle.height;
+	return [x, y];
+}
+function adjustVertically(x, y, width, height, obstacle) {
+	if (y + (height / 2) < obstacle.y + (obstacle.height / 2)) {
+		return adjustUp(x, y, width, height, obstacle);
+	} else {
+		return adjustDown(x, y, width, height, obstacle);
+	}
+}
+function adjustHorizontally(x, y, width, height, obstacle) {
+	if (x + (width / 2) < obstacle.x + (obstacle.width / 2)) {
+		return adjustLeft(x, y, width, height, obstacle);
+	} else {
+		return adjustRight(x, y, width, height, obstacle);
+	}
+};
+
 var floorObstacles = [
 	new Splat.Entity(0, -100, 108, canvas.height + 200), //left conveyor
 	new Splat.Entity(canvas.width - 108, -100, 108, canvas.height + 200), //right conveyor
@@ -244,12 +276,92 @@ var floorObstacles = [
 	new Splat.Entity(-100, 0, (canvas.width + 200), 60), // top border
 	new Splat.Entity(-100, canvas.height, (canvas.width + 200), 60) // bottom border
 ];
+floorObstacles[0].adjustClick = adjustRight;
+floorObstacles[1].adjustClick = adjustLeft;
+floorObstacles[2].adjustClick = function(x, y, width, height, obstacle) {
+	var dropOffWidth = 54;
+	var enclosedWidth = 369;
+	if (x < obstacle.x + dropOffWidth) {
+		return adjustLeft(x, y, width, height, obstacle);
+	} else if (x > obstacle.x + obstacle.width - fileWidth) {
+		return adjustRight(x, y, width, height, obstacle);
+	} else {
+		return adjustVertically(x, y, width, height, obstacle);
+	}
+};
+floorObstacles[3].adjustClick = function(x, y, width, height, obstacle) {
+	var dropOffWidth = 102;
+	var enclosedWidth = 276;
+	if (x < obstacle.x + dropOffWidth) {
+		return adjustLeft(x, y, width, height, obstacle);
+	} else if (x > obstacle.x + obstacle.width - fileWidth) {
+		return adjustRight(x, y, width, height, obstacle);
+	} else {
+		return adjustVertically(x, y, width, height, obstacle);
+	}
+};
+floorObstacles[4].adjustClick = function(x, y, width, height, obstacle) {
+	var dropOffWidth = 54;
+	var enclosedWidth = 138;
+	if (x < obstacle.x + dropOffWidth) {
+		return adjustLeft(x, y, width, height, obstacle);
+	} else if (x > obstacle.x + obstacle.width - fileWidth) {
+		return adjustRight(x, y, width, height, obstacle);
+	} else {
+		return adjustVertically(x, y, width, height, obstacle);
+	}
+};
+floorObstacles[5].adjustClick = adjustHorizontally;
+floorObstacles[6].adjustClick = adjustDown;
+floorObstacles[7].adjustClick = adjustUp;
 
+function makeIsWalkableForObstacles(player, obstacles) {
+	return function(x, y) {
+		for (var i = 0; i < obstacles.length; i++) {
+			var obstacle = obstacles[i];
+			if (playerCollidesWithObstacle(x, y, player.width, player.height, obstacle)) {
+				return false;
+			}
+		}
+		return true;
+	};
+}
 
-var lastClick = [];
-//variable that tells whether the player will move toward the last selected point 
-var moveByClick = false;
+function playerCollidesWithObstacle(x, y, width, height, obstacle) {
+	return x >= obstacle.x - width &&
+		x < obstacle.x + obstacle.width &&
+		y >= obstacle.y - height &&
+		y < obstacle.y + obstacle.height;
+}
 
+function makePathTimer(player, path) {
+	return new Splat.Timer(function() {
+		var pathStep = (this.time * playerSpeed) |0;
+		if (pathStep >= path.length) {
+			pathStep = path.length - 1;
+			this.stop();
+		}
+		var pos = path[pathStep];
+		player.lastX = player.x;
+		player.lastY = player.y;
+		player.x = pos.x;
+		player.y = pos.y;
+	}, undefined, undefined);
+}
+
+function adjustClickCoordinate(x, y, width, height, obstacles) {
+	for (var i = 0; i < obstacles.length; i++) {
+		var obstacle = obstacles[i];
+		if (playerCollidesWithObstacle(x, y, width, height, obstacle)) {
+			if (typeof obstacle.adjustClick === 'function') {
+				var adjusted = obstacle.adjustClick(x, y, width, height, obstacle);
+				x = adjusted[0];
+				y = adjusted[1];
+			}
+		}
+	}
+	return [x, y];
+}
 
 function getNextFile(){
 	if (batchedFiles.length === 0) {
@@ -384,42 +496,6 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 }
 
 /**
-*	Create a line between two points that the entity moves along 
-*@param {@link Entity} myEntity The entity that i being moved
-*@param {number} x The ending X-coordinate
-*@param {number} y The ending Y-coordinate
-*@param {number} s The speed at which the entity moves
-**/
-function createMovementLine(myEntity, x, y, mySpeed) {
-	var startX = myEntity.x;
-	var startY = myEntity.y;
-	var endX = x - (myEntity.width/2);
-	var endY = y - (myEntity.height/2);
-	var errMargin = 10;
-
-	/**
-	* adjust the velocity of the entity in the x direction
-	**/
-	if (endX > (startX + errMargin)) {
-		myEntity.vx = mySpeed;
-	} else if (endX < (startX - errMargin)) {
-		myEntity.vx = -mySpeed;
-	} else {
-		myEntity.vx = 0;
-	}
-
-	/**
-	* adjust the velocity of the entity in the x direction
-	**/
-	if(endY > (startY + errMargin)) {
-		myEntity.vy = mySpeed;
-	} else if (endY < (startY - errMargin)) {
-		myEntity.vy = -mySpeed;
-	} else {
-		myEntity.vy = 0;
-	}
-}
-/**
 *	verifies that moving along a given path does not carry a given entity into another entity 
 *@param {@link Entity} myEnt The entity that is being moved
 *@param {number} elapsedMillis The number of milliseconds since the last frame.
@@ -455,6 +531,7 @@ var fileWidth = 45;
 var fileHeight = 39;
 var toteWidth = 63;
 var toteHeight = 60;
+var playerSpeed = 0.7;
 var fileTypes = ["picture", "video", "email"];
 var fileColors = {
 	"picture": "#ff00ff",
@@ -709,33 +786,74 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.vid = new Splat.Timer(undefined, 4500, undefined);
 	this.timers.photo = new Splat.Timer(undefined, 8500, undefined);
 	this.timers.flash = new Splat.Timer(undefined, 200, undefined);
+
+	this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
+	this.aStar.scaleX = 3;
+	this.aStar.scaleY = 3;
 }, function(elapsedMillis) {
 	// simulation
 
 	if (game.mouse.consumePressed(0)) {
-		setLastClick();
+		var targetX = game.mouse.x - (this.player.width / 2 |0);
+		var targetY = game.mouse.y - (this.player.height / 2 |0);
+
+		var adjusted = adjustClickCoordinate(targetX, targetY, this.player.width, this.player.height, floorObstacles);
+		targetX = adjusted[0];
+		targetY = adjusted[1];
+
+		this.path = this.aStar.search(this.player.x, this.player.y, targetX, targetY);
+		if (this.path.length > 0) {
+			this.timers.path = makePathTimer(this.player, this.path);
+			this.timers.path.start();
+		}
 	}
 
-	var playerSpeed = 0.7;
 	if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
-		moveByClick = false;
+		if (this.timers.path) {
+			this.timers.path.stop();
+		}
 		this.player.vx = -playerSpeed;
 	}
 	if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
-		moveByClick = false;
+		if (this.timers.path) {
+			this.timers.path.stop();
+		}
 		this.player.vx = playerSpeed;
 	}
 	if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
-		moveByClick = false;
+		if (this.timers.path) {
+			this.timers.path.stop();
+		}
 		this.player.vy = -playerSpeed;
 	}
 	if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
-		moveByClick = false;
+		if (this.timers.path) {
+			this.timers.path.stop();
+		}
 		this.player.vy = playerSpeed;
 	}
 
-	if (moveByClick) {
-		createMovementLine(this.player, lastClickX(), lastClickY(), playerSpeed);
+	var moveByPath = false;
+	if (this.timers.path && this.timers.path.running) {
+		var pathVx = this.player.x - this.player.lastX;
+		var pathVy = this.player.y - this.player.lastY;
+		if (pathVy < 0) {
+			this.playerWalk.current = "up";
+			this.playerCarry.current = "up";
+		}
+		if (pathVx < 0) {
+			this.playerWalk.current = "left";
+			this.playerCarry.current = "left";
+		}
+		if (pathVx > 0) {
+			this.playerWalk.current = "right";
+			this.playerCarry.current = "right";
+		}
+		if (pathVy > 0) {
+			this.playerWalk.current = "down";
+			this.playerCarry.current = "down";
+		}
+		moveByPath = true;
 	}
 
 	var animationTolerance = 0.1;
@@ -760,7 +878,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.player.height = currAnim.setHeight;
 	this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
 	this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
-	if (Math.abs(this.player.vx) < animationTolerance && Math.abs(this.player.vy) < animationTolerance) {
+	if (!moveByPath && Math.abs(this.player.vx) < animationTolerance && Math.abs(this.player.vy) < animationTolerance) {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
 		this.timers.playStep.stop();
