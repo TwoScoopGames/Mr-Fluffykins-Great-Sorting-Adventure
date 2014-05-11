@@ -393,14 +393,14 @@ function adjustClickCoordinate(x, y, width, height, obstacles) {
 	return [x, y];
 }
 
-function getNextFile(){
+function getNextFile() {
 	if (batchedFiles.length === 0) {
 		generateBatch();
 	}
 	return removeRandomElement(batchedFiles);
 }
 
-function getNextTote(){
+function getNextTote() {
 	return removeRandomElement(batchedTotes);
 }
 
@@ -452,7 +452,7 @@ var conveyorSpeed = 0.03;
 
 function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclosedWidth) {
 	var conveyor = new Splat.Entity(x, y, width, height);
-	conveyor.draw = function(context){
+	conveyor.draw = function(context) {
 		for (var i = 0; i < this.files.length; i++) {
 			this.files[i].draw(context);
 		}
