@@ -1044,8 +1044,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.fillStyle = "#ffffff";
 	context.fillText(hearts, 150, 50);
 
-	context.fillRect(shredder.x, shredder.y, shredder.width, shredder.height);
-
 	if (conveyors[0].files.length >= 14) {
 		context.drawImage(game.images.get("warning-backing-up"), 100, 50);
 	}
