@@ -622,7 +622,7 @@ function randomElement(array) {
 
 function removeRandomElement(array) {
 	var pos = Math.random() * array.length |0;
-	return array.splice(pos,1)[0];
+	return array.splice(pos, 1)[0];
 }
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
