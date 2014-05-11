@@ -218,7 +218,7 @@ var conveyors = [];
 var batchedFiles = [];
 var batchedTotes = [];
 
-var shredder = new Splat.Entity(776, 541, 108, 60);
+var shredder = new Splat.Entity(776, 521, 108, 80);
 
 
 
@@ -1043,6 +1043,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.font= "50px pixelmix1";
 	context.fillStyle = "#ffffff";
 	context.fillText(hearts, 150, 50);
+
+	context.fillRect(shredder.x, shredder.y, shredder.width, shredder.height);
 
 	if (conveyors[0].files.length >= 14) {
 		context.drawImage(game.images.get("warning-backing-up"), 100, 50);
