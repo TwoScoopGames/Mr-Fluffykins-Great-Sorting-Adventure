@@ -1070,6 +1070,11 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	// init
 	game.sounds.stop("main");
 	game.sounds.play("fail");
+
+	this.timers.done = new Splat.Timer(undefined, 6000, function() {
+		game.scenes.switchTo("title");
+	});
+	this.timers.done.start();
 }, function(elapsedMillis) {
 	// simulation
 }, function(context) {
