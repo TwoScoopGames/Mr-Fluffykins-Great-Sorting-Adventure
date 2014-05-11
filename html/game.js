@@ -758,10 +758,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var photo = game.animations.get("photo");
 
 	this.drawables = [
-		//new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
-		//ew Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
-		// new Splat.AnimatedEntity(297, 432, machineMail.width, machineMail.height, machineMail, 0, 0),
-
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
 		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
 		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
@@ -770,7 +766,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(297, 30, photo.width, photo.height, photo, 0, 0),
 		new Splat.AnimatedEntity(345, 153, vid.width, vid.height, vid, 0, 0),
 		this.player
-
 	];
 
 	var scene = this;
