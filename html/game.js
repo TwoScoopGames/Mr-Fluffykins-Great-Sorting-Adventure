@@ -510,27 +510,27 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 }
 
 /**
-*	verifies that moving along a given path does not carry a given entity into another entity 
-*@param {@link Entity} myEnt The entity that is being moved
-*@param {number} elapsedMillis The number of milliseconds since the last frame.
-*@param {@link Entity} entArray The Array of potential obstructing Entities
-**/
-function validateAndMove(myEnt, elapsedMillis, entArray) {
-	myEnt.move(elapsedMillis);
+ * verifies that moving along a given path does not carry a given entity into another entity 
+ * @param {Entity} myEnt The entity that is being moved
+ * @param {number} elapsedMillis The number of milliseconds since the last frame.
+ * @param {Entity} entArray The Array of potential obstructing Entities
+ **/
+function validateAndMove(player, elapsedMillis, obstacles) {
+	player.move(elapsedMillis);
 
-	for(var i = 0; i < entArray.length; i++) {
-		var thisEnt = entArray[i];
-		if (myEnt.collides(thisEnt)) {
-			myEnt.resolveCollisionWith(thisEnt);
+	for (var i = 0; i < obstacles.length; i++) {
+		var obstacle = obstacles[i];
+		if (player.collides(obstacle)) {
+			player.resolveCollisionWith(obstacle);
 		}
 	}
 }
-/**
-*	sorts Entities by virtual z-axis and draws them in order so that those closer to the viewer are drawn over those further away
-*@param {@link external:CanvasRenderingContext2D} context browser native that allows interaction with the canvas
-*@param {@link Entity} entities array of drawable entities
 
-**/
+/**
+ * sorts Entities by virtual z-axis and draws them in order so that those closer to the viewer are drawn over those further away
+ * @param {external:CanvasRenderingContext2D} context browser native that allows interaction with the canvas
+ * @param {Entity} entities array of drawable entities
+ **/
 function drawEntities(context, entities) {
 	entities.sort(function(a, b) {
 		return (a.y + a.height) - (b.y + b.height);
