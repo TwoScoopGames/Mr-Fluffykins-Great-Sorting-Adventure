@@ -637,10 +637,23 @@ function removeRandomElement(array) {
 	return array.splice(pos,1)[0];
 }
 
+game.scenes.add("title", new Splat.Scene(canvas, function() {
+	// init
+	game.sounds.stop("fail");
+	game.sounds.play("intro", true);
+}, function(elapsedMillis) {
+	// simulation
+	if (game.mouse.consumePressed(0)) {
+		game.scenes.switchTo("main");
+	}
+}, function(context) {
+	// draw
+	context.drawImage(game.images.get("bg-intro"), 0, 0);
+}));
+
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// init
-
-	//game.sounds.stop("intro");
+	game.sounds.stop("intro");
 	game.sounds.play("main", true);
 
 	//reset files to zero
@@ -1062,19 +1075,6 @@ function drawFlash(context, scene) {
 		context.fillRect(scene.camera.x, scene.camera.y, canvas.width, canvas.height);
 	}
 }
-
-game.scenes.add("title", new Splat.Scene(canvas, function() {
-	// init
-	game.sounds.stop("fail");
-}, function(elapsedMillis) {
-	// simulation
-	if (game.mouse.consumePressed(0)) {
-		game.scenes.switchTo("main");
-	}
-}, function(context) {
-	// draw
-	context.drawImage(game.images.get("bg-intro"), 0, 0);
-}));
 
 game.scenes.add("end", new Splat.Scene(canvas, function() {
 	// init
