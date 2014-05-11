@@ -656,9 +656,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
-	makeConveyor(243, 93, 639, 39, true, "picture", 54, 369);
+	makeConveyor(243, 93, 639, 39, true, "picture", 102, 369);
 	makeConveyor(243, 309, 639, 39, true, "video", 102, 276);
-	makeConveyor(243, 525, 417, 39, true, "email", 54, 138);
+	makeConveyor(243, 525, 417, 39, true, "email", 102, 138);
 	makeConveyor(canvas.width - 108, 0, 108, canvas.height - 60, false, "out", canvas.height, canvas.height);
 
 	this.playerWalk = new AnimationGroup();
@@ -762,8 +762,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
 		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
 		new Splat.AnimatedEntity(774, 462, shredder.width, shredder.height, shredder, 0, 0),
-		new Splat.AnimatedEntity(297, 432, mail.width, mail.height, mail, 0, 0),
-		new Splat.AnimatedEntity(297, 30, photo.width, photo.height, photo, 0, 0),
+		new Splat.AnimatedEntity(345, 432, mail.width, mail.height, mail, 0, 0),
+		new Splat.AnimatedEntity(345, 30, photo.width, photo.height, photo, 0, 0),
 		new Splat.AnimatedEntity(345, 153, vid.width, vid.height, vid, 0, 0),
 		this.player
 	];
