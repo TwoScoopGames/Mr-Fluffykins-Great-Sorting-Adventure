@@ -18,8 +18,7 @@ var manifest = {
 		"tote-picture-good-full": "img/tote-photo-full.png",
 		"tube-top-right": "img/tube-top-right.png",
 		"tube-top-left": "img/tube-top-left.png",
-		"tube-bottom-right": "img/tube-bottom-right.png",
-		"warning-backing-up": "img/warning-backing-up.png"
+		"tube-bottom-right": "img/tube-bottom-right.png"
 	},
 	"sounds": {
 		"intro": "music/intro.mp3",
@@ -172,6 +171,11 @@ var manifest = {
 			"strip": "img/machine-only-video-anim-f13.png",
 			"frames": 13,
 			"msPerFrame": 100
+		},
+		"warning": {
+			"strip": "img/warning-backing-up-f2.png",
+			"frames": 2,
+			"msPerFrame": 250
 		}
 	}
 };
@@ -1012,7 +1016,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	if (this.timers.photo.running) {
 		game.animations.get("photo").move(elapsedMillis);
 	}
-
+	game.animations.get("warning").move(elapsedMillis);
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, -497);
@@ -1045,7 +1049,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.fillText(hearts, 150, 50);
 
 	if (conveyors[0].files.length >= 14) {
-		context.drawImage(game.images.get("warning-backing-up"), 100, 50);
+		game.animations.get("warning").draw(context, 650, canvas.height - 120);
 	}
 	drawFlash(context, this);
 }));
