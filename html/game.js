@@ -1040,11 +1040,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var tubeBottomLeft = game.images.get("tube-bottom-right");
 	context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
 
-	context.font= "50px mono";
+	context.font= "50px pixelmix1";
 	context.fillStyle = "#ffffff";
 	context.fillText(score, 950, 50);
 
-	context.font= "50px mono";
+	context.font= "50px pixelmix1";
 	context.fillStyle = "#ffffff";
 	context.fillText(hearts, 150, 50);
 
