@@ -1049,7 +1049,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.fillText(hearts, 150, 50);
 
 	if (conveyors[0].files.length >= 14) {
-		game.animations.get("warning").draw(context, 650, canvas.height - 120);
+		game.animations.get("warning").draw(context, 630, canvas.height - 120);
 	}
 	drawFlash(context, this);
 }));
