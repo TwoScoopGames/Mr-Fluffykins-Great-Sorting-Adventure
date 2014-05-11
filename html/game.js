@@ -425,18 +425,6 @@ function resetPosition(entity) {
 	entity.y = entity.lastY;
 }
 
-function setLastClick() {
-	lastClick[0] = game.mouse.x;
-	lastClick[1] = game.mouse.y;
-	moveByClick = true;
-}
-function lastClickX() {
-	return lastClick[0];
-}
-function lastClickY() {
-	return lastClick[1];
-}
-
 function isInside(container, item) {
 	return item.x >= container.x &&
 		item.x + item.width <= container.x + container.width &&
