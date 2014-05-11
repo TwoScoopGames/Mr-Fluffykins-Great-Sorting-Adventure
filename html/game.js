@@ -628,7 +628,9 @@ function removeRandomElement(array) {
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	// init
 	game.sounds.stop("fail");
-	game.sounds.play("intro", true);
+	if (game.sounds.firstPlay) {
+		game.sounds.play("intro", true);
+	}
 }, function(elapsedMillis) {
 	// simulation
 	if (game.mouse.consumePressed(0)) {
