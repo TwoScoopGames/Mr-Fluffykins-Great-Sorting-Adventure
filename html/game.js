@@ -638,13 +638,14 @@ function removeRandomElement(array) {
 }
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
-	
 	// init
+
 	//game.sounds.stop("intro");
 	game.sounds.play("main", true);
+
 	//reset files to zero
 	for (var i = 0; i < conveyors.length; i++) {
-		conveyors[i].files.length=0;
+		conveyors[i].files = [];
 	}
 	hearts = 3;
 	score = 0;
@@ -752,8 +753,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var mail = game.animations.get("mail");
 	var vid = game.animations.get("vid");
 	var photo = game.animations.get("photo");
-	
-	
+
 	this.drawables = [
 		//new Splat.AnimatedEntity(297, 30, machinePhoto.width, machinePhoto.height, machinePhoto, 0, 0 ),
 		//ew Splat.AnimatedEntity(345, 153, machineVideo.width, machineVideo.height, machineVideo,0, 0),
@@ -881,8 +881,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
 		this.timers.playStep.stop();
-	}
-	else {
+	} else {
 		this.timers.playStep.start();
 	}
 	this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
@@ -953,7 +952,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		if (!canPutOnMachine) {
 			return;
 		}
-
 
 		var pos = conveyors[i].files.indexOf(other);
 		conveyors[i].files.splice(pos, 1);
