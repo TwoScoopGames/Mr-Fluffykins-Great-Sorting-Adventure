@@ -1015,7 +1015,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 }, function(context) {
 	// draw
-	context.drawImage(game.images.get("bg"), 0, 0);
+	context.drawImage(game.images.get("bg"), 0, -497);
 
 	game.animations.get("conveyor-left").draw(context, 0, 0);
 	var anim = game.animations.get("conveyor-right");
