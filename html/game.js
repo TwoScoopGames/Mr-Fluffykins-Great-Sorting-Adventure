@@ -219,26 +219,54 @@ AnimationGroup.prototype.getCurrent = function() {
 var stepSounds = ["step1", "step2"];
 
 var conveyors = [];
-var batchedFiles = [];
-var batchedTotes = [];
+
 
 var shredder = new Splat.Entity(776, 521, 108, 80);
 
+var waves = [
+	{
+		"video": 1,
+		"picture": 0,
+		"email": 0,
+		"video-bad": 1,
+		"picture-bad": 0,
+		"email-bad": 0,
+	}
+];
+var currentWave = 0;
+var batchedFiles = [];
+var batchedTotes = [];
 
 
 function generateBatch() {
-	var type;
-	for (var i = 0; i < 3; i++) {
-		type = randomElement(fileTypes);
-		batchedFiles.push(createFile(type));
-		batchedTotes.push(createTote(type+"-good"));
+	for (var type in waves[currentWave]) {
+		console.log(type);
+		console.log(waves[currentWave][type]);
+		for (var i = 0; i < waves[currentWave][type]; i++) {
+			if (type.indexOf("-bad") === -1) {
+				batchedFiles.push(createFile(type));
+				batchedTotes.push(createTote(type + "-good"));
+			} else {
+				type = type.substr(0, type.length - 4);
+				var file = createFile(type);
+				file.bad = true;
+				batchedFiles.push(file);
+			}
+		}
 	}
-	type = randomElement(fileTypes);
-	var file = createFile(type);
-	file.bad = true;
-	batchedFiles.push(file);
+}
+		
+
+function getNextFile() {
+	if (batchedFiles.length === 0) {
+//		generateBatch();
+	}
+	return removeRandomElement(batchedFiles);
 }
 
+function getNextTote() {
+	return removeRandomElement(batchedTotes);
+}
 
 function adjustRight(x, y, width, height, obstacle) {
 	x = obstacle.x + obstacle.width;
@@ -397,17 +425,6 @@ function adjustClickCoordinate(x, y, width, height, obstacles) {
 	return [x, y];
 }
 
-function getNextFile() {
-	if (batchedFiles.length === 0) {
-		generateBatch();
-	}
-	return removeRandomElement(batchedFiles);
-}
-
-function getNextTote() {
-	return removeRandomElement(batchedTotes);
-}
-
 function canPickupFile(file, conveyor) {
 	if (conveyor.horizontal) {
 		return file.x >= conveyor.x + conveyor.dropOffWidth + conveyor.enclosedWidth;
@@ -481,7 +498,6 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				this.files.splice(i, 1);
 				i--;
 				score += 10;
-				console.log(score);
 			}
 			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth) {
 				file.type += file.bad ? "-bad" : "-good";
@@ -649,7 +665,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// init
 	game.sounds.stop("intro");
 	game.sounds.play("main", true);
-
+	generateBatch();
 	//reset files to zero
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].files = [];
@@ -774,8 +790,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var scene = this;
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
+		
 		var file = getNextFile();
-		if (!addFileToConveyor(file, conveyors[0], true)) {
+		if (file && !addFileToConveyor(file, conveyors[0], true)) {
 			batchedFiles.push(file);
 			hearts -= 1;
 			if (hearts === 0) {
@@ -789,6 +806,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	});
 	this.timers.fileSpawner.start();
 	// add first file right away
+
 	addFileToConveyor(getNextFile(), conveyors[0], true);
 
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
