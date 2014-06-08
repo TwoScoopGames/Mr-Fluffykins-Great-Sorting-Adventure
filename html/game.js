@@ -231,6 +231,14 @@ var waves = [
 		"video-bad": 1,
 		"picture-bad": 0,
 		"email-bad": 0,
+	},
+	{
+		"video": 3,
+		"picture": 0,
+		"email": 2,
+		"video-bad": 1,
+		"picture-bad": 0,
+		"email-bad": 0,
 	}
 ];
 var currentWave = 0;
@@ -479,6 +487,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 		}
 	};
 	conveyor.move = function(elapsedMillis) {
+		var scene = game.scenes.get("main");
 		for (var i = 0; i < this.files.length; i++) {
 			var file = this.files[i];
 			if (this.horizontal) {
@@ -498,13 +507,18 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				this.files.splice(i, 1);
 				i--;
 				score += 10;
+				if(this.files.length === 0){
+					currentWave +=1;
+					scene.timers.waveStart.reset();
+					scene.timers.waveStart.start();
+				}
 			}
 			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth) {
 				file.type += file.bad ? "-bad" : "-good";
 				file.sprite = game.animations.get(file.type);
 				game.sounds.play("processFile");
 
-				var scene = game.scenes.get("main");
+				
 				if (file.type === "email-good" || file.type === "email-bad") {
 					scene.timers.mail.reset();
 					scene.timers.mail.start();
@@ -665,10 +679,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// init
 	game.sounds.stop("intro");
 	game.sounds.play("main", true);
-	this.timers.waveStart = new Splat.Timer(undefined, 2000, generateBatch);
-	this.timers.waveStart.start();
-
-	
+		
 	//reset files to zero
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].files = [];
@@ -840,6 +851,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.vid = new Splat.Timer(undefined, 4500, undefined);
 	this.timers.photo = new Splat.Timer(undefined, 8500, undefined);
 	this.timers.flash = new Splat.Timer(undefined, 200, undefined);
+	this.timers.waveStart = new Splat.Timer(undefined, 2000, generateBatch);
+	this.timers.waveStart.start();
 
 	this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
 	this.aStar.scaleX = 3;
