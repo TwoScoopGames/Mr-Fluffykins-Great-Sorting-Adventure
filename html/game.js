@@ -226,19 +226,19 @@ var shredder = new Splat.Entity(776, 521, 108, 80);
 var waves = [
 	{
 		"video": 1,
-		"picture": 0,
-		"email": 0,
+		"picture": 1,
+		"email": 1,
 		"video-bad": 1,
-		"picture-bad": 0,
-		"email-bad": 0,
+		"picture-bad": 1,
+		"email-bad": 1,
 	},
 	{
 		"video": 3,
-		"picture": 0,
-		"email": 2,
-		"video-bad": 1,
-		"picture-bad": 0,
-		"email-bad": 0,
+		"picture": 3,
+		"email": 3,
+		"video-bad": 2,
+		"picture-bad": 2,
+		"email-bad": 2,
 	}
 ];
 var currentWave = 0;
@@ -1078,28 +1078,32 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var tubeBottomLeft = game.images.get("tube-bottom-right");
 	context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
+	
+	var scene = this;
+	this.camera.drawAbsolute(context,function(){
+		context.font= "50px pixelmix1";
+		context.fillStyle = "#ffffff";
+		context.fillText(score, 950, 50);
 
-	context.font= "50px pixelmix1";
-	context.fillStyle = "#ffffff";
-	context.fillText(score, 950, 50);
+		context.fillText(hearts, 150, 50);
 
-	context.fillText(hearts, 150, 50);
+		if (scene.timers.waveStart.running){
+			var alpha = Splat.math.oscillate(scene.timers.waveStart.time,2000);
+			context.fillStyle = "rgba(50,50,50," +alpha + ")";
+			context.fillRect(0,(canvas.height / 2) - 30, canvas.width, 60);
 
-	if (this.timers.waveStart.running){
-		var alpha = Splat.math.oscillate(this.timers.waveStart.time,2000);
-		context.fillStyle = "rgba(50,50,50," +alpha + ")";
-		context.fillRect(0,(canvas.height / 2) - 30, canvas.width, 60);
+			context.fillStyle = "rgba(255,255,255," +alpha + ")";
+			var waveText = "Starting Wave "+ (currentWave + 1);
+			centerText(context, waveText, 0, (canvas.height / 2) + 20);
+			
+		}
 
-		context.fillStyle = "rgba(255,255,255," +alpha + ")";
-		var waveText = "Starting Wave "+ (currentWave + 1);
-		centerText(context, waveText, 0, (canvas.height / 2) + 20);
-		
-	}
-
-	if (conveyors[0].files.length >= 14) {
-		game.animations.get("warning").draw(context, 630, canvas.height - 120);
-	}
-	drawFlash(context, this);
+		if (conveyors[0].files.length >= 14) {
+			game.animations.get("warning").draw(context, 630, canvas.height - 120);
+		}
+		drawFlash(context, scene);
+	});
+	
 }));
 
 function drawFlash(context, scene) {
