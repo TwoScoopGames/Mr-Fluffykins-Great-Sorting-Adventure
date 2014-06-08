@@ -766,6 +766,14 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		}
 	};
 
+	this.camera = new Splat.EntityBoxCamera(this.player, canvas.width, 100, canvas.width / 2, canvas.height - 400);
+	//redefine move function so that camera can't move past bottom of the screen
+	this.camera.move = function(elapsedMillis){
+		Splat.EntityBoxCamera.prototype.move.call(this, elapsedMillis);
+		if (this.y > 0){
+			this.y = 0;
+		}
+	}
 	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
 
 	var machinePhoto = game.images.get("machine-only-photo");
@@ -838,7 +846,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.aStar.scaleY = 3;
 }, function(elapsedMillis) {
 	// simulation
-
 	if (game.mouse.consumePressed(0)) {
 		var targetX = game.mouse.x - (this.player.width / 2 |0);
 		var targetY = game.mouse.y - (this.player.height / 2 |0);
@@ -1035,6 +1042,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		game.animations.get("photo").move(elapsedMillis);
 	}
 	game.animations.get("warning").move(elapsedMillis);
+
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, -497);

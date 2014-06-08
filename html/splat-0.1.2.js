@@ -1024,8 +1024,8 @@ Entity.prototype.moved = function() {
 
 Entity.prototype.draw = function() {
 	// draw bounding boxes
-	// context.strokeStyle = "#ff0000";
-	// context.strokeRect(this.x, this.y, this.width, this.height);
+	 context.strokeStyle = "#ff0000";
+	 context.strokeRect(this.x, this.y, this.width, this.height);
 };
 
 /**
