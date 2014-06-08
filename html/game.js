@@ -665,7 +665,10 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// init
 	game.sounds.stop("intro");
 	game.sounds.play("main", true);
-	generateBatch();
+	this.timers.waveStart = new Splat.Timer(undefined, 2000, generateBatch);
+	this.timers.waveStart.start();
+
+	
 	//reset files to zero
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].files = [];
@@ -805,10 +808,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.start();
 	});
 	this.timers.fileSpawner.start();
-	// add first file right away
-
-	addFileToConveyor(getNextFile(), conveyors[0], true);
-
+	
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
 		var tote = getNextTote();
 		if (tote) {
@@ -1062,9 +1062,18 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.fillStyle = "#ffffff";
 	context.fillText(score, 950, 50);
 
-	context.font= "50px pixelmix1";
-	context.fillStyle = "#ffffff";
 	context.fillText(hearts, 150, 50);
+
+	if (this.timers.waveStart.running){
+		var alpha = Splat.math.oscillate(this.timers.waveStart.time,2000);
+		context.fillStyle = "rgba(50,50,50," +alpha + ")";
+		context.fillRect(0,(canvas.height / 2) - 30, canvas.width, 60);
+
+		context.fillStyle = "rgba(255,255,255," +alpha + ")";
+		var waveText = "Starting Wave "+ (currentWave + 1);
+		centerText(context, waveText, 0, (canvas.height / 2) + 20);
+		
+	}
 
 	if (conveyors[0].files.length >= 14) {
 		game.animations.get("warning").draw(context, 630, canvas.height - 120);
