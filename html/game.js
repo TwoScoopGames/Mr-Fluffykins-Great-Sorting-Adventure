@@ -3,6 +3,7 @@ var canvas = document.getElementById("canvas");
 var manifest = {
 	"images": {
 		"bg": "img/bg.png",
+		"bg-wall": "img/bg-wall.png",
 		"bg-intro": "img/title-screen.png",
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
@@ -307,19 +308,18 @@ function adjustHorizontally(x, y, width, height, obstacle) {
 	}
 }
 
-var floorObstacles = [
-	new Splat.Entity(0, -100, 108, canvas.height + 200), //left conveyor
-	new Splat.Entity(canvas.width - 108, -100, 108, canvas.height + 200), //right conveyor
-	new Splat.Entity(243,108,639,60), //top machine
-	new Splat.Entity(243,324,639,60), //middle machine
-	new Splat.Entity(243, 540, 417, 60), //bottom machine
-	new Splat.Entity(774, 540, 108, 60), // shredder
-	new Splat.Entity(-100, 0, (canvas.width + 200), 60), // top border
-	new Splat.Entity(-100, canvas.height, (canvas.width + 200), 60) // bottom border
-];
-floorObstacles[0].adjustClick = adjustRight;
-floorObstacles[1].adjustClick = adjustLeft;
-floorObstacles[2].adjustClick = function(x, y, width, height, obstacle) {
+var floorObstacles = [];
+
+var obstacle = new Splat.Entity(0, -100, 108, canvas.height + 200); //left conveyor
+obstacle.adjustClick = adjustRight;
+floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(canvas.width - 108, -100, 108, canvas.height + 200); //right conveyor
+obstacle.adjustClick = adjustLeft;
+floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(243,108,639,60); //top machine
+obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 369;
 	if (x < obstacle.x + dropOffWidth) {
@@ -330,7 +330,10 @@ floorObstacles[2].adjustClick = function(x, y, width, height, obstacle) {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
 };
-floorObstacles[3].adjustClick = function(x, y, width, height, obstacle) {
+floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(243,324,639,60); //middle machine
+obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 102;
 	var enclosedWidth = 276;
 	if (x < obstacle.x + dropOffWidth) {
@@ -341,7 +344,10 @@ floorObstacles[3].adjustClick = function(x, y, width, height, obstacle) {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
 };
-floorObstacles[4].adjustClick = function(x, y, width, height, obstacle) {
+floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(243, 540, 417, 60); //bottom machine
+obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 138;
 	if (x < obstacle.x + dropOffWidth) {
@@ -352,9 +358,27 @@ floorObstacles[4].adjustClick = function(x, y, width, height, obstacle) {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
 };
-floorObstacles[5].adjustClick = adjustHorizontally;
-floorObstacles[6].adjustClick = adjustDown;
-floorObstacles[7].adjustClick = adjustUp;
+floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(774, 540, 108, 60); // shredder
+obstacle.adjustClick = adjustHorizontally;
+floorObstacles.push(obstacle);
+
+// obstacle = new Splat.Entity(-100, 0, (canvas.width + 200), 60), // top border
+// obstacle.adjustClick = adjustDown;
+// floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(-100, canvas.height, (canvas.width + 200), 60); // bottom border
+obstacle.adjustClick = adjustUp;
+floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(0, 34, 141, 21); // left of door
+obstacle.adjustClick = adjustDown;
+floorObstacles.push(obstacle);
+
+obstacle = new Splat.Entity(249, 34, canvas.width, 21); // right of door
+obstacle.adjustClick = adjustDown;
+floorObstacles.push(obstacle);
 
 function makeIsWalkableForObstacles(player, obstacles) {
 	return function(x, y) {
@@ -798,6 +822,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var mail = game.animations.get("mail");
 	var vid = game.animations.get("vid");
 	var photo = game.animations.get("photo");
+	var door = game.images.get("bg-wall");
 
 	this.drawables = [
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
@@ -807,6 +832,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(345, 432, mail.width, mail.height, mail, 0, 0),
 		new Splat.AnimatedEntity(345, 30, photo.width, photo.height, photo, 0, 0),
 		new Splat.AnimatedEntity(345, 153, vid.width, vid.height, vid, 0, 0),
+		new Splat.AnimatedEntity(0, 34, door.width, 21, door, 0, -174),
 		this.player
 	];
 
@@ -860,8 +886,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 }, function(elapsedMillis) {
 	// simulation
 	if (game.mouse.consumePressed(0)) {
-		var targetX = game.mouse.x - (this.player.width / 2 |0);
-		var targetY = game.mouse.y - (this.player.height / 2 |0);
+		var targetX = game.mouse.x - (this.player.width / 2 |0) + this.camera.x;
+		var targetY = game.mouse.y - (this.player.height / 2 |0) + this.camera.y;
 		var adjusted = adjustClickCoordinate(targetX, targetY, this.player.width, this.player.height, floorObstacles);
 		this.path = this.aStar.search(this.player.x, this.player.y, adjusted[0], adjusted[1]);
 		if (this.path.length > 0) {
