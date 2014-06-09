@@ -247,11 +247,110 @@ var batchedFiles = [];
 var batchedTotes = [];
 
 
+function generateGarbageWave(currentWaveInt){
+	console.log('generating garbage wave');
+	var ranVid = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranPic = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranEMail = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranVidBad = Math.floor(Math.random()*(currentWaveInt+2)) + 3*currentWaveInt;
+	var ranPicBad = Math.floor(Math.random()*(currentWaveInt+2)) + 3*currentWaveInt;
+	var ranEMailBad = Math.floor(Math.random()*(currentWaveInt+2)) + 3*currentWaveInt;
+
+	return {
+		"video": ranVid,
+		"picture": ranPic,
+		"email": ranEMail,
+		"video-bad": ranVidBad,
+		"picture-bad": ranPicBad,
+		"email-bad": ranEMailBad
+	};
+}
+function generateSpecificWave(currentWaveInt, intFileType){
+	console.log('generating Specific Wave');
+	switch(intFileType){
+		case 0:
+			var ranVid = Math.floor(Math.random()*(currentWaveInt+2))*2 + 1;
+			var ranPic = 2;
+			var ranEMail = 2;
+		break;
+		case 1:
+			var ranVid = 2
+			var ranPic = Math.floor(Math.random()*(currentWaveInt+2))*2 + 1;
+			var ranEMail = 2
+		break;
+		case 2:
+			var ranVid = 2
+			var ranPic = 2
+			var ranEMail = Math.floor(Math.random()*(currentWaveInt+2))*2 + 1;
+		break;
+	}
+	
+
+
+	var ranVidBad = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranPicBad = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranEMailBad = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+
+	return {
+		"video": ranVid,
+		"picture": ranPic,
+		"email": ranEMail,
+		"video-bad": ranVidBad,
+		"picture-bad": ranPicBad,
+		"email-bad": ranEMailBad
+	};
+}
+
+function generateGenericWave(currentWaveInt){
+	console.log('generating Generic Wave');
+	var ranVid = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranPic = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranEMail = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranVidBad = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranPicBad = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+	var ranEMailBad = Math.floor(Math.random()*(currentWaveInt+2)) + 1;
+
+	return {
+		"video": ranVid,
+		"picture": ranPic,
+		"email": ranEMail,
+		"video-bad": ranVidBad,
+		"picture-bad": ranPicBad,
+		"email-bad": ranEMailBad
+	};
+}
+
+function generateWave(intCurrentWave){
+	if (intCurrentWave>0){
+		switch (Math.floor(Math.random()*3)){
+		case 0:
+		return generateGenericWave(intCurrentWave);
+		break;
+		case 1:
+		return generateSpecificWave(intCurrentWave,Math.floor(Math.random()*3));
+		break;
+		case 2:
+		return generateGarbageWave(intCurrentWave);
+		break;
+		}
+	}
+	else{
+		return generateGenericWave(intCurrentWave);
+	}
+
+	
+	
+	
+}
+
 function generateBatch() {
-	for (var type in waves[currentWave]) {
-		console.log(type);
-		console.log(waves[currentWave][type]);
-		for (var i = 0; i < waves[currentWave][type]; i++) {
+	var wave = waves[currentWave];
+	if (currentWave >= 0){//waves.length){
+		wave = generateWave(currentWave);
+	}
+	for (var type in wave) {
+		
+		for (var i = 0; i < wave[type]; i++) {
 			if (type.indexOf("-bad") === -1) {
 				batchedFiles.push(createFile(type));
 				batchedTotes.push(createTote(type + "-good"));
