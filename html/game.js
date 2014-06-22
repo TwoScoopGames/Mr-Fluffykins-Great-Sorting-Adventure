@@ -186,6 +186,56 @@ var manifest = {
 	}
 };
 
+var clockInScript = {
+	steps: [
+		{command: "moveToPoint", targetX: 246.3613369467028, targetY: 59.74358974358972},
+		{command: "playAnimation", name: "player-clock-in", durationMs: 1000},
+		{command: "moveToPoint", targetX: 108, targetY: 189.25641025641022 }
+		],
+	current: -1,
+};
+
+function runScript(script, scene){
+	if (script.current >= script.steps.length){
+		return;
+	}
+	var step = script.steps[script.current];
+	function isRunning(step){
+		if (!step){
+			return false;
+		}
+		else if (step.command == "moveToPoint"){
+			return scene.timers.path && scene.timers.path.running;
+		}
+		else if(step.command == "playAnimation"){
+			return scene.timers.animation && scene.timers.animation.running;
+		}
+		else {
+			return false;
+		}
+	}
+	if (isRunning(step)){
+		return;
+	}
+	script.current ++;
+	step = script.steps[script.current];
+	function runStep(step){
+		if (!step){
+			return false;
+		}
+		else if (step.command == "moveToPoint"){
+			movePlayerToPoint(scene, scene.player, step.targetX, step.targetY);
+		}
+		else if(step.command == "playAnimation"){
+			scene.player.sprite = game.animations.get(step.name);
+			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
+			scene.timers.animation.start();
+		}
+	}
+	runStep(step);
+	console.log(script.current);
+}
+
 var game = new Splat.Game(canvas, manifest);
 
 var score = 0;
@@ -1054,11 +1104,12 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
 	this.aStar.scaleX = 3;
 	this.aStar.scaleY = 3;
-	movePlayerToPoint(scene, this.player, 276.8852755194219, 59.74358974358972);
-	movePlayerToPoint(scene, this.player, 108, 189.25641025641022);
+//	movePlayerToPoint(scene, this.player, 276.8852755194219, 59.74358974358972);
+//	movePlayerToPoint(scene, this.player, 108, 189.25641025641022);
 	this.timers.waveStart.start();
 }, function(elapsedMillis) {
 	// simulation
+	runScript(clockInScript, this);
 	
 	if (game.mouse.consumePressed(0)) {
 		this.timers.path.stop();
@@ -1110,11 +1161,18 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.playerWalk.current = "down";
 		this.playerCarry.current = "down";
 	}
-	var currAnim = this.player.sprite.getCurrent();
-	this.player.width = currAnim.setWidth;
-	this.player.height = currAnim.setHeight;
-	this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
-	this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
+	var currAnim;
+	if (typeof this.player.sprite.getCurrent === "function"){
+		currAnim = this.player.sprite.getCurrent();
+		this.player.width = currAnim.setWidth;
+		this.player.height = currAnim.setHeight;
+		this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
+		this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
+	}
+	else {
+		currAnim = this.player.sprite;
+	}
+	
 	if (!this.player.moved()) {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
@@ -1122,7 +1180,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	} else {
 		this.timers.playStep.start();
 	}
-	this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
+	if (!this.timers.animation || !this.timers.animation.running){
+		this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
+	}
 
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].move(elapsedMillis);
