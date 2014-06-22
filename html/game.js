@@ -1355,7 +1355,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			context.fillRect(0,(canvas.height / 2) - 30, canvas.width, 60);
 
 			context.fillStyle = "rgba(255,255,255," +alpha + ")";
-			var waveText = "Starting Wave "+ (currentWave + 1);
+			var waveText = "Shift "+ (currentWave + 1);
 			centerText(context, waveText, 0, (canvas.height / 2) + 20);
 			
 		}
