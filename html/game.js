@@ -233,7 +233,6 @@ function runScript(script, scene){
 		}
 	}
 	runStep(step);
-	console.log(script.current);
 }
 
 var game = new Splat.Game(canvas, manifest);
@@ -656,7 +655,6 @@ function movePlayerToPoint(scene, player, targetX, targetY){
 		return;
 	}
 	var adjusted = adjustClickCoordinate(targetX, targetY, player.width, player.height, floorObstacles);
-	console.log("adjusted:" + adjusted);
 	scene.path = scene.aStar.search(player.x, player.y, adjusted[0], adjusted[1]);
 	if (scene.path.length > 0) {
 		var timer = makePathTimer(player, scene.path, targetX, targetY, scene.playerWalk, scene.playerCarry, scene);
