@@ -158,6 +158,11 @@ var manifest = {
 			"frames": 4,
 			"msPerFrame": 100
 		},
+		"player-clock-in": {
+			"strip": "img/player-clock-in.png",
+			"frames": 4,
+			"msPerFrame": 250
+		},
 		"mail": {
 			"strip": "img/machine-only-mail-anim-f20.png",
 			"frames": 20,
