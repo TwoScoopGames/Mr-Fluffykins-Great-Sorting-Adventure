@@ -160,8 +160,8 @@ var manifest = {
 		},
 		"player-clock-in": {
 			"strip": "img/player-clock-in.png",
-			"frames": 4,
-			"msPerFrame": 250
+			"frames": 7,
+			"msPerFrame": 100
 		},
 		"mail": {
 			"strip": "img/machine-only-mail-anim-f20.png",
@@ -189,7 +189,7 @@ var manifest = {
 var clockInScript = {
 	steps: [
 		{command: "moveToPoint", targetX: 246.3613369467028, targetY: 59.74358974358972},
-		{command: "playAnimation", name: "player-clock-in", durationMs: 1000},
+		{command: "playAnimation", name: "player-clock-in", durationMs: 700},
 		{command: "moveToPoint", targetX: 108, targetY: 189.25641025641022 }
 		],
 	current: -1,
