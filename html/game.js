@@ -398,13 +398,15 @@ function playerCollidesWithObstacle(x, y, width, height, obstacle) {
 		y >= obstacle.y - height &&
 		y < obstacle.y + obstacle.height;
 }
+var scriptedMoveArray = [];
 
-function makePathTimer(player, path, targetX, targetY, playerWalk, playerCarry) {
-	return new Splat.Timer(function() {
+function makeScriptPathTimer(player, path, targetX, targetY, playerWalk, playerCarry) {
+	return new Splat.Timer(function(){
 		var pathStep = (this.time * playerSpeed) |0;
 		if (pathStep >= path.length) {
 			pathStep = path.length - 1;
 			this.stop();
+			return true;
 		}
 		var pos = path[pathStep];
 		player.lastX = player.x;
@@ -442,6 +444,73 @@ function makePathTimer(player, path, targetX, targetY, playerWalk, playerCarry) 
 
 	}, undefined, undefined);
 }
+
+function makePathTimer(player, path, targetX, targetY, playerWalk, playerCarry, scene) {
+	return new Splat.Timer(function() {
+		var pathStep = (this.time * playerSpeed) |0;
+		if (pathStep >= path.length) {
+			pathStep = path.length - 1;
+			this.stop();
+			if (scene.nextPaths && scene.nextPaths.length > 0){
+				var target = scene.nextPaths.shift();
+				movePlayerToPoint(scene, player, target.targetX, target.targetY);
+			}
+		}
+		var pos = path[pathStep];
+		player.lastX = player.x;
+		player.lastY = player.y;
+		player.x = pos.x;
+		player.y = pos.y;
+
+		var pathVx = player.x - player.lastX;
+		var pathVy = player.y - player.lastY;
+		if (!this.running) {
+			// align the target to the aStar grid, which is scaled
+			targetX = Math.floor(targetX / 3) * 3;
+			targetY = Math.floor(targetY / 3) * 3;
+			// overwrite the typical direction with the un-adjusted player's click
+			// this makes the player end up facing the direction the player meant him to
+			pathVx = targetX - player.x;
+			pathVy = targetY - player.y;
+		}
+		if (pathVy < 0) {
+			playerWalk.current = "up";
+			playerCarry.current = "up";
+		}
+		if (pathVx < 0) {
+			playerWalk.current = "left";
+			playerCarry.current = "left";
+		}
+		if (pathVx > 0) {
+			playerWalk.current = "right";
+			playerCarry.current = "right";
+		}
+		if (pathVy > 0) {
+			playerWalk.current = "down";
+			playerCarry.current = "down";
+		}
+
+	}, undefined, undefined);
+}
+
+function movePlayerToPoint(scene, player, targetX, targetY){
+	if (scene.timers.path && scene.timers.path.running){
+		if(!scene.nextPaths){
+			scene.nextPaths = [];
+		}
+		scene.nextPaths.push({targetX: targetX, targetY: targetY});
+		return;
+	}
+	var adjusted = adjustClickCoordinate(targetX, targetY, player.width, player.height, floorObstacles);
+	console.log("adjusted:" + adjusted);
+	scene.path = scene.aStar.search(player.x, player.y, adjusted[0], adjusted[1]);
+	if (scene.path.length > 0) {
+		var timer = makePathTimer(player, scene.path, targetX, targetY, scene.playerWalk, scene.playerCarry, scene);
+		timer.start();
+		scene.timers.path = timer;
+	}
+}
+
 
 function adjustClickCoordinate(x, y, width, height, obstacles) {
 	for (var i = 0; i < obstacles.length; i++) {
@@ -789,7 +858,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
 	this.playerCarry.add("right", anim);
 
-	this.player = new Splat.AnimatedEntity(110, 250, 65, 20, this.playerWalk, -10, -85);
+	this.player = new Splat.AnimatedEntity(110, -250, 65, 20, this.playerWalk, -10, -85);
 	this.player.frictionX = 0.5;
 	this.player.frictionY = 0.5;
 	var oldPlayerDraw = this.player.draw;
@@ -878,22 +947,21 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.photo = new Splat.Timer(undefined, 8500, undefined);
 	this.timers.flash = new Splat.Timer(undefined, 200, undefined);
 	this.timers.waveStart = new Splat.Timer(undefined, 2000, generateBatch);
-	this.timers.waveStart.start();
-
 	this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
 	this.aStar.scaleX = 3;
 	this.aStar.scaleY = 3;
+	movePlayerToPoint(scene, this.player, 276.8852755194219, 59.74358974358972);
+	movePlayerToPoint(scene, this.player, 108, 189.25641025641022);
+	this.timers.waveStart.start();
 }, function(elapsedMillis) {
 	// simulation
+	
 	if (game.mouse.consumePressed(0)) {
+		this.timers.path.stop();
+		this.nextPaths = [];
 		var targetX = game.mouse.x - (this.player.width / 2 |0) + this.camera.x;
 		var targetY = game.mouse.y - (this.player.height / 2 |0) + this.camera.y;
-		var adjusted = adjustClickCoordinate(targetX, targetY, this.player.width, this.player.height, floorObstacles);
-		this.path = this.aStar.search(this.player.x, this.player.y, adjusted[0], adjusted[1]);
-		if (this.path.length > 0) {
-			this.timers.path = makePathTimer(this.player, this.path, targetX, targetY, this.playerWalk, this.playerCarry);
-			this.timers.path.start();
-		}
+		movePlayerToPoint(this, this.player, targetX, targetY);
 	}
 
 	if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
