@@ -193,10 +193,11 @@ var clockInScript = {
 		{command: "moveToPoint", targetX: 108, targetY: 189.25641025641022 }
 		],
 	current: -1,
+	running : true
 };
 
 function runScript(script, scene){
-	if (script.current >= script.steps.length){
+	if (!script.running){
 		return;
 	}
 	var step = script.steps[script.current];
@@ -218,6 +219,10 @@ function runScript(script, scene){
 		return;
 	}
 	script.current ++;
+	if (script.current >= script.steps.length){
+		script.running = false;
+		return;
+	}
 	step = script.steps[script.current];
 	function runStep(step){
 		if (!step){
@@ -1108,38 +1113,39 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 }, function(elapsedMillis) {
 	// simulation
 	runScript(clockInScript, this);
-	
-	if (game.mouse.consumePressed(0)) {
-		this.timers.path.stop();
-		this.nextPaths = [];
-		var targetX = game.mouse.x - (this.player.width / 2 |0) + this.camera.x;
-		var targetY = game.mouse.y - (this.player.height / 2 |0) + this.camera.y;
-		movePlayerToPoint(this, this.player, targetX, targetY);
-	}
+	if (!clockInScript.running){
+		if (game.mouse.consumePressed(0)) {
+			this.timers.path.stop();
+			this.nextPaths = [];
+			var targetX = game.mouse.x - (this.player.width / 2 |0) + this.camera.x;
+			var targetY = game.mouse.y - (this.player.height / 2 |0) + this.camera.y;
+			movePlayerToPoint(this, this.player, targetX, targetY);
+		}
 
-	if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
-		if (this.timers.path) {
-			this.timers.path.stop();
+		if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
+			if (this.timers.path) {
+				this.timers.path.stop();
+			}
+			this.player.vx = -playerSpeed;
 		}
-		this.player.vx = -playerSpeed;
-	}
-	if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
-		if (this.timers.path) {
-			this.timers.path.stop();
+		if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
+			if (this.timers.path) {
+				this.timers.path.stop();
+			}
+			this.player.vx = playerSpeed;
 		}
-		this.player.vx = playerSpeed;
-	}
-	if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
-		if (this.timers.path) {
-			this.timers.path.stop();
+		if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
+			if (this.timers.path) {
+				this.timers.path.stop();
+			}
+			this.player.vy = -playerSpeed;
 		}
-		this.player.vy = -playerSpeed;
-	}
-	if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
-		if (this.timers.path) {
-			this.timers.path.stop();
+		if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
+			if (this.timers.path) {
+				this.timers.path.stop();
+			}
+			this.player.vy = playerSpeed;
 		}
-		this.player.vy = playerSpeed;
 	}
 
 	var animationTolerance = 0.1;
