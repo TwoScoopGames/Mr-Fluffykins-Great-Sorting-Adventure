@@ -30,6 +30,10 @@ var manifest = {
 		"tote-picture-good-full": "img/tote-photo-full.png",
 		"tube-top-right": "img/tube-top-right.png",
 		"tube-top-left": "img/tube-top-left.png",
+		"sound-off": "img/sound-off-icon.png",
+		"sound-on": "img/sound-on-icon.png",
+		"play": "img/play-icon.png",
+		"pause": "img/pause-icon.png",
 		"tube-bottom-right": "img/tube-bottom-right.png"
 	},
 	"sounds": {
@@ -198,6 +202,55 @@ var manifest = {
 	}
 };
 
+function ToggleButton(x, y, width, height, onIcon, offIcon, key, onToggle) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.onIcon = onIcon;
+	this.offIcon = offIcon;
+	this.key = key;
+	this.toggled = true;
+	this.onToggle = onToggle;
+}
+ToggleButton.prototype.move = function(elapsedMillis) {
+	if (game.mouse.consumePressed(0, this.x, this.y, this.width, this.height)) {
+		this.toggle();
+	}
+	if (game.keyboard.consumePressed(this.key)) {
+		this.toggle();
+	}
+};
+ToggleButton.prototype.draw = function(context) {
+	var icon = this.offIcon;
+	if (this.toggled) {
+		icon = this.onIcon;
+	}
+	context.drawImage(icon, this.x, this.y);
+};
+ToggleButton.prototype.toggle = function() {
+	if (this.onToggle(!this.toggled) !== false) {
+		this.toggled = !this.toggled;
+	}
+};
+ToggleButton.prototype.attachToRight = function(canvas, xOffset) {
+	var that = this;
+	var adjustX = function() {
+		that.x = canvas.width - that.width - xOffset;
+	};
+	adjustX();
+	window.addEventListener("resize", adjustX);
+};
+
+function drawEntities(context, entities) {
+	entities.sort(function(a, b) {
+		return b.y - a.y;
+	});
+	for (var i in entities) {
+		entities[i].draw(context);
+	}
+}
+
 var clockInScript = {
 	steps: [
 		{ command: "wait", durationMs: 400 },
@@ -313,6 +366,10 @@ var conveyors = [];
 
 var shredder = new Splat.Entity(776, 521, 108, 80);
 
+
+var soundToggle;
+var pauseToggle;
+
 var waves = [{
 	"video": 1,
 	"picture": 1,
@@ -328,6 +385,7 @@ var waves = [{
 	"picture-bad": 2,
 	"email-bad": 2,
 }];
+
 var currentWave = 0;
 var batchedFiles = [];
 var batchedTotes = [];
@@ -963,6 +1021,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	hearts = 3;
 	score = 0;
 
+
+
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
@@ -1079,6 +1139,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var vid = game.animations.get("vid");
 	var photo = game.animations.get("photo");
 	var door = game.images.get("bg-wall");
+	var state = "start";
 
 	this.drawables = [
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height - 38, conveyorPicture, 0, 0),
@@ -1091,6 +1152,53 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		new Splat.AnimatedEntity(0, 34, door.width, 21, door, 0, -174),
 		this.player
 	];
+
+	var self = this;
+	
+	/*if (!pauseToggle) {
+		console.log("inside");
+		pauseToggle = new ToggleButton(0, 78, 72, 72, game.images.get("play"), game.images.get("pause"), "escape", function(toggled) {
+			if (state === "dead") {
+				return false;
+			}
+			if (toggled) {
+				state = "paused";
+				self.pausedTimers = [];
+				for (var timer in self.timers) {
+					if (self.timers.hasOwnProperty(timer)) {
+						if (self.timers[timer].running) {
+							self.pausedTimers.push(self.timers[timer]);
+							self.timers[timer].stop();
+						}
+					}
+				}
+				Splat.ads.show(false);
+			} else {
+				state = "running";
+				for (var timer in self.pausedTimers) {
+					if (self.pausedTimers.hasOwnProperty(timer)) {
+						self.pausedTimers[timer].start();
+					}
+				}
+				self.pausedTimers = [];
+				Splat.ads.hide();
+			}
+		});
+		pauseToggle.attachToRight(canvas, 12);
+	}
+	pauseToggle.toggled = true;*/
+
+	if (!soundToggle) {
+		soundToggle = new ToggleButton(0, 162, 72, 72, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
+			game.sounds.muted = !toggled;
+			if (game.sounds.muted) {
+				game.sounds.stop("main");
+			} else {
+				game.sounds.play("main", true);
+			}
+		});
+		soundToggle.attachToRight(canvas, 12);
+	}
 
 	var scene = this;
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
@@ -1140,6 +1248,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.waveStart.start();
 }, function(elapsedMillis) {
 	// simulation
+	soundToggle.move(elapsedMillis);
+	//pauseToggle.move(elapsedMillis);
 	var wasRunning = clockInScript.running;
 	runScript(clockInScript, this);
 	if (!clockInScript.running) {
@@ -1379,8 +1489,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
 
 	var scene = this;
-	this.camera.drawAbsolute(context, function() {
-		context.font = "50px pixelmix1";
+
+	this.camera.drawAbsolute(context,function(){
+		soundToggle.draw(context);
+		//pauseToggle.draw(context);
+		context.font= "50px pixelmix1";
 		context.fillStyle = "#ffffff";
 		context.fillText(score, 950, 50);
 
