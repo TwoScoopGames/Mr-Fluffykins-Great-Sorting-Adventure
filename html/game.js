@@ -1109,6 +1109,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var wasRunning = clockInScript.running;
 	runScript(clockInScript, this);
 	if (!clockInScript.running){
+		if (wasRunning){
+			var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
+			obstacle.adjustClick = adjustDown;
+			floorObstacles.push(obstacle);
+		}
 		this.camera.locked = true;
 		if (game.mouse.consumePressed(0)) {
 			this.timers.path.stop();
@@ -1142,11 +1147,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			}
 			this.player.vy = playerSpeed;
 		}
-	}
-	else if (wasRunning){
-		var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
-		obstacle.adjustClick = adjustDown;
-		floorObstacles.push(obstacle);
 	}
 
 	var animationTolerance = 0.1;
