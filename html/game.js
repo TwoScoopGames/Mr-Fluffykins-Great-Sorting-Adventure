@@ -1,3 +1,13 @@
+"use strict";
+
+var canvas = document.getElementById("canvas");
+canvas.width = 1136;
+canvas.height = 640;
+if (window.ejecta) {
+	console.log("Ejecta detected.");
+	canvas.height = window.innerHeight * (canvas.width / window.innerWidth);
+}
+
 var canvas = document.getElementById("canvas");
 
 var manifest = {
@@ -5,6 +15,7 @@ var manifest = {
 		"bg": "img/bg.png",
 		"bg-wall": "img/bg-wall.png",
 		"bg-intro": "img/title-screen.png",
+		"locker-open": "img/locker-open.png",
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
@@ -19,20 +30,25 @@ var manifest = {
 		"tote-picture-good-full": "img/tote-photo-full.png",
 		"tube-top-right": "img/tube-top-right.png",
 		"tube-top-left": "img/tube-top-left.png",
+		"sound-off": "img/sound-off-icon.png",
+		"sound-on": "img/sound-on-icon.png",
+		"play": "img/play-icon.png",
+		"pause": "img/pause-icon.png",
 		"tube-bottom-right": "img/tube-bottom-right.png"
 	},
 	"sounds": {
-		"intro": "music/intro.mp3",
-		"main": "music/main.mp3",
-		"win": "music/win.mp3",
 		"fail": "music/fail.mp3",
+		"intro": "music/intro.mp3",
+		"locker": "sound/locker.mp3",
+		"main": "music/main.mp3",
 		"pickUpFile": "sound/pickUpFile.wav",
 		"placeFileOnConveyor": "sound/placeFile.wav",
-		"shred": "sound/shred.wav",
-		"processFile": "sound/processFile.wav",
 		"placeFileOut": "sound/placeFileOut.wav",
+		"processFile": "sound/processFile.wav",
+		"shred": "sound/shred.wav",
 		"step1": "sound/step1.wav",
-		"step2": "sound/step2.wav"
+		"step2": "sound/step2.wav",
+		"win": "music/win.mp3"
 	},
 	"fonts": {
 		"pixelmix1": {
@@ -169,9 +185,9 @@ var manifest = {
 			"msPerFrame": 100
 		},
 		"photo": {
-			"strip": "img/machine-only-photo-anim-f29.png",
-			"frames": 29,
-			"msPerFrame": 100
+			"strip": "img/machine-only-photo-anim.png",
+			"frames": 9,
+			"msPerFrame": 300
 		},
 		"vid": {
 			"strip": "img/machine-only-video-anim-f13.png",
@@ -186,53 +202,119 @@ var manifest = {
 	}
 };
 
-var clockInScript = {
-	steps: [
-		{command: "moveToPoint", targetX: 246.3613369467028, targetY: 59.74358974358972},
-		{command: "playAnimation", name: "player-clock-in", durationMs: 700},
-		{command: "moveToPoint", targetX: 108, targetY: 189.25641025641022 }
-		],
-	current: -1,
-	running : true
+function ToggleButton(x, y, width, height, onIcon, offIcon, key, onToggle) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.onIcon = onIcon;
+	this.offIcon = offIcon;
+	this.key = key;
+	this.toggled = true;
+	this.onToggle = onToggle;
+}
+ToggleButton.prototype.move = function(elapsedMillis) {
+	if (game.mouse.consumePressed(0, this.x, this.y, this.width, this.height)) {
+		this.toggle();
+	}
+	if (game.keyboard.consumePressed(this.key)) {
+		this.toggle();
+	}
+};
+ToggleButton.prototype.draw = function(context) {
+	var icon = this.offIcon;
+	if (this.toggled) {
+		icon = this.onIcon;
+	}
+	context.drawImage(icon, this.x, this.y);
+};
+ToggleButton.prototype.toggle = function() {
+	if (this.onToggle(!this.toggled) !== false) {
+		this.toggled = !this.toggled;
+	}
+};
+ToggleButton.prototype.attachToRight = function(canvas, xOffset) {
+	var that = this;
+	var adjustX = function() {
+		that.x = canvas.width - that.width - xOffset;
+	};
+	adjustX();
+	window.addEventListener("resize", adjustX);
 };
 
-function runScript(script, scene){
-	if (!script.running){
+function drawEntities(context, entities) {
+	entities.sort(function(a, b) {
+		return b.y - a.y;
+	});
+	for (var i in entities) {
+		entities[i].draw(context);
+	}
+}
+
+var clockInScript = {
+	steps: [
+		{ command: "wait", durationMs: 400 },
+		{ command: "moveToPoint", targetX: 160, targetY: -300 },
+		{ command: "wait", durationMs: 300 },
+		{ command: "sound", name: "locker" },
+		{ command: "playAnimation", name: "player-clock-in", durationMs: 400 },
+		{ command: function() { lockerOpen = false; } },
+		{ command: "moveToPoint", targetX: 246.3613369467028, targetY: 60 },
+		{ command: "wait", durationMs: 200 },
+		{ command: "playAnimation", name: "player-clock-in", durationMs: 700 },
+		{ command: "moveToPoint", targetX: 50, targetY: 300 }
+		],
+	current: -1,
+	running: true
+};
+
+function runScript(script, scene) {
+	if (!script.running) {
 		return;
 	}
 	var step = script.steps[script.current];
-	function isRunning(step){
-		if (!step){
+
+	function isRunning(step) {
+		if (!step) {
 			return false;
-		}
-		else if (step.command == "moveToPoint"){
+		} else if (step.command == "moveToPoint") {
 			return scene.timers.path && scene.timers.path.running;
-		}
-		else if(step.command == "playAnimation"){
+		} else if (step.command == "playAnimation") {
 			return scene.timers.animation && scene.timers.animation.running;
-		}
-		else {
+		} else if (step.command == "wait") {
+			return scene.timers.animation && scene.timers.animation.running;
+		} else {
 			return false;
 		}
 	}
-	if (isRunning(step)){
+	if (isRunning(step)) {
 		return;
 	}
-	script.current ++;
-	if (script.current >= script.steps.length){
+	script.current++;
+	if (script.current >= script.steps.length) {
 		script.running = false;
 		return;
 	}
 	step = script.steps[script.current];
-	function runStep(step){
-		if (!step){
+
+	function runStep(step) {
+		if (!step) {
 			return false;
 		}
-		else if (step.command == "moveToPoint"){
-			movePlayerToPoint(scene, scene.player, step.targetX, step.targetY);
+		else if (typeof step.command === "function") {
+			step.command(scene);
 		}
-		else if(step.command == "playAnimation"){
+		else if (step.command == "moveToPoint") {
+			movePlayerToPoint(scene, scene.player, step.targetX, step.targetY);
+		} else if (step.command == "playAnimation") {
 			scene.player.sprite = game.animations.get(step.name);
+			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
+			scene.timers.animation.start();
+		}
+		else if (step.command == "sound") {
+			game.sounds.play(step.name);
+		}
+		else if (step.command == "wait") {
 			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
 			scene.timers.animation.start();
 		}
@@ -244,6 +326,7 @@ var game = new Splat.Game(canvas, manifest);
 
 var score = 0;
 var hearts = 3;
+var lockerOpen = true;
 
 function AnimationGroup() {
 	this.animations = {};
@@ -283,24 +366,26 @@ var conveyors = [];
 
 var shredder = new Splat.Entity(776, 521, 108, 80);
 
-var waves = [
-	{
-		"video": 1,
-		"picture": 1,
-		"email": 1,
-		"video-bad": 1,
-		"picture-bad": 1,
-		"email-bad": 1,
-	},
-	{
-		"video": 3,
-		"picture": 3,
-		"email": 3,
-		"video-bad": 2,
-		"picture-bad": 2,
-		"email-bad": 2,
-	}
-];
+
+var soundToggle;
+var pauseToggle;
+
+var waves = [{
+	"video": 1,
+	"picture": 1,
+	"email": 1,
+	"video-bad": 1,
+	"picture-bad": 1,
+	"email-bad": 1,
+}, {
+	"video": 3,
+	"picture": 3,
+	"email": 3,
+	"video-bad": 2,
+	"picture-bad": 2,
+	"email-bad": 2,
+}];
+
 var currentWave = 0;
 var batchedFiles = [];
 var batchedTotes = [];
@@ -324,9 +409,10 @@ function generateGarbageWave(currentWaveInt) {
 		"email-bad": ranEMailBad
 	};
 }
+
 function generateSpecificWave(currentWaveInt, intFileType) {
 	console.log('generating Specific Wave');
-	switch(intFileType){
+	switch (intFileType) {
 		case 0:
 			var ranVid = Math.floor(Math.random() * (currentWaveInt + 2)) * 2 + 1;
 			var ranPic = 2;
@@ -358,7 +444,7 @@ function generateSpecificWave(currentWaveInt, intFileType) {
 	};
 }
 
-function generateGenericWave(currentWaveInt){
+function generateGenericWave(currentWaveInt) {
 	console.log('generating Generic Wave');
 	var ranVid = Math.floor(Math.random() * (currentWaveInt + 2)) + 1;
 	var ranPic = Math.floor(Math.random() * (currentWaveInt + 2)) + 1;
@@ -380,25 +466,24 @@ function generateGenericWave(currentWaveInt){
 function generateWave(intCurrentWave) {
 	if (intCurrentWave > 0) {
 		switch (Math.floor(Math.random() * 3)) {
-		case 0:
-			return generateGenericWave(intCurrentWave);
-			break;
-		case 1:
-			return generateSpecificWave(intCurrentWave,Math.floor(Math.random()*3));
-			break;
-		case 2:
-			return generateGarbageWave(intCurrentWave);
-			break;
+			case 0:
+				return generateGenericWave(intCurrentWave);
+				break;
+			case 1:
+				return generateSpecificWave(intCurrentWave, Math.floor(Math.random() * 3));
+				break;
+			case 2:
+				return generateGarbageWave(intCurrentWave);
+				break;
 		}
-	}
-	else {
+	} else {
 		return generateGenericWave(intCurrentWave);
 	}
 }
 
 function generateBatch() {
 	var wave = waves[currentWave];
-	if (currentWave >= 0){//waves.length){
+	if (currentWave >= 0) { //waves.length){
 		wave = generateWave(currentWave);
 	}
 	for (var type in wave) {
@@ -418,7 +503,7 @@ function generateBatch() {
 
 function getNextFile() {
 	if (batchedFiles.length === 0) {
-//		generateBatch();
+		//		generateBatch();
 	}
 	return removeRandomElement(batchedFiles);
 }
@@ -431,18 +516,22 @@ function adjustRight(x, y, width, height, obstacle) {
 	x = obstacle.x + obstacle.width;
 	return [x, y];
 }
+
 function adjustLeft(x, y, width, height, obstacle) {
 	x = obstacle.x - width - 1;
 	return [x, y];
 }
+
 function adjustUp(x, y, width, height, obstacle) {
 	y = obstacle.y - height;
 	return [x, y];
 }
+
 function adjustDown(x, y, width, height, obstacle) {
 	y = obstacle.y + obstacle.height;
 	return [x, y];
 }
+
 function adjustVertically(x, y, width, height, obstacle) {
 	if (y + (height / 2) < obstacle.y + (obstacle.height / 2)) {
 		return adjustUp(x, y, width, height, obstacle);
@@ -450,6 +539,7 @@ function adjustVertically(x, y, width, height, obstacle) {
 		return adjustDown(x, y, width, height, obstacle);
 	}
 }
+
 function adjustHorizontally(x, y, width, height, obstacle) {
 	if (x + (width / 2) < obstacle.x + (obstacle.width / 2)) {
 		return adjustLeft(x, y, width, height, obstacle);
@@ -468,7 +558,7 @@ obstacle = new Splat.Entity(canvas.width - 108, -100, 108, canvas.height + 200);
 obstacle.adjustClick = adjustLeft;
 floorObstacles.push(obstacle);
 
-obstacle = new Splat.Entity(243,108,639,60); //top machine
+obstacle = new Splat.Entity(243, 108, 639, 60); //top machine
 obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 369;
@@ -483,7 +573,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 };
 floorObstacles.push(obstacle);
 
-obstacle = new Splat.Entity(243,324,639,60); //middle machine
+obstacle = new Splat.Entity(243, 324, 639, 60); //middle machine
 obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 102;
 	var enclosedWidth = 276;
@@ -552,8 +642,8 @@ function playerCollidesWithObstacle(x, y, width, height, obstacle) {
 var scriptedMoveArray = [];
 
 function makeScriptPathTimer(player, path, targetX, targetY, playerWalk, playerCarry) {
-	return new Splat.Timer(function(){
-		var pathStep = (this.time * playerSpeed) |0;
+	return new Splat.Timer(function() {
+		var pathStep = (this.time * playerSpeed) | 0;
 		if (pathStep >= path.length) {
 			pathStep = path.length - 1;
 			this.stop();
@@ -598,11 +688,11 @@ function makeScriptPathTimer(player, path, targetX, targetY, playerWalk, playerC
 
 function makePathTimer(player, path, targetX, targetY, playerWalk, playerCarry, scene) {
 	return new Splat.Timer(function() {
-		var pathStep = (this.time * playerSpeed) |0;
+		var pathStep = (this.time * playerSpeed) | 0;
 		if (pathStep >= path.length) {
 			pathStep = path.length - 1;
 			this.stop();
-			if (scene.nextPaths && scene.nextPaths.length > 0){
+			if (scene.nextPaths && scene.nextPaths.length > 0) {
 				var target = scene.nextPaths.shift();
 				movePlayerToPoint(scene, player, target.targetX, target.targetY);
 			}
@@ -644,12 +734,15 @@ function makePathTimer(player, path, targetX, targetY, playerWalk, playerCarry, 
 	}, undefined, undefined);
 }
 
-function movePlayerToPoint(scene, player, targetX, targetY){
-	if (scene.timers.path && scene.timers.path.running){
-		if(!scene.nextPaths){
+function movePlayerToPoint(scene, player, targetX, targetY) {
+	if (scene.timers.path && scene.timers.path.running) {
+		if (!scene.nextPaths) {
 			scene.nextPaths = [];
 		}
-		scene.nextPaths.push({targetX: targetX, targetY: targetY});
+		scene.nextPaths.push({
+			targetX: targetX,
+			targetY: targetY
+		});
 		return;
 	}
 	var adjusted = adjustClickCoordinate(targetX, targetY, player.width, player.height, floorObstacles);
@@ -711,7 +804,7 @@ function collidesWithAny(item, otherItems, collisionHandler) {
 			continue;
 		}
 		if (item.collides(otherItems[i])) {
-			if(collisionHandler){
+			if (collisionHandler) {
 				collisionHandler(otherItems[i]);
 			}
 			foundCollision = true;
@@ -736,8 +829,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 			if (this.horizontal) {
 				file.vx = conveyorSpeed;
 				file.vy = 0;
-			}
-			else {
+			} else {
 				file.vx = 0;
 				file.vy = conveyorSpeed;
 			}
@@ -750,8 +842,8 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				this.files.splice(i, 1);
 				i--;
 				score += 10;
-				if(this.files.length === 0){
-					currentWave +=1;
+				if (this.files.length === 0) {
+					currentWave += 1;
 					scene.timers.waveStart.reset();
 					scene.timers.waveStart.start();
 				}
@@ -761,7 +853,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				file.sprite = game.animations.get(file.type);
 				game.sounds.play("processFile");
 
-				
+
 				if (file.type === "email-good" || file.type === "email-bad") {
 					scene.timers.mail.reset();
 					scene.timers.mail.start();
@@ -787,7 +879,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 }
 
 /**
- * verifies that moving along a given path does not carry a given entity into another entity 
+ * verifies that moving along a given path does not carry a given entity into another entity
  * @param {Entity} myEnt The entity that is being moved
  * @param {number} elapsedMillis The number of milliseconds since the last frame.
  * @param {Entity} entArray The Array of potential obstructing Entities
@@ -849,9 +941,9 @@ function createTote(type) {
 	var tote = new Splat.Entity(0, 0, toteWidth, toteHeight);
 	tote.draw = function(context) {
 		if (this.filled) {
-			context.drawImage(game.images.get('tote-'+this.type+'-full'), this.x|0, this.y|0);
+			context.drawImage(game.images.get('tote-' + this.type + '-full'), this.x | 0, this.y | 0);
 		} else {
-			context.drawImage(game.images.get('tote-'+this.type), this.x|0, this.y|0);
+			context.drawImage(game.images.get('tote-' + this.type), this.x | 0, this.y | 0);
 		}
 	};
 	tote.type = type;
@@ -893,12 +985,12 @@ function addFileToConveyor(file, conveyor, ignoreType) {
 }
 
 function randomElement(array) {
-	var pos = Math.random() * array.length |0;
+	var pos = Math.random() * array.length | 0;
 	return array[pos];
 }
 
 function removeRandomElement(array) {
-	var pos = Math.random() * array.length |0;
+	var pos = Math.random() * array.length | 0;
 	return array.splice(pos, 1)[0];
 }
 
@@ -922,13 +1014,15 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	// init
 	game.sounds.stop("intro");
 	game.sounds.play("main", true);
-		
+
 	//reset files to zero
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].files = [];
 	}
 	hearts = 3;
 	score = 0;
+
+
 
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
@@ -1013,18 +1107,22 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.player.frictionY = 0.5;
 	var oldPlayerDraw = this.player.draw;
 
-	this.player.draw = function(context){
-		oldPlayerDraw.call(this,context);
-		if (this.file && this.sprite.current !== "up"){
+	this.player.draw = function(context) {
+		oldPlayerDraw.call(this, context);
+		if (this.file && this.sprite.current !== "up") {
 			this.file.draw(context);
 		}
 	};
 
 	this.camera = new Splat.EntityBoxCamera(this.player, canvas.width, 100, canvas.width / 2, canvas.height - 400);
 	//redefine move function so that camera can't move past bottom of the screen
-	this.camera.move = function(elapsedMillis){
+	this.camera.locked = false;
+	this.camera.move = function(elapsedMillis) {
+		if (this.locked) {
+			return;
+		}
 		Splat.EntityBoxCamera.prototype.move.call(this, elapsedMillis);
-		if (this.y > 0){
+		if (this.y > 0) {
 			this.y = 0;
 		}
 	}
@@ -1042,11 +1140,12 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var vid = game.animations.get("vid");
 	var photo = game.animations.get("photo");
 	var door = game.images.get("bg-wall");
+	var state = "start";
 
 	this.drawables = [
-		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height-38, conveyorPicture, 0, 0),
-		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height-30, conveyorVideo, 0, 0),
-		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height-40, conveyorEmail, 0, 0),
+		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height - 38, conveyorPicture, 0, 0),
+		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height - 30, conveyorVideo, 0, 0),
+		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height - 40, conveyorEmail, 0, 0),
 		new Splat.AnimatedEntity(774, 462, shredder.width, shredder.height, shredder, 0, 0),
 		new Splat.AnimatedEntity(345, 432, mail.width, mail.height, mail, 0, 0),
 		new Splat.AnimatedEntity(345, 30, photo.width, photo.height, photo, 0, 0),
@@ -1055,9 +1154,56 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.player
 	];
 
+	var self = this;
+	
+	/*if (!pauseToggle) {
+		console.log("inside");
+		pauseToggle = new ToggleButton(0, 78, 72, 72, game.images.get("play"), game.images.get("pause"), "escape", function(toggled) {
+			if (state === "dead") {
+				return false;
+			}
+			if (toggled) {
+				state = "paused";
+				self.pausedTimers = [];
+				for (var timer in self.timers) {
+					if (self.timers.hasOwnProperty(timer)) {
+						if (self.timers[timer].running) {
+							self.pausedTimers.push(self.timers[timer]);
+							self.timers[timer].stop();
+						}
+					}
+				}
+				Splat.ads.show(false);
+			} else {
+				state = "running";
+				for (var timer in self.pausedTimers) {
+					if (self.pausedTimers.hasOwnProperty(timer)) {
+						self.pausedTimers[timer].start();
+					}
+				}
+				self.pausedTimers = [];
+				Splat.ads.hide();
+			}
+		});
+		pauseToggle.attachToRight(canvas, 12);
+	}
+	pauseToggle.toggled = true;*/
+
+	if (!soundToggle) {
+		soundToggle = new ToggleButton(0, 162, 72, 72, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
+			game.sounds.muted = !toggled;
+			if (game.sounds.muted) {
+				game.sounds.stop("main");
+			} else {
+				game.sounds.play("main", true);
+			}
+		});
+		soundToggle.attachToRight(canvas, 12);
+	}
+
 	var scene = this;
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
-		
+
 		var file = getNextFile();
 		if (file && !addFileToConveyor(file, conveyors[0], true)) {
 			batchedFiles.push(file);
@@ -1072,7 +1218,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.start();
 	});
 	this.timers.fileSpawner.start();
-	
+
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
 		var tote = getNextTote();
 		if (tote) {
@@ -1100,19 +1246,25 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
 	this.aStar.scaleX = 3;
 	this.aStar.scaleY = 3;
-//	movePlayerToPoint(scene, this.player, 276.8852755194219, 59.74358974358972);
-//	movePlayerToPoint(scene, this.player, 108, 189.25641025641022);
 	this.timers.waveStart.start();
 }, function(elapsedMillis) {
 	// simulation
+	soundToggle.move(elapsedMillis);
+	//pauseToggle.move(elapsedMillis);
 	var wasRunning = clockInScript.running;
 	runScript(clockInScript, this);
-	if (!clockInScript.running){
+	if (!clockInScript.running) {
+		if (wasRunning) {
+			var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
+			obstacle.adjustClick = adjustDown;
+			floorObstacles.push(obstacle);
+		}
+		this.camera.locked = true;
 		if (game.mouse.consumePressed(0)) {
 			this.timers.path.stop();
 			this.nextPaths = [];
-			var targetX = game.mouse.x - (this.player.width / 2 |0) + this.camera.x;
-			var targetY = game.mouse.y - (this.player.height / 2 |0) + this.camera.y;
+			var targetX = game.mouse.x - (this.player.width / 2 | 0) + this.camera.x;
+			var targetY = game.mouse.y - (this.player.height / 2 | 0) + this.camera.y;
 			movePlayerToPoint(this, this.player, targetX, targetY);
 		}
 
@@ -1141,11 +1293,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			this.player.vy = playerSpeed;
 		}
 	}
-	else if (wasRunning){
-		var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
-		obstacle.adjustClick = adjustDown;
-		floorObstacles.push(obstacle);
-	}
 
 	var animationTolerance = 0.1;
 	if (this.player.vy < -animationTolerance) {
@@ -1165,17 +1312,16 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.playerCarry.current = "down";
 	}
 	var currAnim;
-	if (typeof this.player.sprite.getCurrent === "function"){
+	if (typeof this.player.sprite.getCurrent === "function") {
 		currAnim = this.player.sprite.getCurrent();
 		this.player.width = currAnim.setWidth;
 		this.player.height = currAnim.setHeight;
 		this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
 		this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
-	}
-	else {
+	} else {
 		currAnim = this.player.sprite;
 	}
-	
+
 	if (!this.player.moved()) {
 		this.playerWalk.reset();
 		this.playerCarry.reset();
@@ -1183,7 +1329,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	} else {
 		this.timers.playStep.start();
 	}
-	if (!this.timers.animation || !this.timers.animation.running){
+	if (!this.timers.animation || !this.timers.animation.running) {
 		this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
 	}
 
@@ -1324,6 +1470,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		context.fillRect(0, 0, canvas.width, canvas.height);
 	});
 	context.drawImage(game.images.get("bg"), 0, -497);
+	if (lockerOpen) {
+		context.drawImage(game.images.get("locker-open"), 99, -446);
+	}
 
 	game.animations.get("conveyor-left").draw(context, 0, 0);
 	var anim = game.animations.get("conveyor-right");
@@ -1343,24 +1492,26 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var tubeBottomLeft = game.images.get("tube-bottom-right");
 	context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
-	
+
 	var scene = this;
+
 	this.camera.drawAbsolute(context,function(){
+		soundToggle.draw(context);
+		//pauseToggle.draw(context);
 		context.font= "50px pixelmix1";
 		context.fillStyle = "#ffffff";
 		context.fillText(score, 950, 50);
 
 		context.fillText(hearts, 150, 50);
 
-		if (scene.timers.waveStart.running){
-			var alpha = Splat.math.oscillate(scene.timers.waveStart.time,2000);
-			context.fillStyle = "rgba(50,50,50," +alpha + ")";
-			context.fillRect(0,(canvas.height / 2) - 30, canvas.width, 60);
+		if (scene.timers.waveStart.running) {
+			var alpha = Splat.math.oscillate(scene.timers.waveStart.time, 2000);
+			context.fillStyle = "rgba(50,50,50," + alpha + ")";
+			context.fillRect(0, (canvas.height / 2) - 30, canvas.width, 60);
 
-			context.fillStyle = "rgba(255,255,255," +alpha + ")";
-			var waveText = "Shift "+ (currentWave + 1);
+			context.fillStyle = "rgba(255,255,255," + alpha + ")";
+			var waveText = "Shift " + (currentWave + 1);
 			centerText(context, waveText, 0, (canvas.height / 2) + 20);
-			
 		}
 
 		if (conveyors[0].files.length >= 14) {
@@ -1368,7 +1519,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		}
 		drawFlash(context, scene);
 	});
-	
+
 }));
 
 function drawFlash(context, scene) {
@@ -1405,8 +1556,8 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 
 function centerText(context, text, offsetX, offsetY) {
 	var w = context.measureText(text).width;
-	var x = offsetX + (canvas.width / 2) - (w / 2) |0;
-	var y = offsetY |0;
+	var x = offsetX + (canvas.width / 2) - (w / 2) | 0;
+	var y = offsetY | 0;
 	context.fillText(text, x, y);
 }
 
