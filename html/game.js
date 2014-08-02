@@ -1452,12 +1452,18 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	}
 	if (this.timers.mail.running) {
 		game.animations.get("mail").move(elapsedMillis);
+	} else {
+		game.animations.get("mail").reset();
 	}
 	if (this.timers.vid.running) {
 		game.animations.get("vid").move(elapsedMillis);
+	} else {
+		game.animations.get("vid").reset();
 	}
 	if (this.timers.photo.running) {
 		game.animations.get("photo").move(elapsedMillis);
+	} else {
+		game.animations.get("photo").reset();
 	}
 	game.animations.get("warning").move(elapsedMillis);
 
