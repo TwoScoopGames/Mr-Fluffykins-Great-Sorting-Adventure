@@ -19,9 +19,6 @@ var manifest = {
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
-		"machine-only-mail": "img/machine-only-mail.png",
-		"machine-only-photo": "img/machine-only-photo.png",
-		"machine-only-video": "img/machine-only-video.png",
 		"tote-email-good": "img/tote-mail.png",
 		"tote-email-good-full": "img/tote-mail-full.png",
 		"tote-video-good": "img/tote-video.png",
@@ -181,18 +178,21 @@ var manifest = {
 			"msPerFrame": 100
 		},
 		"mail": {
-			"strip": "img/machine-only-mail-anim-f20.png",
-			"frames": 20,
+			"strip": "img/machine-only-mail-anim.png",
+			"frames": 21,
+			"repeatAt": 1,
 			"msPerFrame": 100
 		},
 		"photo": {
 			"strip": "img/machine-only-photo-anim.png",
-			"frames": 9,
+			"frames": 10,
+			"repeatAt": 1,
 			"msPerFrame": 300
 		},
 		"vid": {
-			"strip": "img/machine-only-video-anim-f13.png",
-			"frames": 13,
+			"strip": "img/machine-only-video-anim.png",
+			"frames": 14,
+			"repeatAt": 1,
 			"msPerFrame": 100
 		},
 		"warning": {
