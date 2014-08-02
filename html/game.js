@@ -15,6 +15,7 @@ var manifest = {
 		"bg": "img/bg.png",
 		"bg-wall": "img/bg-wall.png",
 		"bg-intro": "img/title-screen.png",
+		"locker-open": "img/locker-open.png",
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
@@ -32,17 +33,18 @@ var manifest = {
 		"tube-bottom-right": "img/tube-bottom-right.png"
 	},
 	"sounds": {
-		"intro": "music/intro.mp3",
-		"main": "music/main.mp3",
-		"win": "music/win.mp3",
 		"fail": "music/fail.mp3",
+		"intro": "music/intro.mp3",
+		"locker": "sound/locker.mp3",
+		"main": "music/main.mp3",
 		"pickUpFile": "sound/pickUpFile.wav",
 		"placeFileOnConveyor": "sound/placeFile.wav",
-		"shred": "sound/shred.wav",
-		"processFile": "sound/processFile.wav",
 		"placeFileOut": "sound/placeFileOut.wav",
+		"processFile": "sound/processFile.wav",
+		"shred": "sound/shred.wav",
 		"step1": "sound/step1.wav",
-		"step2": "sound/step2.wav"
+		"step2": "sound/step2.wav",
+		"win": "music/win.mp3"
 	},
 	"fonts": {
 		"pixelmix1": {
@@ -197,36 +199,18 @@ var manifest = {
 };
 
 var clockInScript = {
-	steps: [{
-		command: "moveToPoint",
-		targetX: 160,
-		targetY: -300
-	}, {
-		command: "wait",
-		durationMs: 700
-	}, {
-		command: "playAnimation",
-		name: "player-clock-in",
-		durationMs: 700
-	}, {
-		command: "wait",
-		durationMs: 700
-	}, {
-		command: "moveToPoint",
-		targetX: 246.3613369467028,
-		targetY: 60
-	}, {
-		command: "wait",
-		durationMs: 200
-	}, {
-		command: "playAnimation",
-		name: "player-clock-in",
-		durationMs: 700
-	}, {
-		command: "moveToPoint",
-		targetX: 50,
-		targetY: 300
-	}],
+	steps: [
+		{ command: "wait", durationMs: 400 },
+		{ command: "moveToPoint", targetX: 160, targetY: -300 },
+		{ command: "wait", durationMs: 300 },
+		{ command: "sound", name: "locker" },
+		{ command: "playAnimation", name: "player-clock-in", durationMs: 400 },
+		{ command: function() { lockerOpen = false; } },
+		{ command: "moveToPoint", targetX: 246.3613369467028, targetY: 60 },
+		{ command: "wait", durationMs: 200 },
+		{ command: "playAnimation", name: "player-clock-in", durationMs: 700 },
+		{ command: "moveToPoint", targetX: 50, targetY: 300 }
+		],
 	current: -1,
 	running: true
 };
@@ -263,13 +247,21 @@ function runScript(script, scene) {
 	function runStep(step) {
 		if (!step) {
 			return false;
-		} else if (step.command == "moveToPoint") {
+		}
+		else if (typeof step.command === "function") {
+			step.command(scene);
+		}
+		else if (step.command == "moveToPoint") {
 			movePlayerToPoint(scene, scene.player, step.targetX, step.targetY);
 		} else if (step.command == "playAnimation") {
 			scene.player.sprite = game.animations.get(step.name);
 			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
 			scene.timers.animation.start();
-		} else if (step.command == "wait") {
+		}
+		else if (step.command == "sound") {
+			game.sounds.play(step.name);
+		}
+		else if (step.command == "wait") {
 			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
 			scene.timers.animation.start();
 		}
@@ -281,6 +273,7 @@ var game = new Splat.Game(canvas, manifest);
 
 var score = 0;
 var hearts = 3;
+var lockerOpen = true;
 
 function AnimationGroup() {
 	this.animations = {};
@@ -1362,6 +1355,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg"), 0, -497);
+	if (lockerOpen) {
+		context.drawImage(game.images.get("locker-open"), 99, -446);
+	}
 
 	game.animations.get("conveyor-left").draw(context, 0, 0);
 	var anim = game.animations.get("conveyor-right");
@@ -1398,7 +1394,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			context.fillStyle = "rgba(255,255,255," + alpha + ")";
 			var waveText = "Shift " + (currentWave + 1);
 			centerText(context, waveText, 0, (canvas.height / 2) + 20);
-
 		}
 
 		if (conveyors[0].files.length >= 14) {
