@@ -472,10 +472,11 @@ obstacle = new Splat.Entity(243,108,639,60); //top machine
 obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 369;
-	if (x < obstacle.x + dropOffWidth) {
-		return adjustLeft(x, y, width, height, obstacle);
-	} else if (x > obstacle.x + obstacle.width - fileWidth) {
+	var rightSide = obstacle.x + obstacle.width - fileWidth;
+	if (x + (width/2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
+	} else if(x + (width/2) < obstacle.x + 473) {
+		return [177.20396039603963, 126.20913884007032];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
