@@ -178,9 +178,9 @@ var manifest = {
 			"msPerFrame": 100
 		},
 		"mail": {
-			"strip": "img/machine-only-mail-anim-f20.png",
-			"frames": 20,
-			"msPerFrame": 100
+			"strip": "img/machine-only-mail-anim.png",
+			"frames": 9,
+			"msPerFrame": 300
 		},
 		"photo": {
 			"strip": "img/machine-only-photo-anim-f29.png",
