@@ -1103,8 +1103,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
 	this.aStar.scaleX = 3;
 	this.aStar.scaleY = 3;
-//	movePlayerToPoint(scene, this.player, 276.8852755194219, 59.74358974358972);
-//	movePlayerToPoint(scene, this.player, 108, 189.25641025641022);
 	this.timers.waveStart.start();
 }, function(elapsedMillis) {
 	// simulation
