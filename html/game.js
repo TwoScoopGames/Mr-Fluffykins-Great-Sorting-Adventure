@@ -196,42 +196,42 @@ var clockInScript = {
 	running : true
 };
 
-function runScript(script, scene){
-	if (!script.running){
+function runScript(script, scene) {
+	if (!script.running) {
 		return;
 	}
 	var step = script.steps[script.current];
-	function isRunning(step){
-		if (!step){
+	function isRunning(step) {
+		if (!step) {
 			return false;
 		}
-		else if (step.command == "moveToPoint"){
+		else if (step.command == "moveToPoint") {
 			return scene.timers.path && scene.timers.path.running;
 		}
-		else if(step.command == "playAnimation"){
+		else if (step.command == "playAnimation") {
 			return scene.timers.animation && scene.timers.animation.running;
 		}
 		else {
 			return false;
 		}
 	}
-	if (isRunning(step)){
+	if (isRunning(step)) {
 		return;
 	}
-	script.current ++;
-	if (script.current >= script.steps.length){
+	script.current++;
+	if (script.current >= script.steps.length) {
 		script.running = false;
 		return;
 	}
 	step = script.steps[script.current];
-	function runStep(step){
-		if (!step){
+	function runStep(step) {
+		if (!step) {
 			return false;
 		}
-		else if (step.command == "moveToPoint"){
+		else if (step.command == "moveToPoint") {
 			movePlayerToPoint(scene, scene.player, step.targetX, step.targetY);
 		}
-		else if(step.command == "playAnimation"){
+		else if (step.command == "playAnimation") {
 			scene.player.sprite = game.animations.get(step.name);
 			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
 			scene.timers.animation.start();
