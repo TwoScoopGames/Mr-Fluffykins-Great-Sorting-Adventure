@@ -37,6 +37,7 @@ var manifest = {
 		"tube-bottom-right": "img/tube-bottom-right.png"
 	},
 	"sounds": {
+		"clock-in": "sound/clock-in.mp3",
 		"fail": "music/fail.mp3",
 		"intro": "music/intro.mp3",
 		"locker": "sound/locker.mp3",
@@ -261,6 +262,7 @@ var clockInScript = {
 		{ command: function() { lockerOpen = false; } },
 		{ command: "moveToPoint", targetX: 246.3613369467028, targetY: 60 },
 		{ command: "wait", durationMs: 200 },
+		{ command: "sound", name: "clock-in" },
 		{ command: "playAnimation", name: "player-clock-in", durationMs: 700 },
 		{ command: "moveToPoint", targetX: 50, targetY: 300 }
 		],
