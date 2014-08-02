@@ -1129,9 +1129,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	}
 	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
 
-	var machinePhoto = game.images.get("machine-only-photo");
-	var machineVideo = game.images.get("machine-only-video");
-	var machineMail = game.images.get("machine-only-mail");
 	var conveyorPicture = game.animations.get("conveyor-picture");
 	var conveyorVideo = game.animations.get("conveyor-video");
 	var conveyorEmail = game.animations.get("conveyor-email");
