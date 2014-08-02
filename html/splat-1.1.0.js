@@ -1,6 +1,6 @@
 /*
 
-Splat 0.1.2
+Splat 1.1.0
 Copyright (c) 2014 Eric Lathrop
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -57,6 +57,41 @@ function Accelerometer() {
 module.exports = Accelerometer;
 
 },{}],2:[function(_dereq_,module,exports){
+"use strict";
+/**
+ * @namespace Splat.ads
+ */
+
+var platform = _dereq_("./platform");
+
+if (platform.isEjecta()) {
+	var adBanner = new window.Ejecta.AdBanner();
+	module.exports = {
+		/**
+		 * Show an advertisement.
+		 * @alias Splat.ads.show
+		 * @param {boolean} isAtBottom true if the ads should be shown at the bottom of the screen. false if it should be shown at the top
+		 */
+		"show": function(isAtBottom) {
+			adBanner.isAtBottom = isAtBottom;
+			adBanner.show();
+		},
+		/**
+		 * Hide the current advertisement.
+		 * @alias Splat.ads.hide
+		 */
+		"hide": function() {
+			adBanner.hide();
+		}
+	};
+} else {
+	module.exports = {
+		"show": function() {},
+		"hide": function() {}
+	};
+}
+
+},{"./platform":21}],3:[function(_dereq_,module,exports){
 "use strict";
 
 var Entity = _dereq_("./entity");
@@ -127,7 +162,7 @@ AnimatedEntity.prototype.copy = function() {
 
 module.exports = AnimatedEntity;
 
-},{"./entity":9}],3:[function(_dereq_,module,exports){
+},{"./entity":10}],4:[function(_dereq_,module,exports){
 "use strict";
 
 var buffer = _dereq_("./buffer");
@@ -173,12 +208,30 @@ function Animation() {
 	this.height = 0;
 }
 /**
+ * Make a copy of this Animation.
+ * @returns {Animation}
+ */
+Animation.prototype.copy = function() {
+	var anim = new Animation();
+	anim.frames = this.frames;
+	anim.frame = this.frame;
+	anim.elapsedMillis = this.elapsedMillis;
+	anim.repeatAt = this.repeatAt;
+	anim.width = this.width;
+	anim.height = this.height;
+	return anim;
+};
+
+/**
  * Add a frame to the animation.
  * @param {external:canvas|external:image} img The image to draw for the frame being added.
  * @param {number} time How long, in milliseconds, this frame should be displayed in the animation.
  */
 Animation.prototype.add = function(img, time) {
-	this.frames.push({img: img, time: time});
+	this.frames.push({
+		img: img,
+		time: time
+	});
 	if (this.frames.length === 1) {
 		this.width = img.width;
 		this.height = img.height;
@@ -240,7 +293,7 @@ Animation.prototype.flipVertically = function() {
 
 module.exports = Animation;
 
-},{"./buffer":7}],4:[function(_dereq_,module,exports){
+},{"./buffer":8}],5:[function(_dereq_,module,exports){
 "use strict";
 
 var buffer = _dereq_("./buffer");
@@ -407,7 +460,7 @@ AnimationLoader.prototype.get = function(name) {
 
 module.exports = AnimationLoader;
 
-},{"./animation":3,"./buffer":7}],5:[function(_dereq_,module,exports){
+},{"./animation":4,"./buffer":8}],6:[function(_dereq_,module,exports){
 "use strict";
 
 var BinaryHeap = _dereq_("./binary_heap");
@@ -615,7 +668,7 @@ AStar.prototype.search = function aStar(srcX, srcY, destX, destY) {
 
 module.exports = AStar;
 
-},{"./binary_heap":6}],6:[function(_dereq_,module,exports){
+},{"./binary_heap":7}],7:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -745,9 +798,11 @@ BinaryHeap.prototype.indexOf = function(data) {
 
 module.exports = BinaryHeap;
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],8:[function(_dereq_,module,exports){
 "use strict";
 /** @module buffer */
+
+var platform = _dereq_("./platform");
 
 /**
  * Make an invisible {@link canvas}.
@@ -760,6 +815,10 @@ function makeCanvas(width, height) {
 	var c = document.createElement("canvas");
 	c.width = width;
 	c.height = height;
+	// when retina support is enabled, context.getImageData() reads from the wrong pixel causing NinePatch to break
+	if (platform.isEjecta()) {
+		c.retinaResolutionEnabled = false;
+	}
 	return c;
 }
 
@@ -773,6 +832,10 @@ function makeCanvas(width, height) {
 function makeBuffer(width, height, drawFun) {
 	var canvas = makeCanvas(width, height);
 	var ctx = canvas.getContext("2d");
+	// when image smoothing is enabled, the image gets blurred and the pixel data isn't correct even when the image shouldn't be scaled which breaks NinePatch
+	if (platform.isEjecta()) {
+		ctx.imageSmoothingEnabled = false;
+	}
 	drawFun(ctx);
 	return canvas;
 }
@@ -807,7 +870,7 @@ module.exports = {
 	flipBufferVertically: flipBufferVertically
 };
 
-},{}],8:[function(_dereq_,module,exports){
+},{"./platform":21}],9:[function(_dereq_,module,exports){
 "use strict";
 
 var Entity = _dereq_("./entity");
@@ -853,7 +916,7 @@ Camera.prototype.drawAbsolute = function(context, drawFunc) {
 
 module.exports = Camera;
 
-},{"./entity":9}],9:[function(_dereq_,module,exports){
+},{"./entity":10}],10:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -1024,8 +1087,8 @@ Entity.prototype.moved = function() {
 
 Entity.prototype.draw = function() {
 	// draw bounding boxes
-	 context.strokeStyle = "#ff0000";
-	 context.strokeRect(this.x, this.y, this.width, this.height);
+	// context.strokeStyle = "#ff0000";
+	// context.strokeRect(this.x, this.y, this.width, this.height);
 };
 
 /**
@@ -1086,7 +1149,7 @@ Entity.prototype.resolveCollisionWith = function(other) {
 
 module.exports = Entity;
 
-},{}],10:[function(_dereq_,module,exports){
+},{}],11:[function(_dereq_,module,exports){
 "use strict";
 
 var Camera = _dereq_("./camera");
@@ -1158,10 +1221,11 @@ function keepPositionInBox(entityPos, entitySize, thisPos, thisSize, offset) {
 
 module.exports = EntityBoxCamera;
 
-},{"./camera":8}],11:[function(_dereq_,module,exports){
+},{"./camera":9}],12:[function(_dereq_,module,exports){
 "use strict";
 
 _dereq_("../vendor/FontLoader.js");
+var platform = _dereq_("./platform");
 
 function buildFontFaceRule(family, urls) {
 	var eot = urls["embedded-opentype"];
@@ -1171,12 +1235,12 @@ function buildFontFaceRule(family, urls) {
 
 	var css = "\n";
 	css += "@font-face {\n";
-	css += "  font-family: '" + family + "';\n";
-	css += "  src: url('" + eot + "');\n";
-	css += "  src: url('" + eot + "?iefix') format('embedded-opentype'),\n";
-	css += "       url('" + woff + "') format('woff'),\n";
-	css += "       url('" + ttf + "') format('ttf'),\n";
-	css += "       url('" + svg + "') format('svg');\n";
+	css += "  font-family: \"" + family + "\";\n";
+	css += "  src: url(\"" + eot + "\");\n";
+	css += "  src: url(\"" + eot + "?iefix\") format(\"embedded-opentype\"),\n";
+	css += "       url(\"" + woff + "\") format(\"woff\"),\n";
+	css += "       url(\"" + ttf + "\") format(\"ttf\"),\n";
+	css += "       url(\"" + svg + "\") format(\"svg\");\n";
 	css += "}\n";
 	return css;
 }
@@ -1281,13 +1345,13 @@ EjectaFontLoader.prototype.allLoaded = function() {
 	return true;
 };
 
-if (window.ejecta) {
+if (platform.isEjecta()) {
 	module.exports = EjectaFontLoader;
 } else {
 	module.exports = FontLoader;
 }
 
-},{"../vendor/FontLoader.js":26}],12:[function(_dereq_,module,exports){
+},{"../vendor/FontLoader.js":28,"./platform":21}],13:[function(_dereq_,module,exports){
 "use strict";
 
 var Scene = _dereq_("./scene");
@@ -1300,6 +1364,7 @@ var SoundLoader = _dereq_("./sound_loader");
 var FontLoader = _dereq_("./font_loader");
 var AnimationLoader = _dereq_("./animation_loader");
 var SceneManager = _dereq_("./scene_manager");
+var platform = _dereq_("./platform");
 
 function loadAssets(assetLoader, assets) {
 	for (var key in assets) {
@@ -1362,13 +1427,6 @@ function setCanvasSizeScaled(canvas) {
 	}
 }
 
-function setCanvasSizeFullScreen(canvas) {
-	canvas.width = window.innerWidth * window.devicePixelRatio;
-	canvas.height = window.innerHeight * window.devicePixelRatio;
-	canvas.style.width = window.innerWidth + "px";
-	canvas.style.height = window.innerHeight + "px";
-}
-
 /**
  * Represents a whole game. This class contains all the inputs, outputs, and data for the game.
  * @constructor
@@ -1403,12 +1461,8 @@ function setCanvasSizeFullScreen(canvas) {
 	var game = new Splat.Game(canvas, manifest);
  */
 function Game(canvas, manifest) {
-	if (window.ejecta) {
-		setCanvasSizeFullScreen(canvas);
-	} else {
-		window.addEventListener("resize", function() { setCanvasSizeScaled(canvas); });
-		setCanvasSizeScaled(canvas);
-	}
+	window.addEventListener("resize", function() { setCanvasSizeScaled(canvas); });
+	setCanvasSizeScaled(canvas);
 
 	/**
 	 * The mouse input for the game.
@@ -1490,12 +1544,12 @@ Game.prototype.percentLoaded = function() {
  * @returns {boolean}
  */
 Game.prototype.isChromeApp = function() {
-	return window.chrome && window.chrome.app && window.chrome.app.runtime;
+	return platform.isChromeApp();
 };
 
 module.exports = Game;
 
-},{"./accelerometer":1,"./animation_loader":4,"./font_loader":11,"./image_loader":13,"./key_map":14,"./keyboard":15,"./mouse":18,"./scene":21,"./scene_manager":22,"./sound_loader":23}],13:[function(_dereq_,module,exports){
+},{"./accelerometer":1,"./animation_loader":5,"./font_loader":12,"./image_loader":14,"./key_map":15,"./keyboard":16,"./mouse":19,"./platform":21,"./scene":23,"./scene_manager":24,"./sound_loader":25}],14:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -1575,7 +1629,7 @@ ImageLoader.prototype.get = function(name) {
 
 module.exports = ImageLoader;
 
-},{}],14:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 /**
  * Keyboard code mappings that map keycodes to key names. A specific named map should be given to {@link Keyboard}. The default map is "US".
  * @module KeyMap
@@ -1684,7 +1738,7 @@ module.exports = {
 	}
 };
 
-},{}],15:[function(_dereq_,module,exports){
+},{}],16:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -1745,7 +1799,7 @@ Keyboard.prototype.consumePressed = function(name) {
 
 module.exports = Keyboard;
 
-},{}],16:[function(_dereq_,module,exports){
+},{}],17:[function(_dereq_,module,exports){
 "use strict";
 
 var buffer = _dereq_("./buffer");
@@ -1758,21 +1812,22 @@ module.exports = {
 	flipBufferHorizontally: buffer.flipBufferHorizontally,
 	flipBufferVertically: buffer.flipBufferVertically,
 
+	ads: _dereq_("./ads"),
 	AnimatedEntity: _dereq_("./animated_entity"),
 	AStar: _dereq_("./astar"),
 	BinaryHeap: _dereq_("./binary_heap"),
 	Camera: _dereq_("./camera"),
-	saveData: _dereq_("./save_data"),
 	Entity: _dereq_("./entity"),
 	EntityBoxCamera: _dereq_("./entity_box_camera"),
 	Game: _dereq_("./game"),
 	math: _dereq_("./math"),
 	NinePatch: _dereq_("./ninepatch"),
+	saveData: _dereq_("./save_data"),
 	Scene: _dereq_("./scene"),
 	Timer: _dereq_("./timer"),
 };
 
-},{"./animated_entity":2,"./astar":5,"./binary_heap":6,"./buffer":7,"./camera":8,"./entity":9,"./entity_box_camera":10,"./game":12,"./math":17,"./ninepatch":19,"./save_data":20,"./scene":21,"./timer":24}],17:[function(_dereq_,module,exports){
+},{"./ads":2,"./animated_entity":3,"./astar":6,"./binary_heap":7,"./buffer":8,"./camera":9,"./entity":10,"./entity_box_camera":11,"./game":13,"./math":18,"./ninepatch":20,"./save_data":22,"./scene":23,"./timer":26}],18:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -1810,8 +1865,10 @@ var val = rand.random();
 	Random: _dereq_("mersenne-twister")
 };
 
-},{"mersenne-twister":25}],18:[function(_dereq_,module,exports){
+},{"mersenne-twister":27}],19:[function(_dereq_,module,exports){
 "use strict";
+
+var platform = _dereq_("./platform");
 
 // prevent springy scrolling on ios
 document.ontouchmove = function(e) {
@@ -1838,14 +1895,15 @@ var relMouseCoords = function(canvas, event) {
 	return {x:x, y:y};
 };
 
-function relMouseCoordsEjecta() {
-	var event = arguments[1];
-	var x = event.pageX * window.devicePixelRatio;
-	var y = event.pageY * window.devicePixelRatio;
+function relMouseCoordsEjecta(canvas, event) {
+	var ratioX = canvas.width / window.innerWidth;
+	var ratioY = canvas.height / window.innerHeight;
+	var x = event.pageX * ratioX;
+	var y = event.pageY * ratioY;
 	return {x:x, y:y};
 }
 
-if (window.ejecta) {
+if (platform.isEjecta()) {
 	relMouseCoords = relMouseCoordsEjecta;
 }
 
@@ -2031,7 +2089,7 @@ Mouse.prototype.consumePressed = function(button, x, y, width, height) {
 
 module.exports = Mouse;
 
-},{}],19:[function(_dereq_,module,exports){
+},{"./platform":21}],20:[function(_dereq_,module,exports){
 "use strict";
 
 var buffer = _dereq_("./buffer");
@@ -2150,14 +2208,33 @@ NinePatch.prototype.draw = function(context, x, y, width, height) {
 
 module.exports = NinePatch;
 
-},{"./buffer":7}],20:[function(_dereq_,module,exports){
+},{"./buffer":8}],21:[function(_dereq_,module,exports){
 "use strict";
+
+module.exports = {
+	isChromeApp: function() {
+		return window.chrome && window.chrome.app && window.chrome.app.runtime;
+	},
+	isEjecta: function() {
+		return window.ejecta;
+	}
+};
+
+},{}],22:[function(_dereq_,module,exports){
+"use strict";
+/**
+ * @namespace Splat.saveData
+ */
+
+var platform = _dereq_("./platform");
 
 function cookieGet(name) {
 	var value = "; " + document.cookie;
 	var parts = value.split("; " + name + "=");
 	if (parts.length === 2) {
 		return parts.pop().split(";").shift();
+	} else {
+		throw "cookie " + name + " was not found";
 	}
 }
 
@@ -2168,9 +2245,44 @@ function cookieSet(name, value) {
 	document.cookie = cookie;
 }
 
+function getMultiple(getSingleFunc, keys, callback) {
+	if (typeof keys === "string") {
+		keys = [keys];
+	}
+
+	try
+	{
+		var data = keys.map(function(key) {
+			return [key, getSingleFunc(key)];
+		}).reduce(function(accum, pair) {
+			accum[pair[0]] = pair[1];
+			return accum;
+		}, {});
+
+		callback(undefined, data);
+	}
+	catch (e) {
+		callback(e);
+	}
+}
+
+function setMultiple(setSingleFunc, data, callback) {
+	try {
+		for (var key in data) {
+			if (data.hasOwnProperty(key)) {
+				setSingleFunc(key, data[key]);
+			}
+		}
+		callback();
+	}
+	catch (e) {
+		callback(e);
+	}
+}
+
 var cookieSaveData = {
-	"get": cookieGet,
-	"set": cookieSet
+	"get": getMultiple.bind(undefined, cookieGet),
+	"set": setMultiple.bind(undefined, cookieSet)
 };
 
 function localStorageGet(name) {
@@ -2178,21 +2290,67 @@ function localStorageGet(name) {
 }
 
 function localStorageSet(name, value) {
-	return window.localStorage.setItem(name, value.toString());
+	window.localStorage.setItem(name, value.toString());
 }
 
 var localStorageSaveData = {
-	"get": localStorageGet,
-	"set": localStorageSet
+	"get": getMultiple.bind(undefined, localStorageGet),
+	"set": setMultiple.bind(undefined, localStorageSet)
 };
 
-if (window.localStorage) {
+/**
+ * A function that is called when save data has finished being retrieved.
+ * @callback saveDataGetFinished
+ * @param {error} err If defined, err is the error that occurred when retrieving the data.
+ * @param {object} data The key-value pairs of data that were previously saved.
+ */
+/**
+ * Retrieve data previously stored with {@link Splat.saveData.set}.
+ * @alias Splat.saveData.get
+ * @param {string | Array} keys A single key or array of key names of data items to retrieve.
+ * @param {saveDataGetFinished} callback A callback that is called with the data when it has been retrieved.
+ */
+function chromeStorageGet(keys, callback) {
+	window.chrome.storage.sync.get(keys, function(data) {
+		if (window.chrome.runtime.lastError) {
+			callback(window.chrome.runtime.lastError);
+		} else {
+			callback(undefined, data);
+		}
+	});
+}
+
+/**
+ * A function that is called when save data has finished being stored.
+ * @callback saveDataSetFinished
+ * @param {error} err If defined, err is the error that occurred when saving the data.
+ */
+/**
+ * Store data for later.
+ * @alias Splat.saveData.set
+ * @param {object} data An object containing key-value pairs of data to save.
+ * @param {saveDataSetFinished} callback A callback that is called when the data has finished saving.
+ */
+function chromeStorageSet(data, callback) {
+	window.chrome.storage.sync.set(data, function() {
+		callback(window.chrome.runtime.lastError);
+	});
+}
+
+var chromeStorageSaveData = {
+	"get": chromeStorageGet,
+	"set": chromeStorageSet,
+};
+
+if (platform.isChromeApp()) {
+	module.exports = chromeStorageSaveData;
+} else if (window.localStorage) {
 	module.exports = localStorageSaveData;
 } else {
 	module.exports = cookieSaveData;
 }
 
-},{}],21:[function(_dereq_,module,exports){
+},{"./platform":21}],23:[function(_dereq_,module,exports){
 "use strict";
 
 var Camera = _dereq_("./camera");
@@ -2351,7 +2509,7 @@ function drawFrameRate(scene, elapsedMillis) {
 
 module.exports = Scene;
 
-},{"./camera":8}],22:[function(_dereq_,module,exports){
+},{"./camera":9}],24:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -2400,7 +2558,7 @@ SceneManager.prototype.switchTo = function(name) {
 
 module.exports = SceneManager;
 
-},{}],23:[function(_dereq_,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 "use strict";
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -2629,7 +2787,7 @@ if (window.AudioContext) {
 	module.exports = FakeSoundLoader;
 }
 
-},{}],24:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -2726,7 +2884,7 @@ Timer.prototype.expired = function() {
 
 module.exports = Timer;
 
-},{}],25:[function(_dereq_,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 /*
   https://github.com/banksean wrapped Makoto Matsumoto and Takuji Nishimura's code in a namespace
   so it's better encapsulated. Now you can have multiple random number generators
@@ -2933,7 +3091,7 @@ MersenneTwister.prototype.random_long = function() {
 
 module.exports = MersenneTwister;
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 (function(namespace) {
 	
 	var isIE = /MSIE/i.test(navigator.userAgent),
@@ -3600,6 +3758,6 @@ module.exports = MersenneTwister;
 	};
 	
 }(window));
-},{}]},{},[16])
-(16)
+},{}]},{},[17])
+(17)
 });

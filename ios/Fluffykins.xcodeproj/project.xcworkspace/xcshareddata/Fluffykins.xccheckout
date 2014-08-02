@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B751CF21-ECE6-4343-9A26-CA1CE10BE704</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Fluffykins</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>9EA52290-3443-4ECD-98A6-735D5476C627</key>
+		<string>ssh://github.com/TwoScoopGames/LudumDare29.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>ios/Fluffykins.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>9EA52290-3443-4ECD-98A6-735D5476C627</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/TwoScoopGames/LudumDare29.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>9EA52290-3443-4ECD-98A6-735D5476C627</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>9EA52290-3443-4ECD-98A6-735D5476C627</string>
+			<key>IDESourceControlWCCName</key>
+			<string>fluffykins</string>
+		</dict>
+	</array>
+</dict>
+</plist>
