@@ -1021,7 +1021,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	this.camera = new Splat.EntityBoxCamera(this.player, canvas.width, 100, canvas.width / 2, canvas.height - 400);
 	//redefine move function so that camera can't move past bottom of the screen
+	this.camera.locked = false;
 	this.camera.move = function(elapsedMillis){
+		if (this.locked) {
+			return;
+		}
 		Splat.EntityBoxCamera.prototype.move.call(this, elapsedMillis);
 		if (this.y > 0){
 			this.y = 0;
@@ -1107,6 +1111,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var wasRunning = clockInScript.running;
 	runScript(clockInScript, this);
 	if (!clockInScript.running){
+		this.camera.locked = true;
 		if (game.mouse.consumePressed(0)) {
 			this.timers.path.stop();
 			this.nextPaths = [];
