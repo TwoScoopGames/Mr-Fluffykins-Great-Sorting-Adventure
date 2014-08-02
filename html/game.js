@@ -188,9 +188,14 @@ var manifest = {
 
 var clockInScript = {
 	steps: [
-		{command: "moveToPoint", targetX: 246.3613369467028, targetY: 59.74358974358972},
-		{command: "playAnimation", name: "player-clock-in", durationMs: 700},
-		{command: "moveToPoint", targetX: 108, targetY: 189.25641025641022 }
+		{command: "moveToPoint", targetX: 160, targetY: -300 },
+		{command: "wait", durationMs: 700 },
+		{command: "playAnimation", name: "player-clock-in", durationMs: 700 },
+		{command: "wait", durationMs: 700 },
+		{command: "moveToPoint", targetX: 246.3613369467028, targetY: 60 },
+		{command: "wait", durationMs: 200 },
+		{command: "playAnimation", name: "player-clock-in", durationMs: 700 },
+		{command: "moveToPoint", targetX: 50, targetY: 300 }
 		],
 	current: -1,
 	running : true
@@ -209,6 +214,9 @@ function runScript(script, scene) {
 			return scene.timers.path && scene.timers.path.running;
 		}
 		else if (step.command == "playAnimation") {
+			return scene.timers.animation && scene.timers.animation.running;
+		}
+		else if (step.command == "wait") {
 			return scene.timers.animation && scene.timers.animation.running;
 		}
 		else {
@@ -233,6 +241,10 @@ function runScript(script, scene) {
 		}
 		else if (step.command == "playAnimation") {
 			scene.player.sprite = game.animations.get(step.name);
+			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
+			scene.timers.animation.start();
+		}
+		else if (step.command == "wait") {
 			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
 			scene.timers.animation.start();
 		}
