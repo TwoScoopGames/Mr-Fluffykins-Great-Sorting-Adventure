@@ -169,6 +169,27 @@ var manifest = {
 			"frames": 4,
 			"msPerFrame": 100
 		},
+		"shark-left": {
+			"strip": "img/shark-left.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"shark-right": {
+			"strip": "img/shark-left.png",
+			"frames": 4,
+			"msPerFrame": 100,
+			"flip": "horizontal"
+		},
+		"shark-up": {
+			"strip": "img/shark-up.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"shark-down": {
+			"strip": "img/shark-down.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
 		"shredder": {
 			"strip": "img/shredder.png",
 			"frames": 3,
