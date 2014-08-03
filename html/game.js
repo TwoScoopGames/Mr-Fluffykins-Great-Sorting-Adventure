@@ -19,9 +19,6 @@ var manifest = {
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
-		"machine-only-mail": "img/machine-only-mail.png",
-		"machine-only-photo": "img/machine-only-photo.png",
-		"machine-only-video": "img/machine-only-video.png",
 		"tote-email-good": "img/tote-mail.png",
 		"tote-email-good-full": "img/tote-mail-full.png",
 		"tote-video-good": "img/tote-video.png",
@@ -37,6 +34,7 @@ var manifest = {
 		"tube-bottom-right": "img/tube-bottom-right.png"
 	},
 	"sounds": {
+		"clock-in": "sound/clock-in.mp3",
 		"fail": "music/fail.mp3",
 		"intro": "music/intro.mp3",
 		"locker": "sound/locker.mp3",
@@ -180,18 +178,21 @@ var manifest = {
 			"msPerFrame": 100
 		},
 		"mail": {
-			"strip": "img/machine-only-mail-anim-f20.png",
-			"frames": 20,
+			"strip": "img/machine-only-mail-anim.png",
+			"frames": 21,
+			"repeatAt": 1,
 			"msPerFrame": 100
 		},
 		"photo": {
 			"strip": "img/machine-only-photo-anim.png",
-			"frames": 9,
+			"frames": 10,
+			"repeatAt": 1,
 			"msPerFrame": 300
 		},
 		"vid": {
-			"strip": "img/machine-only-video-anim-f13.png",
-			"frames": 13,
+			"strip": "img/machine-only-video-anim.png",
+			"frames": 14,
+			"repeatAt": 1,
 			"msPerFrame": 100
 		},
 		"warning": {
@@ -261,6 +262,7 @@ var clockInScript = {
 		{ command: function() { lockerOpen = false; } },
 		{ command: "moveToPoint", targetX: 246.3613369467028, targetY: 60 },
 		{ command: "wait", durationMs: 200 },
+		{ command: "sound", name: "clock-in" },
 		{ command: "playAnimation", name: "player-clock-in", durationMs: 700 },
 		{ command: "moveToPoint", targetX: 50, targetY: 300 }
 		],
@@ -1130,9 +1132,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	}
 	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
 
-	var machinePhoto = game.images.get("machine-only-photo");
-	var machineVideo = game.images.get("machine-only-video");
-	var machineMail = game.images.get("machine-only-mail");
 	var conveyorPicture = game.animations.get("conveyor-picture");
 	var conveyorVideo = game.animations.get("conveyor-video");
 	var conveyorEmail = game.animations.get("conveyor-email");
@@ -1456,12 +1455,18 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	}
 	if (this.timers.mail.running) {
 		game.animations.get("mail").move(elapsedMillis);
+	} else {
+		game.animations.get("mail").reset();
 	}
 	if (this.timers.vid.running) {
 		game.animations.get("vid").move(elapsedMillis);
+	} else {
+		game.animations.get("vid").reset();
 	}
 	if (this.timers.photo.running) {
 		game.animations.get("photo").move(elapsedMillis);
+	} else {
+		game.animations.get("photo").reset();
 	}
 	game.animations.get("warning").move(elapsedMillis);
 
