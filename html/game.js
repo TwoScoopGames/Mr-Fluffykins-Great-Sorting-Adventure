@@ -19,19 +19,19 @@ var manifest = {
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
+		"pause": "img/pause-icon.png",
+		"play": "img/play-icon.png",
+		"sound-off": "img/sound-off-icon.png",
+		"sound-on": "img/sound-on-icon.png",
 		"tote-email-good": "img/tote-mail.png",
 		"tote-email-good-full": "img/tote-mail-full.png",
 		"tote-video-good": "img/tote-video.png",
 		"tote-video-good-full": "img/tote-video-full.png",
 		"tote-picture-good": "img/tote-photo.png",
 		"tote-picture-good-full": "img/tote-photo-full.png",
+		"tube-bottom-right": "img/tube-bottom-right.png",
 		"tube-top-right": "img/tube-top-right.png",
-		"tube-top-left": "img/tube-top-left.png",
-		"sound-off": "img/sound-off-icon.png",
-		"sound-on": "img/sound-on-icon.png",
-		"play": "img/play-icon.png",
-		"pause": "img/pause-icon.png",
-		"tube-bottom-right": "img/tube-bottom-right.png"
+		"tube-top-left": "img/tube-top-left.png"
 	},
 	"sounds": {
 		"clock-in": "sound/clock-in.mp3",
@@ -39,14 +39,19 @@ var manifest = {
 		"intro": "music/intro.mp3",
 		"locker": "sound/locker.mp3",
 		"main": "music/main.mp3",
-		"pickUpFile": "sound/pickUpFile.wav",
-		"placeFileOnConveyor": "sound/placeFile.wav",
+		"pickUpFile": "sound/new-pickup.mp3",
+		"placeFileOnConveyor": "sound/new-drop.mp3",
 		"placeFileOut": "sound/placeFileOut.wav",
-		"processFile": "sound/processFile.wav",
+		"processFile": "sound/new-processFile.mp3",
 		"shred": "sound/shred.wav",
 		"step1": "sound/step1.wav",
 		"step2": "sound/step2.wav",
-		"win": "music/win.mp3"
+		"win": "music/win.mp3",
+		"stepnew1": "sound/step-new-1.mp3",
+		"stepnew2": "sound/step-new-2.mp3",
+		"stepnew3": "sound/step-new-3.mp3",
+		"stepnew4": "sound/step-new-4.mp3",
+		"stepnew5": "sound/step-new-5.mp3"
 	},
 	"fonts": {
 		"pixelmix1": {
@@ -57,6 +62,31 @@ var manifest = {
 		}
 	},
 	"animations": {
+		"conveyor-email": {
+			"strip": "img/machine-conveyor-mail.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
+		"conveyor-left": {
+			"strip": "img/conveyor-left.png",
+			"frames": 6,
+			"msPerFrame": 100
+		},
+		"conveyor-picture": {
+			"strip": "img/machine-conveyor-photo.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
+		"conveyor-right": {
+			"strip": "img/conveyor-right.png",
+			"frames": 6,
+			"msPerFrame": 100
+		},
+		"conveyor-video": {
+			"strip": "img/machine-conveyor-video.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
 		"email": {
 			"strip": "img/mail.png",
 			"frames": 1,
@@ -71,6 +101,18 @@ var manifest = {
 			"strip": "img/mail-bad.png",
 			"frames": 1,
 			"msPerFrame": 100
+		},
+		"mail": {
+			"strip": "img/machine-only-mail-anim.png",
+			"frames": 21,
+			"repeatAt": 1,
+			"msPerFrame": 100
+		},
+		"photo": {
+			"strip": "img/machine-only-photo-anim.png",
+			"frames": 10,
+			"repeatAt": 1,
+			"msPerFrame": 300
 		},
 		"picture": {
 			"strip": "img/photo.png",
@@ -87,6 +129,83 @@ var manifest = {
 			"frames": 1,
 			"msPerFrame": 100
 		},
+		"player-clock-in": {
+			"strip": "img/player-clock-in.png",
+			"frames": 7,
+			"msPerFrame": 100
+		},
+		"player-down": {
+			"strip": "img/player-down.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-down-carry": {
+			"strip": "img/player-down-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-left": {
+			"strip": "img/player-left.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-left-carry": {
+			"strip": "img/player-left-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-right": {
+			"strip": "img/player-right.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-right-carry": {
+			"strip": "img/player-right-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-up": {
+			"strip": "img/player-up.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-up-carry": {
+			"strip": "img/player-up-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"shark-left": {
+			"strip": "img/shark-left.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"shark-right": {
+			"strip": "img/shark-left.png",
+			"frames": 4,
+			"msPerFrame": 100,
+			"flip": "horizontal"
+		},
+		"shark-up": {
+			"strip": "img/shark-up.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"shark-down": {
+			"strip": "img/shark-down.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"shredder": {
+			"strip": "img/shredder.png",
+			"frames": 3,
+			"msPerFrame": 100
+		},
+		"vid": {
+			"strip": "img/machine-only-video-anim.png",
+			"frames": 14,
+			"repeatAt": 1,
+			"msPerFrame": 100
+		},
 		"video": {
 			"strip": "img/video.png",
 			"frames": 1,
@@ -100,99 +219,6 @@ var manifest = {
 		"video-bad": {
 			"strip": "img/video-bad.png",
 			"frames": 11,
-			"msPerFrame": 100
-		},
-		"conveyor-left": {
-			"strip": "img/conveyor-left.png",
-			"frames": 6,
-			"msPerFrame": 100
-		},
-		"conveyor-right": {
-			"strip": "img/conveyor-right.png",
-			"frames": 6,
-			"msPerFrame": 100
-		},
-		"conveyor-email": {
-			"strip": "img/machine-conveyor-mail.png",
-			"frames": 2,
-			"msPerFrame": 100
-		},
-		"conveyor-picture": {
-			"strip": "img/machine-conveyor-photo.png",
-			"frames": 2,
-			"msPerFrame": 100
-		},
-		"conveyor-video": {
-			"strip": "img/machine-conveyor-video.png",
-			"frames": 2,
-			"msPerFrame": 100
-		},
-		"shredder": {
-			"strip": "img/shredder.png",
-			"frames": 3,
-			"msPerFrame": 100
-		},
-		"player-up": {
-			"strip": "img/player-up.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-down": {
-			"strip": "img/player-down.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-left": {
-			"strip": "img/player-left.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-right": {
-			"strip": "img/player-right.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-up-carry": {
-			"strip": "img/player-up-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-down-carry": {
-			"strip": "img/player-down-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-left-carry": {
-			"strip": "img/player-left-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-right-carry": {
-			"strip": "img/player-right-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-clock-in": {
-			"strip": "img/player-clock-in.png",
-			"frames": 7,
-			"msPerFrame": 100
-		},
-		"mail": {
-			"strip": "img/machine-only-mail-anim.png",
-			"frames": 21,
-			"repeatAt": 1,
-			"msPerFrame": 100
-		},
-		"photo": {
-			"strip": "img/machine-only-photo-anim.png",
-			"frames": 10,
-			"repeatAt": 1,
-			"msPerFrame": 300
-		},
-		"vid": {
-			"strip": "img/machine-only-video-anim.png",
-			"frames": 14,
-			"repeatAt": 1,
 			"msPerFrame": 100
 		},
 		"warning": {
@@ -252,77 +278,88 @@ function drawEntities(context, entities) {
 	}
 }
 
-var clockInScript = {
-	steps: [
-		{ command: "wait", durationMs: 400 },
-		{ command: "moveToPoint", targetX: 160, targetY: -300 },
-		{ command: "wait", durationMs: 300 },
-		{ command: "sound", name: "locker" },
-		{ command: "playAnimation", name: "player-clock-in", durationMs: 400 },
-		{ command: function() { lockerOpen = false; } },
-		{ command: "moveToPoint", targetX: 246.3613369467028, targetY: 60 },
-		{ command: "wait", durationMs: 200 },
-		{ command: "sound", name: "clock-in" },
-		{ command: "playAnimation", name: "player-clock-in", durationMs: 700 },
-		{ command: "moveToPoint", targetX: 50, targetY: 300 }
-		],
-	current: -1,
-	running: true
-};
+var clockInScript = new Script();
+clockInScript.steps.push(WaitCommand(400));
+clockInScript.steps.push(MoveCommand(160, -300));
+clockInScript.steps.push(WaitCommand(300));
+clockInScript.steps.push(SoundCommand("locker"));
+clockInScript.steps.push(AnimationCommand("player-clock-in", 400));
+clockInScript.steps.push(function() {
+	lockerOpen = false;
+	return false;
+});
+clockInScript.steps.push(MoveCommand(246, 60));
+clockInScript.steps.push(WaitCommand(200));
+clockInScript.steps.push(SoundCommand("clock-in"));
+clockInScript.steps.push(AnimationCommand("player-clock-in", 700));
+clockInScript.steps.push(MoveCommand(50, 300));
 
-function runScript(script, scene) {
-	if (!script.running) {
-		return;
-	}
-	var step = script.steps[script.current];
-
-	function isRunning(step) {
-		if (!step) {
-			return false;
-		} else if (step.command == "moveToPoint") {
-			return scene.timers.path && scene.timers.path.running;
-		} else if (step.command == "playAnimation") {
-			return scene.timers.animation && scene.timers.animation.running;
-		} else if (step.command == "wait") {
-			return scene.timers.animation && scene.timers.animation.running;
-		} else {
-			return false;
-		}
-	}
-	if (isRunning(step)) {
-		return;
-	}
-	script.current++;
-	if (script.current >= script.steps.length) {
-		script.running = false;
-		return;
-	}
-	step = script.steps[script.current];
-
-	function runStep(step) {
-		if (!step) {
-			return false;
-		}
-		else if (typeof step.command === "function") {
-			step.command(scene);
-		}
-		else if (step.command == "moveToPoint") {
-			movePlayerToPoint(scene, scene.player, step.targetX, step.targetY);
-		} else if (step.command == "playAnimation") {
-			scene.player.sprite = game.animations.get(step.name);
-			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
-			scene.timers.animation.start();
-		}
-		else if (step.command == "sound") {
-			game.sounds.play(step.name);
-		}
-		else if (step.command == "wait") {
-			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
-			scene.timers.animation.start();
-		}
-	}
-	runStep(step);
+function WaitCommand(durationMs) {
+	var t = 0;
+	return function(elapsedMillis) {
+		t += elapsedMillis;
+		return t < durationMs;
+	};
 }
+
+function SoundCommand(name) {
+	return function() {
+		game.sounds.play(name);
+		return false;
+	}
+}
+
+function AnimationCommand(name, durationMs) {
+	var first = true;
+	return function(elapsedMillis, scene) {
+		if (first) {
+			scene.player.sprite = game.animations.get(name);
+			scene.timers.animation = new Splat.Timer(undefined, durationMs, undefined);
+			scene.timers.animation.start();
+			first = false;
+		}
+		return scene.timers.animation.running;
+	};
+}
+
+function MoveCommand(x, y) {
+	var first = true;
+	return function(elapsedMillis, scene) {
+		if (first) {
+			movePlayerToPoint(scene, scene.player, x, y);
+			first = false;
+		}
+		return scene.timers.path && scene.timers.path.running;
+	};
+}
+
+function Script() {
+	this.current = 0;
+	this.running = true;
+	this.steps = [];
+	this.firstTimeOnStep = true;
+}
+Script.prototype.move = function(elapsedMillis, scene) {
+	if (!this.running) {
+		return;
+	}
+	while (true) {
+		var step = this.steps[this.current];
+		if (this.firstTimeOnStep) {
+			elapsedMillis = 0;
+		}
+		if (step(elapsedMillis, scene)) {
+			this.firstTimeOnStep = false;
+			return;
+		}
+		this.current++;
+		this.firstTimeOnStep = true;
+		if (this.current >= this.steps.length) {
+			this.running = false;
+			return;
+		}
+	}
+};
 
 var game = new Splat.Game(canvas, manifest);
 
@@ -361,7 +398,7 @@ AnimationGroup.prototype.getCurrent = function() {
 	return this.animations[this.current];
 };
 
-var stepSounds = ["step1", "step2"];
+var stepSounds = ["stepnew1", "stepnew2", "stepnew3", "stepnew4", "stepnew5"];
 
 var conveyors = [];
 
@@ -565,7 +602,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 369;
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
-	if (x + (width/2) > rightSide) {
+	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if(x + (width/2) < obstacle.x + 473) {
 		return [176, 130];
@@ -580,7 +617,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 102;
 	var enclosedWidth = 276;
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
-	if (x + (width/2) > rightSide) {
+	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if(x + (width/2) < obstacle.x + 380) {
 		return [176, 340];
@@ -595,7 +632,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 138;
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
-	if (x + (width/2) > rightSide) {
+	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if(x + (width/2) < obstacle.x + 244) {
 		return [176, 563];
@@ -1155,7 +1192,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	];
 
 	var self = this;
-	
+
 	/*if (!pauseToggle) {
 		console.log("inside");
 		pauseToggle = new ToggleButton(0, 78, 72, 72, game.images.get("play"), game.images.get("pause"), "escape", function(toggled) {
@@ -1254,7 +1291,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	soundToggle.move(elapsedMillis);
 	//pauseToggle.move(elapsedMillis);
 	var wasRunning = clockInScript.running;
-	runScript(clockInScript, this);
+	clockInScript.move(elapsedMillis, this);
 	if (!clockInScript.running) {
 		if (wasRunning) {
 			var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
@@ -1473,7 +1510,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 }, function(context) {
 	// draw
-	this.camera.drawAbsolute(context,function(){
+	this.camera.drawAbsolute(context, function() {
 		context.fillStyle = "#000";
 		context.fillRect(0, 0, canvas.width, canvas.height);
 	});
@@ -1503,10 +1540,10 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var scene = this;
 
-	this.camera.drawAbsolute(context,function(){
+	this.camera.drawAbsolute(context, function() {
 		soundToggle.draw(context);
 		//pauseToggle.draw(context);
-		context.font= "50px pixelmix1";
+		context.font = "50px pixelmix1";
 		context.fillStyle = "#ffffff";
 		context.fillText(score, 950, 50);
 
