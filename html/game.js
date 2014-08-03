@@ -39,14 +39,19 @@ var manifest = {
 		"intro": "music/intro.mp3",
 		"locker": "sound/locker.mp3",
 		"main": "music/main.mp3",
-		"pickUpFile": "sound/pickUpFile.wav",
-		"placeFileOnConveyor": "sound/placeFile.wav",
+		"pickUpFile": "sound/new-pickup.mp3",
+		"placeFileOnConveyor": "sound/new-drop.mp3",
 		"placeFileOut": "sound/placeFileOut.wav",
-		"processFile": "sound/processFile.wav",
+		"processFile": "sound/new-processFile.mp3",
 		"shred": "sound/shred.wav",
 		"step1": "sound/step1.wav",
 		"step2": "sound/step2.wav",
-		"win": "music/win.mp3"
+		"win": "music/win.mp3",
+		"stepnew1": "sound/step-new-1.mp3",
+		"stepnew2": "sound/step-new-2.mp3",
+		"stepnew3": "sound/step-new-3.mp3",
+		"stepnew4": "sound/step-new-4.mp3",
+		"stepnew5": "sound/step-new-5.mp3"
 	},
 	"fonts": {
 		"pixelmix1": {
@@ -393,7 +398,7 @@ AnimationGroup.prototype.getCurrent = function() {
 	return this.animations[this.current];
 };
 
-var stepSounds = ["step1", "step2"];
+var stepSounds = ["stepnew1", "stepnew2", "stepnew3", "stepnew4", "stepnew5"];
 
 var conveyors = [];
 
@@ -597,9 +602,9 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 369;
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
-	if (x + (width/2) > rightSide) {
+	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
-	} else if(x + (width/2) < obstacle.x + 473) {
+	} else if (x + (width / 2) < obstacle.x + 473) {
 		return [177.20396039603963, 126.20913884007032];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
@@ -612,9 +617,9 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 102;
 	var enclosedWidth = 276;
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
-	if (x + (width/2) > rightSide) {
+	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
-	} else if(x + (width/2) < obstacle.x + 380) {
+	} else if (x + (width / 2) < obstacle.x + 380) {
 		return [177.82376237623765, 332.04217926186294];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
@@ -627,9 +632,9 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 138;
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
-	if (x + (width/2) > rightSide) {
+	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
-	} else if(x + (width/2) < obstacle.x + 244) {
+	} else if (x + (width / 2) < obstacle.x + 244) {
 		return [177.20396039603963, 563.6379613356767];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
@@ -1188,7 +1193,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	];
 
 	var self = this;
-	
+
 	/*if (!pauseToggle) {
 		console.log("inside");
 		pauseToggle = new ToggleButton(0, 78, 72, 72, game.images.get("play"), game.images.get("pause"), "escape", function(toggled) {
@@ -1504,7 +1509,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 }, function(context) {
 	// draw
-	this.camera.drawAbsolute(context,function(){
+	this.camera.drawAbsolute(context, function() {
 		context.fillStyle = "#000";
 		context.fillRect(0, 0, canvas.width, canvas.height);
 	});
@@ -1534,10 +1539,10 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var scene = this;
 
-	this.camera.drawAbsolute(context,function(){
+	this.camera.drawAbsolute(context, function() {
 		soundToggle.draw(context);
 		//pauseToggle.draw(context);
-		context.font= "50px pixelmix1";
+		context.font = "50px pixelmix1";
 		context.fillStyle = "#ffffff";
 		context.fillText(score, 950, 50);
 
