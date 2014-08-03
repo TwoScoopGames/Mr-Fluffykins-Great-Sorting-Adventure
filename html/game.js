@@ -568,7 +568,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width/2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if(x + (width/2) < obstacle.x + 473) {
-		return [177.20396039603963, 126.20913884007032];
+		return [176, 130];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -583,7 +583,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width/2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if(x + (width/2) < obstacle.x + 380) {
-		return [177.82376237623765, 332.04217926186294];
+		return [176, 340];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -598,7 +598,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width/2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if(x + (width/2) < obstacle.x + 244) {
-		return [177.20396039603963, 563.6379613356767];
+		return [176, 563];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -1027,7 +1027,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	score = 0;
 
 
-
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
 	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
@@ -1250,6 +1249,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.waveStart.start();
 }, function(elapsedMillis) {
 	// simulation
+	gameTimer = elapsedMillis + gameTimer;
+	console.log(gameTimer);
 	soundToggle.move(elapsedMillis);
 	//pauseToggle.move(elapsedMillis);
 	var wasRunning = clockInScript.running;
