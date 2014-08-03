@@ -604,7 +604,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
-	} else if(x + (width/2) < obstacle.x + 473) {
+	} else if (x + (width / 2) < obstacle.x + 473) {
 		return [176, 130];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
@@ -619,7 +619,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
-	} else if(x + (width/2) < obstacle.x + 380) {
+	} else if (x + (width / 2) < obstacle.x + 380) {
 		return [176, 340];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
@@ -634,7 +634,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var rightSide = obstacle.x + obstacle.width - fileWidth;
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
-	} else if(x + (width/2) < obstacle.x + 244) {
+	} else if (x + (width / 2) < obstacle.x + 244) {
 		return [176, 563];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
