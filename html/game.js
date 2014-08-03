@@ -19,19 +19,19 @@ var manifest = {
 		"machine-mail": "img/machine-mail.png",
 		"machine-photo": "img/machine-photo.png",
 		"machine-video": "img/machine-video.png",
+		"pause": "img/pause-icon.png",
+		"play": "img/play-icon.png",
+		"sound-off": "img/sound-off-icon.png",
+		"sound-on": "img/sound-on-icon.png",
 		"tote-email-good": "img/tote-mail.png",
 		"tote-email-good-full": "img/tote-mail-full.png",
 		"tote-video-good": "img/tote-video.png",
 		"tote-video-good-full": "img/tote-video-full.png",
 		"tote-picture-good": "img/tote-photo.png",
 		"tote-picture-good-full": "img/tote-photo-full.png",
+		"tube-bottom-right": "img/tube-bottom-right.png",
 		"tube-top-right": "img/tube-top-right.png",
-		"tube-top-left": "img/tube-top-left.png",
-		"sound-off": "img/sound-off-icon.png",
-		"sound-on": "img/sound-on-icon.png",
-		"play": "img/play-icon.png",
-		"pause": "img/pause-icon.png",
-		"tube-bottom-right": "img/tube-bottom-right.png"
+		"tube-top-left": "img/tube-top-left.png"
 	},
 	"sounds": {
 		"clock-in": "sound/clock-in.mp3",
@@ -57,6 +57,31 @@ var manifest = {
 		}
 	},
 	"animations": {
+		"conveyor-email": {
+			"strip": "img/machine-conveyor-mail.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
+		"conveyor-left": {
+			"strip": "img/conveyor-left.png",
+			"frames": 6,
+			"msPerFrame": 100
+		},
+		"conveyor-picture": {
+			"strip": "img/machine-conveyor-photo.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
+		"conveyor-right": {
+			"strip": "img/conveyor-right.png",
+			"frames": 6,
+			"msPerFrame": 100
+		},
+		"conveyor-video": {
+			"strip": "img/machine-conveyor-video.png",
+			"frames": 2,
+			"msPerFrame": 100
+		},
 		"email": {
 			"strip": "img/mail.png",
 			"frames": 1,
@@ -71,6 +96,18 @@ var manifest = {
 			"strip": "img/mail-bad.png",
 			"frames": 1,
 			"msPerFrame": 100
+		},
+		"mail": {
+			"strip": "img/machine-only-mail-anim.png",
+			"frames": 21,
+			"repeatAt": 1,
+			"msPerFrame": 100
+		},
+		"photo": {
+			"strip": "img/machine-only-photo-anim.png",
+			"frames": 10,
+			"repeatAt": 1,
+			"msPerFrame": 300
 		},
 		"picture": {
 			"strip": "img/photo.png",
@@ -87,6 +124,62 @@ var manifest = {
 			"frames": 1,
 			"msPerFrame": 100
 		},
+		"player-clock-in": {
+			"strip": "img/player-clock-in.png",
+			"frames": 7,
+			"msPerFrame": 100
+		},
+		"player-down": {
+			"strip": "img/player-down.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-down-carry": {
+			"strip": "img/player-down-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-left": {
+			"strip": "img/player-left.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-left-carry": {
+			"strip": "img/player-left-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-right": {
+			"strip": "img/player-right.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-right-carry": {
+			"strip": "img/player-right-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-up": {
+			"strip": "img/player-up.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"player-up-carry": {
+			"strip": "img/player-up-carry.png",
+			"frames": 4,
+			"msPerFrame": 100
+		},
+		"shredder": {
+			"strip": "img/shredder.png",
+			"frames": 3,
+			"msPerFrame": 100
+		},
+		"vid": {
+			"strip": "img/machine-only-video-anim.png",
+			"frames": 14,
+			"repeatAt": 1,
+			"msPerFrame": 100
+		},
 		"video": {
 			"strip": "img/video.png",
 			"frames": 1,
@@ -100,99 +193,6 @@ var manifest = {
 		"video-bad": {
 			"strip": "img/video-bad.png",
 			"frames": 11,
-			"msPerFrame": 100
-		},
-		"conveyor-left": {
-			"strip": "img/conveyor-left.png",
-			"frames": 6,
-			"msPerFrame": 100
-		},
-		"conveyor-right": {
-			"strip": "img/conveyor-right.png",
-			"frames": 6,
-			"msPerFrame": 100
-		},
-		"conveyor-email": {
-			"strip": "img/machine-conveyor-mail.png",
-			"frames": 2,
-			"msPerFrame": 100
-		},
-		"conveyor-picture": {
-			"strip": "img/machine-conveyor-photo.png",
-			"frames": 2,
-			"msPerFrame": 100
-		},
-		"conveyor-video": {
-			"strip": "img/machine-conveyor-video.png",
-			"frames": 2,
-			"msPerFrame": 100
-		},
-		"shredder": {
-			"strip": "img/shredder.png",
-			"frames": 3,
-			"msPerFrame": 100
-		},
-		"player-up": {
-			"strip": "img/player-up.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-down": {
-			"strip": "img/player-down.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-left": {
-			"strip": "img/player-left.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-right": {
-			"strip": "img/player-right.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-up-carry": {
-			"strip": "img/player-up-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-down-carry": {
-			"strip": "img/player-down-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-left-carry": {
-			"strip": "img/player-left-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-right-carry": {
-			"strip": "img/player-right-carry.png",
-			"frames": 4,
-			"msPerFrame": 100
-		},
-		"player-clock-in": {
-			"strip": "img/player-clock-in.png",
-			"frames": 7,
-			"msPerFrame": 100
-		},
-		"mail": {
-			"strip": "img/machine-only-mail-anim.png",
-			"frames": 21,
-			"repeatAt": 1,
-			"msPerFrame": 100
-		},
-		"photo": {
-			"strip": "img/machine-only-photo-anim.png",
-			"frames": 10,
-			"repeatAt": 1,
-			"msPerFrame": 300
-		},
-		"vid": {
-			"strip": "img/machine-only-video-anim.png",
-			"frames": 14,
-			"repeatAt": 1,
 			"msPerFrame": 100
 		},
 		"warning": {
