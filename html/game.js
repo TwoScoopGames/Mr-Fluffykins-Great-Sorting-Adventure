@@ -41,7 +41,7 @@ var manifest = {
 		"main": "music/main.mp3",
 		"pickUpFile": "sound/new-pickup.mp3",
 		"placeFileOnConveyor": "sound/new-drop.mp3",
-		"placeFileOut": "sound/placeFileOut.wav",
+		"goodSound": "sound/placeFileOut.wav",
 		"processFile": "sound/new-processFile.mp3",
 		"shred": "sound/shred.wav",
 		"step1": "sound/step1.wav",
@@ -51,7 +51,8 @@ var manifest = {
 		"stepnew2": "sound/step-new-2.mp3",
 		"stepnew3": "sound/step-new-3.mp3",
 		"stepnew4": "sound/step-new-4.mp3",
-		"stepnew5": "sound/step-new-5.mp3"
+		"stepnew5": "sound/step-new-5.mp3",
+		"roar": "sound/roar.mp3"
 	},
 	"fonts": {
 		"pixelmix1": {
@@ -883,6 +884,7 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 				this.files.splice(i, 1);
 				i--;
 				score += 10;
+				game.sounds.play("goodSound");
 				if (this.files.length === 0) {
 					currentWave += 1;
 					scene.timers.waveStart.reset();
@@ -955,7 +957,7 @@ var fileWidth = 45;
 var fileHeight = 39;
 var toteWidth = 63;
 var toteHeight = 60;
-var playerSpeed = 0.7;
+var playerSpeed = 0.4;
 var fileTypes = ["picture", "video", "email"];
 var fileColors = {
 	"picture": "#ff00ff",
@@ -1193,7 +1195,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var self = this;
 
-	/*if (!pauseToggle) {
+		/*if (!pauseToggle) {
 		console.log("inside");
 		pauseToggle = new ToggleButton(0, 78, 72, 72, game.images.get("play"), game.images.get("pause"), "escape", function(toggled) {
 			if (state === "dead") {
@@ -1227,7 +1229,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	pauseToggle.toggled = true;*/
 
 	if (!soundToggle) {
-		soundToggle = new ToggleButton(0, 162, 72, 72, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
+		soundToggle = new ToggleButton(0, 0, 810, 0, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
 			game.sounds.muted = !toggled;
 			if (game.sounds.muted) {
 				game.sounds.stop("main");
@@ -1242,18 +1244,28 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 
 		var file = getNextFile();
-		if (file && !addFileToConveyor(file, conveyors[0], true)) {
-			batchedFiles.push(file);
-			hearts -= 1;
-			if (hearts === 0) {
-				game.scenes.switchTo("end");
+
+		if (file) {
+			if (addFileToConveyor(file, conveyors[0], true)) {
+				if (conveyors[0].files.length == 14) {
+					game.sounds.play("roar");
+				}
+			} else {
+				batchedFiles.push(file);
+				hearts -= 1;
+				if (hearts === 0) {
+					game.scenes.switchTo("end");
+				}
+				scene.timers.flash.reset();
+				scene.timers.flash.start();
 			}
-			scene.timers.flash.reset();
-			scene.timers.flash.start();
 		}
+
 		this.reset();
+
 		this.start();
 	});
+
 	this.timers.fileSpawner.start();
 
 	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
@@ -1284,7 +1296,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.aStar.scaleX = 3;
 	this.aStar.scaleY = 3;
 	this.timers.waveStart.start();
-}, function(elapsedMillis) {
+},
+function(elapsedMillis) {
 	// simulation
 	gameTimer = elapsedMillis + gameTimer;
 	console.log(gameTimer);
@@ -1307,6 +1320,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			movePlayerToPoint(this, this.player, targetX, targetY);
 		}
 
+		if (game.keyboard.isPressed("r")) {
+			playerSpeed = 0.7;
+		} else {
+			playerSpeed = 0.4;
+		}
 		if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
 			if (this.timers.path) {
 				this.timers.path.stop();
@@ -1464,7 +1482,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			if (me.file && me.file.type === other.type && !other.filled) {
 				me.file = undefined;
 				other.filled = true;
-				game.sounds.play("placeFileOut");
+				game.sounds.play("placeFileOnConveyor");
 			}
 		});
 	}
@@ -1508,7 +1526,10 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	}
 	game.animations.get("warning").move(elapsedMillis);
 
-}, function(context) {
+
+
+},
+function(context) {
 	// draw
 	this.camera.drawAbsolute(context, function() {
 		context.fillStyle = "#000";
