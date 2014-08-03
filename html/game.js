@@ -273,77 +273,88 @@ function drawEntities(context, entities) {
 	}
 }
 
-var clockInScript = {
-	steps: [
-		{ command: "wait", durationMs: 400 },
-		{ command: "moveToPoint", targetX: 160, targetY: -300 },
-		{ command: "wait", durationMs: 300 },
-		{ command: "sound", name: "locker" },
-		{ command: "playAnimation", name: "player-clock-in", durationMs: 400 },
-		{ command: function() { lockerOpen = false; } },
-		{ command: "moveToPoint", targetX: 246.3613369467028, targetY: 60 },
-		{ command: "wait", durationMs: 200 },
-		{ command: "sound", name: "clock-in" },
-		{ command: "playAnimation", name: "player-clock-in", durationMs: 700 },
-		{ command: "moveToPoint", targetX: 50, targetY: 300 }
-		],
-	current: -1,
-	running: true
-};
+var clockInScript = new Script();
+clockInScript.steps.push(WaitCommand(400));
+clockInScript.steps.push(MoveCommand(160, -300));
+clockInScript.steps.push(WaitCommand(300));
+clockInScript.steps.push(SoundCommand("locker"));
+clockInScript.steps.push(AnimationCommand("player-clock-in", 400));
+clockInScript.steps.push(function() {
+	lockerOpen = false;
+	return false;
+});
+clockInScript.steps.push(MoveCommand(246, 60));
+clockInScript.steps.push(WaitCommand(200));
+clockInScript.steps.push(SoundCommand("clock-in"));
+clockInScript.steps.push(AnimationCommand("player-clock-in", 700));
+clockInScript.steps.push(MoveCommand(50, 300));
 
-function runScript(script, scene) {
-	if (!script.running) {
-		return;
-	}
-	var step = script.steps[script.current];
-
-	function isRunning(step) {
-		if (!step) {
-			return false;
-		} else if (step.command == "moveToPoint") {
-			return scene.timers.path && scene.timers.path.running;
-		} else if (step.command == "playAnimation") {
-			return scene.timers.animation && scene.timers.animation.running;
-		} else if (step.command == "wait") {
-			return scene.timers.animation && scene.timers.animation.running;
-		} else {
-			return false;
-		}
-	}
-	if (isRunning(step)) {
-		return;
-	}
-	script.current++;
-	if (script.current >= script.steps.length) {
-		script.running = false;
-		return;
-	}
-	step = script.steps[script.current];
-
-	function runStep(step) {
-		if (!step) {
-			return false;
-		}
-		else if (typeof step.command === "function") {
-			step.command(scene);
-		}
-		else if (step.command == "moveToPoint") {
-			movePlayerToPoint(scene, scene.player, step.targetX, step.targetY);
-		} else if (step.command == "playAnimation") {
-			scene.player.sprite = game.animations.get(step.name);
-			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
-			scene.timers.animation.start();
-		}
-		else if (step.command == "sound") {
-			game.sounds.play(step.name);
-		}
-		else if (step.command == "wait") {
-			scene.timers.animation = new Splat.Timer(undefined, step.durationMs, undefined);
-			scene.timers.animation.start();
-		}
-	}
-	runStep(step);
+function WaitCommand(durationMs) {
+	var t = 0;
+	return function(elapsedMillis) {
+		t += elapsedMillis;
+		return t < durationMs;
+	};
 }
+
+function SoundCommand(name) {
+	return function() {
+		game.sounds.play(name);
+		return false;
+	}
+}
+
+function AnimationCommand(name, durationMs) {
+	var first = true;
+	return function(elapsedMillis, scene) {
+		if (first) {
+			scene.player.sprite = game.animations.get(name);
+			scene.timers.animation = new Splat.Timer(undefined, durationMs, undefined);
+			scene.timers.animation.start();
+			first = false;
+		}
+		return scene.timers.animation.running;
+	};
+}
+
+function MoveCommand(x, y) {
+	var first = true;
+	return function(elapsedMillis, scene) {
+		if (first) {
+			movePlayerToPoint(scene, scene.player, x, y);
+			first = false;
+		}
+		return scene.timers.path && scene.timers.path.running;
+	};
+}
+
+function Script() {
+	this.current = 0;
+	this.running = true;
+	this.steps = [];
+	this.firstTimeOnStep = true;
+}
+Script.prototype.move = function(elapsedMillis, scene) {
+	if (!this.running) {
+		return;
+	}
+	while (true) {
+		var step = this.steps[this.current];
+		if (this.firstTimeOnStep) {
+			elapsedMillis = 0;
+		}
+		if (step(elapsedMillis, scene)) {
+			this.firstTimeOnStep = false;
+			return;
+		}
+		this.current++;
+		this.firstTimeOnStep = true;
+		if (this.current >= this.steps.length) {
+			this.running = false;
+			return;
+		}
+	}
+};
 
 var game = new Splat.Game(canvas, manifest);
 
@@ -1274,7 +1285,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	soundToggle.move(elapsedMillis);
 	//pauseToggle.move(elapsedMillis);
 	var wasRunning = clockInScript.running;
-	runScript(clockInScript, this);
+	clockInScript.move(elapsedMillis, this);
 	if (!clockInScript.running) {
 		if (wasRunning) {
 			var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
