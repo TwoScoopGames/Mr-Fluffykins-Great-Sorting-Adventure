@@ -1064,7 +1064,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	}
 	hearts = 3;
 	score = 0;
-
+	this.levelTime = 0;
 
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
@@ -1299,8 +1299,9 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 },
 function(elapsedMillis) {
 	// simulation
-	gameTimer = elapsedMillis + gameTimer;
-	console.log(gameTimer);
+
+	this.levelTime += elapsedMillis;
+
 	soundToggle.move(elapsedMillis);
 	//pauseToggle.move(elapsedMillis);
 	var wasRunning = clockInScript.running;
@@ -1569,6 +1570,8 @@ function(context) {
 		context.fillText(score, 950, 50);
 
 		context.fillText(hearts, 150, 50);
+
+		context.fillText(Math.floor(scene.levelTime / 1000), 400, 50);
 
 		if (scene.timers.waveStart.running) {
 			var alpha = Splat.math.oscillate(scene.timers.waveStart.time, 2000);
