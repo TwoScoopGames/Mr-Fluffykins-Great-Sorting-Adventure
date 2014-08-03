@@ -577,10 +577,11 @@ obstacle = new Splat.Entity(243, 324, 639, 60); //middle machine
 obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 102;
 	var enclosedWidth = 276;
-	if (x < obstacle.x + dropOffWidth) {
-		return adjustLeft(x, y, width, height, obstacle);
-	} else if (x > obstacle.x + obstacle.width - fileWidth) {
+	var rightSide = obstacle.x + obstacle.width - fileWidth;
+	if (x + (width/2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
+	} else if(x + (width/2) < obstacle.x + 380) {
+		return [177.82376237623765, 332.04217926186294];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -591,10 +592,11 @@ obstacle = new Splat.Entity(243, 540, 417, 60); //bottom machine
 obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	var dropOffWidth = 54;
 	var enclosedWidth = 138;
-	if (x < obstacle.x + dropOffWidth) {
-		return adjustLeft(x, y, width, height, obstacle);
-	} else if (x > obstacle.x + obstacle.width - fileWidth) {
+	var rightSide = obstacle.x + obstacle.width - fileWidth;
+	if (x + (width/2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
+	} else if(x + (width/2) < obstacle.x + 244) {
+		return [177.20396039603963, 563.6379613356767];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
