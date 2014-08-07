@@ -984,7 +984,7 @@ var fileColors = {
 	"in": "#ffffff",
 	"out": "#ffffff"
 };
-
+var state = "running";
 function createFile(type) {
 	var img = game.animations.get(type);
 	var file = new Splat.AnimatedEntity(0, 0, fileWidth, fileHeight, img, 0, 0);
@@ -1191,7 +1191,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var vid = game.animations.get("vid");
 	var photo = game.animations.get("photo");
 	var door = game.images.get("bg-wall");
-	var state = "start";
+	
 
 	this.drawables = [
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height - 38, conveyorPicture, 0, 0),
@@ -1207,14 +1207,29 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var self = this;
 
-		/*if (!pauseToggle) {
-		console.log("inside");
-		pauseToggle = new ToggleButton(0, 78, 72, 72, game.images.get("play"), game.images.get("pause"), "escape", function(toggled) {
+	var manualToggle;
+
+	if (!soundToggle) {
+		soundToggle = new ToggleButton(168, 0, 30, 30, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
+
+			game.sounds.muted = !toggled;
+			if (game.sounds.muted) {
+				game.sounds.stop("main");
+				manualToggle = true;
+			} else {
+				game.sounds.play("main", true);
+				manualToggle = false;
+			}
+		});
+		
+	}
+	if (!pauseToggle) {
+		pauseToggle = new ToggleButton(916, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
 			if (state === "dead") {
 				return false;
 			}
 			if (toggled) {
-				state = "paused";
+				state = "running";
 				self.pausedTimers = [];
 				for (var timer in self.timers) {
 					if (self.timers.hasOwnProperty(timer)) {
@@ -1225,35 +1240,37 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 					}
 				}
 				Splat.ads.show(false);
+				if(!manualToggle){
+					soundToggle.toggle();
+				}
 			} else {
-				state = "running";
+				state = "paused";
 				for (var timer in self.pausedTimers) {
 					if (self.pausedTimers.hasOwnProperty(timer)) {
 						self.pausedTimers[timer].start();
 					}
 				}
+
 				self.pausedTimers = [];
 				Splat.ads.hide();
+				if(!manualToggle){
+					soundToggle.toggle();
+					soundToggle.offIcon = game.images.get("sound-off");
+				}
+				else
+				{
+					soundToggle.offIcon = game.images.get("sound-on");
+				}
+				
 			}
 		});
-		pauseToggle.attachToRight(canvas, 12);
+		//pauseToggle.attachToRight(canvas, 12);
 	}
-	pauseToggle.toggled = true;*/
-
-	if (!soundToggle) {
-		soundToggle = new ToggleButton(0, 0, 810, 0, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
-			game.sounds.muted = !toggled;
-			if (game.sounds.muted) {
-				game.sounds.stop("main");
-			} else {
-				game.sounds.play("main", true);
-			}
-		});
-		soundToggle.attachToRight(canvas, 12);
-	}
+	pauseToggle.toggled = true;
 
 	var scene = this;
-	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
+	
+		this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 
 		var file = getNextFile();
 
@@ -1264,14 +1281,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 				}
 			} else {
 				batchedFiles.push(file);
-				hearts -= 1;
-				if (hearts === 0) {
-					game.scenes.switchTo("end");
-				}
-				scene.timers.flash.reset();
-				scene.timers.flash.start();
+				console.log()
+				
 			}
 		}
+
 
 		this.reset();
 
@@ -1291,6 +1305,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.start();
 	});
 	this.timers.toteSpawner.start();
+
+	
 
 	this.timers.playStep = new Splat.Timer(undefined, 100, function() {
 		game.sounds.play(randomElement(stepSounds));
@@ -1312,233 +1328,238 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 function(elapsedMillis) {
 	// simulation
 
-	this.levelTime += elapsedMillis;
+	
+	pauseToggle.move(elapsedMillis);
+	if (state == "running"){
+		this.levelTime += elapsedMillis;
+		soundToggle.move(elapsedMillis);
+	
+	
+		var wasRunning = clockInScript.running;
+		clockInScript.move(elapsedMillis, this);
+		if (!clockInScript.running) {
+			if (wasRunning) {
+				var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
+				obstacle.adjustClick = adjustDown;
+				floorObstacles.push(obstacle);
+			}
+			this.camera.locked = true;
+			if (game.mouse.consumePressed(0)) {
+				this.timers.path.stop();
+				this.nextPaths = [];
+				var targetX = game.mouse.x - (this.player.width / 2 | 0) + this.camera.x;
+				var targetY = game.mouse.y - (this.player.height / 2 | 0) + this.camera.y;
+				movePlayerToPoint(this, this.player, targetX, targetY);
+			}
 
-	soundToggle.move(elapsedMillis);
-	//pauseToggle.move(elapsedMillis);
-	var wasRunning = clockInScript.running;
-	clockInScript.move(elapsedMillis, this);
-	if (!clockInScript.running) {
-		if (wasRunning) {
-			var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
-			obstacle.adjustClick = adjustDown;
-			floorObstacles.push(obstacle);
+			if (game.keyboard.isPressed("r")) {
+				playerSpeed = 0.7;
+			} else {
+				playerSpeed = 0.4;
+			}
+			if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
+				if (this.timers.path) {
+					this.timers.path.stop();
+				}
+				this.player.vx = -playerSpeed;
+			}
+			if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
+				if (this.timers.path) {
+					this.timers.path.stop();
+				}
+				this.player.vx = playerSpeed;
+			}
+			if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
+				if (this.timers.path) {
+					this.timers.path.stop();
+				}
+				this.player.vy = -playerSpeed;
+			}
+			if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
+				if (this.timers.path) {
+					this.timers.path.stop();
+				}
+				this.player.vy = playerSpeed;
+			}
 		}
-		this.camera.locked = true;
-		if (game.mouse.consumePressed(0)) {
-			this.timers.path.stop();
-			this.nextPaths = [];
-			var targetX = game.mouse.x - (this.player.width / 2 | 0) + this.camera.x;
-			var targetY = game.mouse.y - (this.player.height / 2 | 0) + this.camera.y;
-			movePlayerToPoint(this, this.player, targetX, targetY);
-		}
+	
+	
 
-		if (game.keyboard.isPressed("r")) {
-			playerSpeed = 0.7;
+		var animationTolerance = 0.1;
+		if (this.player.vy < -animationTolerance) {
+			this.playerWalk.current = "up";
+			this.playerCarry.current = "up";
+		}
+		if (this.player.vx < -animationTolerance) {
+			this.playerWalk.current = "left";
+			this.playerCarry.current = "left";
+		}
+		if (this.player.vx > animationTolerance) {
+			this.playerWalk.current = "right";
+			this.playerCarry.current = "right";
+		}
+		if (this.player.vy > animationTolerance) {
+			this.playerWalk.current = "down";
+			this.playerCarry.current = "down";
+		}
+		var currAnim;
+		if (typeof this.player.sprite.getCurrent === "function") {
+			currAnim = this.player.sprite.getCurrent();
+			this.player.width = currAnim.setWidth;
+			this.player.height = currAnim.setHeight;
+			this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
+			this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
 		} else {
-			playerSpeed = 0.4;
+			currAnim = this.player.sprite;
 		}
-		if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
-			if (this.timers.path) {
-				this.timers.path.stop();
+
+		if (!this.player.moved()) {
+			this.playerWalk.reset();
+			this.playerCarry.reset();
+			this.timers.playStep.stop();
+		} else {
+			this.timers.playStep.start();
+		}
+		if (!this.timers.animation || !this.timers.animation.running) {
+			this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
+		}
+
+		for (var i = 0; i < conveyors.length; i++) {
+			conveyors[i].move(elapsedMillis);
+		}
+
+		validateAndMove(this.player, elapsedMillis, floorObstacles);
+
+		var dir = this.player.sprite.current;
+		if (dir === "up") {
+			this.playerHands.width = 24;
+			this.playerHands.height = 70;
+			this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
+			this.playerHands.y = this.player.y - this.playerHands.height - 13;
+		}
+		if (dir === "down") {
+			this.playerHands.width = 24;
+			this.playerHands.height = 70;
+			this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
+			this.playerHands.y = this.player.y - 13;
+		}
+		if (dir === "left") {
+			this.playerHands.width = 70;
+			this.playerHands.height = 14;
+			this.playerHands.x = this.player.x - this.playerHands.width + 30;
+			this.playerHands.y = this.player.y - 13;
+		}
+		if (dir === "right") {
+			this.playerHands.width = 70;
+			this.playerHands.height = 14;
+			this.playerHands.x = this.player.x + this.player.width - 30;
+			this.playerHands.y = this.player.y - 13;
+		}
+
+		var me = this.player;
+		var myHands = this.playerHands;
+
+		// Pick up files
+		var pickUpFile = function(other) {
+			if (me.file) {
+				return;
 			}
-			this.player.vx = -playerSpeed;
-		}
-		if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
-			if (this.timers.path) {
-				this.timers.path.stop();
+
+			if (!canPickupFile(other, conveyors[i])) {
+				return;
 			}
-			this.player.vx = playerSpeed;
-		}
-		if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
-			if (this.timers.path) {
-				this.timers.path.stop();
-			}
-			this.player.vy = -playerSpeed;
-		}
-		if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
-			if (this.timers.path) {
-				this.timers.path.stop();
-			}
-			this.player.vy = playerSpeed;
-		}
-	}
 
-	var animationTolerance = 0.1;
-	if (this.player.vy < -animationTolerance) {
-		this.playerWalk.current = "up";
-		this.playerCarry.current = "up";
-	}
-	if (this.player.vx < -animationTolerance) {
-		this.playerWalk.current = "left";
-		this.playerCarry.current = "left";
-	}
-	if (this.player.vx > animationTolerance) {
-		this.playerWalk.current = "right";
-		this.playerCarry.current = "right";
-	}
-	if (this.player.vy > animationTolerance) {
-		this.playerWalk.current = "down";
-		this.playerCarry.current = "down";
-	}
-	var currAnim;
-	if (typeof this.player.sprite.getCurrent === "function") {
-		currAnim = this.player.sprite.getCurrent();
-		this.player.width = currAnim.setWidth;
-		this.player.height = currAnim.setHeight;
-		this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
-		this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
-	} else {
-		currAnim = this.player.sprite;
-	}
-
-	if (!this.player.moved()) {
-		this.playerWalk.reset();
-		this.playerCarry.reset();
-		this.timers.playStep.stop();
-	} else {
-		this.timers.playStep.start();
-	}
-	if (!this.timers.animation || !this.timers.animation.running) {
-		this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
-	}
-
-	for (var i = 0; i < conveyors.length; i++) {
-		conveyors[i].move(elapsedMillis);
-	}
-
-	validateAndMove(this.player, elapsedMillis, floorObstacles);
-
-	var dir = this.player.sprite.current;
-	if (dir === "up") {
-		this.playerHands.width = 24;
-		this.playerHands.height = 70;
-		this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
-		this.playerHands.y = this.player.y - this.playerHands.height - 13;
-	}
-	if (dir === "down") {
-		this.playerHands.width = 24;
-		this.playerHands.height = 70;
-		this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
-		this.playerHands.y = this.player.y - 13;
-	}
-	if (dir === "left") {
-		this.playerHands.width = 70;
-		this.playerHands.height = 14;
-		this.playerHands.x = this.player.x - this.playerHands.width + 30;
-		this.playerHands.y = this.player.y - 13;
-	}
-	if (dir === "right") {
-		this.playerHands.width = 70;
-		this.playerHands.height = 14;
-		this.playerHands.x = this.player.x + this.player.width - 30;
-		this.playerHands.y = this.player.y - 13;
-	}
-
-	var me = this.player;
-	var myHands = this.playerHands;
-
-	// Pick up files
-	var pickUpFile = function(other) {
-		if (me.file) {
-			return;
-		}
-
-		if (!canPickupFile(other, conveyors[i])) {
-			return;
-		}
-
-		var canPutOnMachine = false;
-		for (var j = 0; j < conveyors.length; j++) {
-			canPutOnMachine = canAddFileToConveyor(other, conveyors[j], false);
-			if (canPutOnMachine) {
-				break;
-			}
-		}
-		if (!canPutOnMachine) {
-			for (var f = 0; f < conveyors[4].files.length; f++) {
-				if (other.type === conveyors[4].files[f].type && !conveyors[4].files[f].filled) {
-					canPutOnMachine = true;
+			var canPutOnMachine = false;
+			for (var j = 0; j < conveyors.length; j++) {
+				canPutOnMachine = canAddFileToConveyor(other, conveyors[j], false);
+				if (canPutOnMachine) {
 					break;
 				}
 			}
-		}
-		if (!canPutOnMachine) {
-			canPutOnMachine = other.type.indexOf("-bad") > 0;
-		}
-		if (!canPutOnMachine) {
-			return;
-		}
-
-		var pos = conveyors[i].files.indexOf(other);
-		conveyors[i].files.splice(pos, 1);
-		me.file = other;
-		game.sounds.play("pickUpFile");
-	};
-	for (i = 0; i < conveyors.length; i++) {
-		collidesWithAny(this.playerHands, conveyors[i].files, pickUpFile);
-	}
-
-	// Drop off files
-	if (this.player.file) {
-		collidesWithAny(this.playerHands, conveyors, function(other) {
-			if (canDropOff(myHands, other) && addFileToConveyor(me.file, other)) {
-				me.file = undefined;
-				game.sounds.play("placeFileOnConveyor");
+			if (!canPutOnMachine) {
+				for (var f = 0; f < conveyors[4].files.length; f++) {
+					if (other.type === conveyors[4].files[f].type && !conveyors[4].files[f].filled) {
+						canPutOnMachine = true;
+						break;
+					}
+				}
 			}
-		});
-	}
-
-	// Out Conveyor
-	if (this.player.file) {
-		collidesWithAny(this.playerHands, conveyors[4].files, function(other) {
-			if (me.file && me.file.type === other.type && !other.filled) {
-				me.file = undefined;
-				other.filled = true;
-				game.sounds.play("placeFileOnConveyor");
+			if (!canPutOnMachine) {
+				canPutOnMachine = other.type.indexOf("-bad") > 0;
 			}
-		});
-	}
+			if (!canPutOnMachine) {
+				return;
+			}
 
-	// Shredder
-	if (this.player.file && this.playerHands.collides(shredder) && this.player.file.type.indexOf("-bad") > 0) {
-		this.player.file = undefined;
-		game.sounds.play("shred");
-		this.timers.shredder.reset();
-		this.timers.shredder.start();
-	}
+			var pos = conveyors[i].files.indexOf(other);
+			conveyors[i].files.splice(pos, 1);
+			me.file = other;
+			game.sounds.play("pickUpFile");
+		};
+		for (i = 0; i < conveyors.length; i++) {
+			collidesWithAny(this.playerHands, conveyors[i].files, pickUpFile);
+		}
 
-	// player holding file
-	if (this.player.file) {
-		this.player.file.x = this.player.x + this.player.sprite.getCurrent().carryOffsetX;
-		this.player.file.y = this.player.y + this.player.sprite.getCurrent().carryOffsetY;
-	}
+		// Drop off files
+		if (this.player.file) {
+			collidesWithAny(this.playerHands, conveyors, function(other) {
+				if (canDropOff(myHands, other) && addFileToConveyor(me.file, other)) {
+					me.file = undefined;
+					game.sounds.play("placeFileOnConveyor");
+				}
+			});
+		}
 
-	game.animations.get("conveyor-left").move(elapsedMillis);
-	game.animations.get("conveyor-right").move(elapsedMillis);
-	game.animations.get("conveyor-picture").move(elapsedMillis);
-	game.animations.get("conveyor-video").move(elapsedMillis);
-	game.animations.get("conveyor-email").move(elapsedMillis);
-	if (this.timers.shredder.running) {
-		game.animations.get("shredder").move(elapsedMillis);
-	}
-	if (this.timers.mail.running) {
-		game.animations.get("mail").move(elapsedMillis);
-	} else {
-		game.animations.get("mail").reset();
-	}
-	if (this.timers.vid.running) {
-		game.animations.get("vid").move(elapsedMillis);
-	} else {
-		game.animations.get("vid").reset();
-	}
-	if (this.timers.photo.running) {
-		game.animations.get("photo").move(elapsedMillis);
-	} else {
-		game.animations.get("photo").reset();
-	}
-	game.animations.get("warning").move(elapsedMillis);
+		// Out Conveyor
+		if (this.player.file) {
+			collidesWithAny(this.playerHands, conveyors[4].files, function(other) {
+				if (me.file && me.file.type === other.type && !other.filled) {
+					me.file = undefined;
+					other.filled = true;
+					game.sounds.play("placeFileOnConveyor");
+				}
+			});
+		}
 
+		// Shredder
+		if (this.player.file && this.playerHands.collides(shredder) && this.player.file.type.indexOf("-bad") > 0) {
+			this.player.file = undefined;
+			game.sounds.play("shred");
+			this.timers.shredder.reset();
+			this.timers.shredder.start();
+		}
+
+		// player holding file
+		if (this.player.file) {
+			this.player.file.x = this.player.x + this.player.sprite.getCurrent().carryOffsetX;
+			this.player.file.y = this.player.y + this.player.sprite.getCurrent().carryOffsetY;
+		}
+	
+		game.animations.get("conveyor-left").move(elapsedMillis);
+		game.animations.get("conveyor-right").move(elapsedMillis);
+		game.animations.get("conveyor-picture").move(elapsedMillis);
+		game.animations.get("conveyor-video").move(elapsedMillis);
+		game.animations.get("conveyor-email").move(elapsedMillis);
+		if (this.timers.shredder.running) {
+			game.animations.get("shredder").move(elapsedMillis);
+		}
+		if (this.timers.mail.running) {
+			game.animations.get("mail").move(elapsedMillis);
+		} else {
+			game.animations.get("mail").reset();
+		}
+		if (this.timers.vid.running) {
+			game.animations.get("vid").move(elapsedMillis);
+		} else {
+			game.animations.get("vid").reset();
+		}
+		if (this.timers.photo.running) {
+			game.animations.get("photo").move(elapsedMillis);
+		} else {
+			game.animations.get("photo").reset();
+		}
+		game.animations.get("warning").move(elapsedMillis);
+	}
 
 
 },
@@ -1576,12 +1597,12 @@ function(context) {
 
 	this.camera.drawAbsolute(context, function() {
 		soundToggle.draw(context);
-		//pauseToggle.draw(context);
+		pauseToggle.draw(context);
 		context.font = "50px pixelmix1";
 		context.fillStyle = "#ffffff";
-		context.fillText(score, 950, 50);
+		//context.fillText(score, 950, 50);
 
-		context.fillText(hearts, 150, 50);
+		//context.fillText(hearts, 150, 50);
 
 		context.fillText(Math.floor(scene.levelTime / 1000), 400, 50);
 
