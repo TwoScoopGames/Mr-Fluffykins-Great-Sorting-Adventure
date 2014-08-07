@@ -606,7 +606,11 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if (x + (width / 2) < obstacle.x + 473) {
-		return [176, 130];
+		if (y < 95) {
+			y = 115;
+		}
+		return [176, y];
+	//	return [176, 130];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -621,7 +625,11 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if (x + (width / 2) < obstacle.x + 380) {
-		return [176, 340];
+		if(y < 346){
+			y = 350;
+		}
+		return [176, y];
+	//	return [176, 346];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -636,7 +644,11 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if (x + (width / 2) < obstacle.x + 244) {
-		return [176, 563];
+		if(y < 563){
+			y = 568;
+		}
+		return [176, y];
+	//	return [176, 563];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
