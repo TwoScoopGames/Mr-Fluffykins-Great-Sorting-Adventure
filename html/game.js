@@ -29,7 +29,12 @@ var manifest = {
 		"tote-picture-good-full": "img/tote-photo-full.png",
 		"tube-bottom-right": "img/tube-bottom-right.png",
 		"tube-top-right": "img/tube-top-right.png",
-		"tube-top-left": "img/tube-top-left.png"
+		"tube-top-left": "img/tube-top-left.png",
+		"level-icon-unbeaten": "img/level-icon-unbeaten.png",
+		"level-icon-locked": "img/level-icon-locked.png",
+		"level-icon-1star": "img/level-icon-1star.png",
+		"level-icon-2stars": "img/level-icon-2stars.png",
+		"level-icon-3stars": "img/level-icon-3stars.png"
 	},
 	"sounds": {
 		"clock-in": "sound/clock-in.mp3",
@@ -1060,12 +1065,81 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 }, function(elapsedMillis) {
 	// simulation
 	if (game.mouse.consumePressed(0)) {
-		game.scenes.switchTo("main");
+		game.scenes.switchTo("level-select");
 	}
 }, function(context) {
 	// draw
 	context.drawImage(game.images.get("bg-intro"), 0, 0);
 }));
+
+game.scenes.add("level-select", new Splat.Scene(canvas, function() {
+	// init
+	this.levelButtonLocations = [{
+		x: 186,
+		y: 118
+	}, {
+		x: 347,
+		y: 118
+	}, {
+		x: 509,
+		y: 118
+	}, {
+		x: 670,
+		y: 118
+	}, {
+		x: 831,
+		y: 118
+	}, {
+		x: 186,
+		y: 285
+	}, {
+		x: 347,
+		y: 285
+	}, {
+		x: 509,
+		y: 285
+	}, {
+		x: 670,
+		y: 285
+	}, {
+		x: 831,
+		y: 285
+	}, {
+		x: 186,
+		y: 452
+	}, {
+		x: 347,
+		y: 452
+	}, {
+		x: 509,
+		y: 452
+	}, {
+		x: 670,
+		y: 452
+	}, {
+		x: 831,
+		y: 452
+	}];
+
+}, function(elapsedMillis) {
+	// simulation
+	if (game.mouse.consumePressed(0)) {
+		game.scenes.switchTo("main");
+	}
+}, function(context) {
+	// draw
+	context.fillStyle = "black";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	drawLevelButtons(context, this.levelButtonLocations);
+
+}));
+
+function drawLevelButtons(context, locations) {
+	for (var i = 0; i < locations.length; i++) {
+		context.drawImage(game.images.get("level-icon-locked"), locations[i].x, locations[i].y);
+	}
+}
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 		// init
