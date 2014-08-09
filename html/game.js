@@ -364,8 +364,6 @@ Script.prototype.move = function(elapsedMillis, scene) {
 
 var game = new Splat.Game(canvas, manifest);
 
-var score = 0;
-var hearts = 3;
 var lockerOpen = true;
 
 function AnimationGroup() {
@@ -869,7 +867,7 @@ function collidesWithAny(item, otherItems, collisionHandler) {
 
 var conveyorSpeed = 0.03;
 
-function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclosedWidth) {
+function makeConveyor(scene, x, y, width, height, horizontal, type, dropOffWidth, enclosedWidth) {
 	var conveyor = new Splat.Entity(x, y, width, height);
 	conveyor.draw = function(context) {
 		for (var i = 0; i < this.files.length; i++) {
@@ -895,8 +893,10 @@ function makeConveyor(x, y, width, height, horizontal, type, dropOffWidth, enclo
 			if (file.y > canvas.height) {
 				this.files.splice(i, 1);
 				i--;
-				score += 10;
+
+				scene.secondsLeft += 10;
 				game.sounds.play("goodSound");
+
 				if (this.files.length === 0) {
 					currentWave += 1;
 					scene.timers.waveStart.reset();
@@ -985,6 +985,10 @@ var fileColors = {
 	"out": "#ffffff"
 };
 var state = "running";
+var timeBarWidth = 740;
+var timeBarHeight = 30;
+var timeBarChunks = 40;
+
 function createFile(type) {
 	var img = game.animations.get(type);
 	var file = new Splat.AnimatedEntity(0, 0, fileWidth, fileHeight, img, 0, 0);
@@ -1074,17 +1078,15 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].files = [];
 	}
-	hearts = 3;
-	score = 0;
-	this.levelTime = 0;
+	this.secondsLeft = 40;
 
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
-	makeConveyor(0, 0, 105, canvas.height, false, "in", 0, 0);
-	makeConveyor(243, 93, 639, 39, true, "picture", 102, 369);
-	makeConveyor(243, 309, 639, 39, true, "video", 102, 276);
-	makeConveyor(243, 525, 417, 39, true, "email", 102, 138);
-	makeConveyor(canvas.width - 108, 0, 108, canvas.height - 60, false, "out", canvas.height, canvas.height);
+	makeConveyor(this, 0, 0, 105, canvas.height, false, "in", 0, 0);
+	makeConveyor(this, 243, 93, 639, 39, true, "picture", 102, 369);
+	makeConveyor(this, 243, 309, 639, 39, true, "video", 102, 276);
+	makeConveyor(this, 243, 525, 417, 39, true, "email", 102, 138);
+	makeConveyor(this, canvas.width - 108, 0, 108, canvas.height - 60, false, "out", canvas.height, canvas.height);
 
 	this.playerWalk = new AnimationGroup();
 
@@ -1191,7 +1193,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var vid = game.animations.get("vid");
 	var photo = game.animations.get("photo");
 	var door = game.images.get("bg-wall");
-	
 
 	this.drawables = [
 		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height - 38, conveyorPicture, 0, 0),
@@ -1222,7 +1223,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		
 	}
 	if (!pauseToggle) {
-		pauseToggle = new ToggleButton(916, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
+		pauseToggle = new ToggleButton(938, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
 			if (state === "dead") {
 				return false;
 			}
@@ -1270,7 +1271,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var scene = this;
 	
-		this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
+	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 
 		var file = getNextFile();
 
@@ -1306,7 +1307,16 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	});
 	this.timers.toteSpawner.start();
 
-	
+	this.timers.timeBar = new Splat.Timer(undefined, 1000, function() {
+		scene.secondsLeft--;
+		if (scene.secondsLeft < 0) {
+			game.scenes.switchTo("end");
+			return;
+		}
+		this.reset();
+		this.start();
+	});
+	this.timers.timeBar.start();
 
 	this.timers.playStep = new Splat.Timer(undefined, 100, function() {
 		game.sounds.play(randomElement(stepSounds));
@@ -1328,13 +1338,12 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 function(elapsedMillis) {
 	// simulation
 
-	//Anthony Sim
 	pauseToggle.move(elapsedMillis);
-		soundToggle.move(elapsedMillis);
+	soundToggle.move(elapsedMillis);
+
 	if (state == "running"){
 		this.levelTime += elapsedMillis;
-	
-	
+
 		var wasRunning = clockInScript.running;
 		clockInScript.move(elapsedMillis, this);
 		if (!clockInScript.running) {
@@ -1382,8 +1391,6 @@ function(elapsedMillis) {
 				this.player.vy = playerSpeed;
 			}
 		}
-	
-	
 
 		var animationTolerance = 0.1;
 		if (this.player.vy < -animationTolerance) {
@@ -1560,8 +1567,6 @@ function(elapsedMillis) {
 		}
 		game.animations.get("warning").move(elapsedMillis);
 	}
-
-
 },
 function(context) {
 	// draw
@@ -1598,19 +1603,18 @@ function(context) {
 	this.camera.drawAbsolute(context, function() {
 		soundToggle.draw(context);
 		pauseToggle.draw(context);
-		context.font = "50px pixelmix1";
-		context.fillStyle = "#ffffff";
-		//context.fillText(score, 950, 50);
 
-		//context.fillText(hearts, 150, 50);
-
-		context.fillText(Math.floor(scene.levelTime / 1000), 400, 50);
+		context.fillStyle = "black";
+		context.fillRect((canvas.width / 2) - (timeBarWidth / 2), 0, timeBarWidth, timeBarHeight);
+		context.fillStyle = "red";
+		context.fillRect((canvas.width / 2) - (timeBarWidth / 2), 0, scene.secondsLeft * (timeBarWidth / timeBarChunks), timeBarHeight);
 
 		if (scene.timers.waveStart.running) {
 			var alpha = Splat.math.oscillate(scene.timers.waveStart.time, 2000);
 			context.fillStyle = "rgba(50,50,50," + alpha + ")";
 			context.fillRect(0, (canvas.height / 2) - 30, canvas.width, 60);
 
+			context.font = "50px pixelmix1";
 			context.fillStyle = "rgba(255,255,255," + alpha + ")";
 			var waveText = "Shift " + (currentWave + 1);
 			centerText(context, waveText, 0, (canvas.height / 2) + 20);
@@ -1621,7 +1625,6 @@ function(context) {
 		}
 		drawFlash(context, scene);
 	});
-
 }));
 
 function drawFlash(context, scene) {
@@ -1653,7 +1656,6 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	context.font = "70px pixelmix1";
 	context.fillStyle = "#fff";
 	centerText(context, "Game Over", 0, (canvas.height / 2) - 70);
-	centerText(context, "Score: " + score, 0, (canvas.height / 2) + 20);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
