@@ -30,6 +30,7 @@ var manifest = {
 		"tube-bottom-right": "img/tube-bottom-right.png",
 		"tube-top-right": "img/tube-top-right.png",
 		"tube-top-left": "img/tube-top-left.png",
+		"level-select": "img/level-select.png",
 		"level-icon-unbeaten": "img/level-icon-unbeaten.png",
 		"level-icon-locked": "img/level-icon-locked.png",
 		"level-icon-1star": "img/level-icon-1star.png",
@@ -1074,51 +1075,66 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	// init
-	this.levelButtonLocations = [{
-		x: 186,
-		y: 118
+	this.levelButtons = [{
+		x: 194,
+		y: 118,
+		status: "unbeaten"
 	}, {
-		x: 347,
-		y: 118
-	}, {
-		x: 509,
-		y: 118
-	}, {
-		x: 670,
-		y: 118
-	}, {
-		x: 831,
-		y: 118
-	}, {
-		x: 186,
-		y: 285
-	}, {
-		x: 347,
-		y: 285
+		x: 353,
+		y: 118,
+		status: "locked"
 	}, {
 		x: 509,
-		y: 285
+		y: 118,
+		status: "locked"
 	}, {
 		x: 670,
-		y: 285
+		y: 118,
+		status: "locked"
 	}, {
-		x: 831,
-		y: 285
+		x: 828,
+		y: 118,
+		status: "locked"
 	}, {
-		x: 186,
-		y: 452
+		x: 194,
+		y: 285,
+		status: "locked"
 	}, {
-		x: 347,
-		y: 452
+		x: 353,
+		y: 285,
+		status: "locked"
 	}, {
 		x: 509,
-		y: 452
+		y: 285,
+		status: "locked"
 	}, {
 		x: 670,
-		y: 452
+		y: 285,
+		status: "locked"
 	}, {
-		x: 831,
-		y: 452
+		x: 828,
+		y: 285,
+		status: "locked"
+	}, {
+		x: 194,
+		y: 452,
+		status: "locked"
+	}, {
+		x: 353,
+		y: 452,
+		status: "locked"
+	}, {
+		x: 509,
+		y: 452,
+		status: "locked"
+	}, {
+		x: 670,
+		y: 452,
+		status: "locked"
+	}, {
+		x: 828,
+		y: 452,
+		status: "locked"
 	}];
 
 }, function(elapsedMillis) {
@@ -1128,16 +1144,50 @@ game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	}
 }, function(context) {
 	// draw
-	context.fillStyle = "black";
+	context.fillStyle = "282828";
 	context.fillRect(0, 0, canvas.width, canvas.height);
-
-	drawLevelButtons(context, this.levelButtonLocations);
-
+	context.drawImage(game.images.get("level-select"), 0, 0);
+	drawLevelButtons(context, this.levelButtons);
+	drawLevelNumbers(context, this.levelButtons);
 }));
 
 function drawLevelButtons(context, locations) {
+	var image = "";
 	for (var i = 0; i < locations.length; i++) {
-		context.drawImage(game.images.get("level-icon-locked"), locations[i].x, locations[i].y);
+
+		if (locations[i].status === "unbeaten") {
+			image = game.images.get("level-icon-unbeaten");
+		} else if (locations[i].status === "1star") {
+			image = game.images.get("level-icon-1star");
+		} else if (locations[i].status === "2stars") {
+			image = game.images.get("level-icon-2stars");
+		} else if (locations[i].status === "3stars") {
+			image = game.images.get("level-icon-3stars");
+		} else {
+			image = game.images.get("level-icon-locked");
+		}
+		context.drawImage(image, locations[i].x, locations[i].y);
+	}
+}
+
+function drawLevelNumbers(context, locations) {
+	for (var i = 0; i < locations.length; i++) {
+		if (locations[i].status === "locked") {
+			continue;
+		}
+		var levelNumber = i + 1;
+		var btn = locations[i];
+		context.font = "70px pixelmix1";
+		context.fillStyle = "#fff";
+		if (levelNumber == 1) {
+			context.fillText(levelNumber, (btn.x + 46), (btn.y + 78));
+		} else if (levelNumber < 10) {
+			context.fillText(levelNumber, (btn.x + 36), (btn.y + 78));
+		} else if (levelNumber === 11) {
+			context.fillText(levelNumber, (btn.x + 30), (btn.y + 78));
+		} else {
+			context.fillText(levelNumber, (btn.x + 18), (btn.y + 78));
+		}
 	}
 }
 
