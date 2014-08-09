@@ -16,9 +16,6 @@ var manifest = {
 		"bg-wall": "img/bg-wall.png",
 		"bg-intro": "img/title-screen.png",
 		"locker-open": "img/locker-open.png",
-		"machine-mail": "img/machine-mail.png",
-		"machine-photo": "img/machine-photo.png",
-		"machine-video": "img/machine-video.png",
 		"pause": "img/pause-icon.png",
 		"play": "img/play-icon.png",
 		"sound-off": "img/sound-off-icon.png",
@@ -609,7 +606,7 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 			y = 115;
 		}
 		return [176, y];
-	//	return [176, 130];
+		//	return [176, 130];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -624,11 +621,11 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if (x + (width / 2) < obstacle.x + 380) {
-		if(y < 346){
+		if (y < 346) {
 			y = 350;
 		}
 		return [176, y];
-	//	return [176, 346];
+		//	return [176, 346];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -643,11 +640,11 @@ obstacle.adjustClick = function(x, y, width, height, obstacle) {
 	if (x + (width / 2) > rightSide) {
 		return adjustRight(x, y, width, height, obstacle);
 	} else if (x + (width / 2) < obstacle.x + 244) {
-		if(y < 563){
+		if (y < 563) {
 			y = 568;
 		}
 		return [176, y];
-	//	return [176, 563];
+		//	return [176, 563];
 	} else {
 		return adjustVertically(x, y, width, height, obstacle);
 	}
@@ -1071,567 +1068,567 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 }));
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
-	// init
-	game.sounds.stop("intro");
-	game.sounds.play("main", true);
+		// init
+		game.sounds.stop("intro");
+		game.sounds.play("main", true);
 
-	//reset files to zero
-	for (var i = 0; i < conveyors.length; i++) {
-		conveyors[i].files = [];
-	}
-	this.timeLeft = 40;
-
-	// derive conveyor speed from conveyor animation speed
-	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
-	makeConveyor(this, 0, 0, 105, canvas.height, false, "in", 0, 0);
-	makeConveyor(this, 243, 93, 639, 39, true, "picture", 102, 369);
-	makeConveyor(this, 243, 309, 639, 39, true, "video", 102, 276);
-	makeConveyor(this, 243, 525, 417, 39, true, "email", 102, 138);
-	makeConveyor(this, canvas.width - 108, 0, 108, canvas.height - 60, false, "out", canvas.height, canvas.height);
-
-	this.playerWalk = new AnimationGroup();
-
-	var anim = game.animations.get("player-up");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = -10;
-	anim.setSpriteOffsetY = -85;
-	this.playerWalk.add("up", anim);
-
-	anim = game.animations.get("player-down");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = -10;
-	anim.setSpriteOffsetY = -85;
-	this.playerWalk.add("down", anim);
-
-	anim = game.animations.get("player-left");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = 0;
-	anim.setSpriteOffsetY = -85;
-	this.playerWalk.add("left", anim);
-
-	anim = game.animations.get("player-right");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = -20;
-	anim.setSpriteOffsetY = -85;
-	this.playerWalk.add("right", anim);
-
-	this.playerWalk.current = "left";
-
-	this.playerCarry = new AnimationGroup();
-
-	anim = game.animations.get("player-up-carry");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = -10;
-	anim.setSpriteOffsetY = -85;
-	anim.carryOffsetX = 0;
-	anim.carryOffsetY = 0;
-	this.playerCarry.add("up", anim);
-
-	anim = game.animations.get("player-down-carry");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = -10;
-	anim.setSpriteOffsetY = -85;
-	anim.carryOffsetX = 21 + anim.setSpriteOffsetX;
-	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
-	this.playerCarry.add("down", anim);
-
-	anim = game.animations.get("player-left-carry");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = 0;
-	anim.setSpriteOffsetY = -85;
-	anim.carryOffsetX = -fileWidth + anim.setSpriteOffsetX;
-	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
-	this.playerCarry.add("left", anim);
-
-	anim = game.animations.get("player-right-carry");
-	anim.setWidth = 65;
-	anim.setHeight = 20;
-	anim.setSpriteOffsetX = -20;
-	anim.setSpriteOffsetY = -85;
-	anim.carryOffsetX = anim.width + anim.setSpriteOffsetX;
-	anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
-	this.playerCarry.add("right", anim);
-
-	this.player = new Splat.AnimatedEntity(110, -250, 65, 20, this.playerWalk, -10, -85);
-	this.player.frictionX = 0.5;
-	this.player.frictionY = 0.5;
-	var oldPlayerDraw = this.player.draw;
-
-	this.player.draw = function(context) {
-		oldPlayerDraw.call(this, context);
-		if (this.file && this.sprite.current !== "up") {
-			this.file.draw(context);
+		//reset files to zero
+		for (var i = 0; i < conveyors.length; i++) {
+			conveyors[i].files = [];
 		}
-	};
+		this.timeLeft = 40;
 
-	this.camera = new Splat.EntityBoxCamera(this.player, canvas.width, 100, canvas.width / 2, canvas.height - 400);
-	//redefine move function so that camera can't move past bottom of the screen
-	this.camera.locked = false;
-	this.camera.move = function(elapsedMillis) {
-		if (this.locked) {
-			return;
-		}
-		Splat.EntityBoxCamera.prototype.move.call(this, elapsedMillis);
-		if (this.y > 0) {
-			this.y = 0;
-		}
-	}
-	this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
+		// derive conveyor speed from conveyor animation speed
+		conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
+		makeConveyor(this, 0, 0, 105, canvas.height, false, "in", 0, 0);
+		makeConveyor(this, 243, 93, 639, 39, true, "picture", 102, 369);
+		makeConveyor(this, 243, 309, 639, 39, true, "video", 102, 276);
+		makeConveyor(this, 243, 525, 417, 39, true, "email", 102, 138);
+		makeConveyor(this, canvas.width - 108, 0, 108, canvas.height - 60, false, "out", canvas.height, canvas.height);
 
-	var conveyorPicture = game.animations.get("conveyor-picture");
-	var conveyorVideo = game.animations.get("conveyor-video");
-	var conveyorEmail = game.animations.get("conveyor-email");
+		this.playerWalk = new AnimationGroup();
 
-	var shredder = game.animations.get("shredder");
-	var mail = game.animations.get("mail");
-	var vid = game.animations.get("vid");
-	var photo = game.animations.get("photo");
-	var door = game.images.get("bg-wall");
+		var anim = game.animations.get("player-up");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = -10;
+		anim.setSpriteOffsetY = -85;
+		this.playerWalk.add("up", anim);
 
-	this.drawables = [
-		new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height - 38, conveyorPicture, 0, 0),
-		new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height - 30, conveyorVideo, 0, 0),
-		new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height - 40, conveyorEmail, 0, 0),
-		new Splat.AnimatedEntity(774, 462, shredder.width, shredder.height, shredder, 0, 0),
-		new Splat.AnimatedEntity(345, 432, mail.width, mail.height, mail, 0, 0),
-		new Splat.AnimatedEntity(345, 30, photo.width, photo.height, photo, 0, 0),
-		new Splat.AnimatedEntity(345, 153, vid.width, vid.height, vid, 0, 0),
-		new Splat.AnimatedEntity(0, 34, door.width, 21, door, 0, -174),
-		this.player
-	];
+		anim = game.animations.get("player-down");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = -10;
+		anim.setSpriteOffsetY = -85;
+		this.playerWalk.add("down", anim);
 
-	var self = this;
-	console.log(this);
-	var manualOn = true;
-//anthony
-	if (!soundToggle) {
-		soundToggle = new ToggleButton(168, 0, 30, 30, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
+		anim = game.animations.get("player-left");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = 0;
+		anim.setSpriteOffsetY = -85;
+		this.playerWalk.add("left", anim);
 
-			game.sounds.muted = !toggled;
-			if (game.sounds.muted) {
-				game.sounds.stop("main");
-			} else {
-				game.sounds.play("main", true);
+		anim = game.animations.get("player-right");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = -20;
+		anim.setSpriteOffsetY = -85;
+		this.playerWalk.add("right", anim);
+
+		this.playerWalk.current = "left";
+
+		this.playerCarry = new AnimationGroup();
+
+		anim = game.animations.get("player-up-carry");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = -10;
+		anim.setSpriteOffsetY = -85;
+		anim.carryOffsetX = 0;
+		anim.carryOffsetY = 0;
+		this.playerCarry.add("up", anim);
+
+		anim = game.animations.get("player-down-carry");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = -10;
+		anim.setSpriteOffsetY = -85;
+		anim.carryOffsetX = 21 + anim.setSpriteOffsetX;
+		anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
+		this.playerCarry.add("down", anim);
+
+		anim = game.animations.get("player-left-carry");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = 0;
+		anim.setSpriteOffsetY = -85;
+		anim.carryOffsetX = -fileWidth + anim.setSpriteOffsetX;
+		anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
+		this.playerCarry.add("left", anim);
+
+		anim = game.animations.get("player-right-carry");
+		anim.setWidth = 65;
+		anim.setHeight = 20;
+		anim.setSpriteOffsetX = -20;
+		anim.setSpriteOffsetY = -85;
+		anim.carryOffsetX = anim.width + anim.setSpriteOffsetX;
+		anim.carryOffsetY = 51 + anim.setSpriteOffsetY;
+		this.playerCarry.add("right", anim);
+
+		this.player = new Splat.AnimatedEntity(110, -250, 65, 20, this.playerWalk, -10, -85);
+		this.player.frictionX = 0.5;
+		this.player.frictionY = 0.5;
+		var oldPlayerDraw = this.player.draw;
+
+		this.player.draw = function(context) {
+			oldPlayerDraw.call(this, context);
+			if (this.file && this.sprite.current !== "up") {
+				this.file.draw(context);
 			}
-		});
-		
-	}
-	if (!pauseToggle) {
-		pauseToggle = new ToggleButton(938, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
-			if (state === "dead") {
-				return false;
+		};
+
+		this.camera = new Splat.EntityBoxCamera(this.player, canvas.width, 100, canvas.width / 2, canvas.height - 400);
+		//redefine move function so that camera can't move past bottom of the screen
+		this.camera.locked = false;
+		this.camera.move = function(elapsedMillis) {
+			if (this.locked) {
+				return;
 			}
-			if (toggled) {
-				state = "running";
-				//handles pausing timers
-				for (var timer in self.pausedTimers) {
-					if (self.pausedTimers.hasOwnProperty(timer)) {
-						self.pausedTimers[timer].start();
-					}
-				}
-				self.pausedTimers = [];
-				Splat.ads.show(false);
-				//handles sound
-				if(soundToggle.toggled){
+			Splat.EntityBoxCamera.prototype.move.call(this, elapsedMillis);
+			if (this.y > 0) {
+				this.y = 0;
+			}
+		}
+		this.playerHands = new Splat.Entity(this.player.x, this.player.y, 30, 30);
+
+		var conveyorPicture = game.animations.get("conveyor-picture");
+		var conveyorVideo = game.animations.get("conveyor-video");
+		var conveyorEmail = game.animations.get("conveyor-email");
+
+		var shredder = game.animations.get("shredder");
+		var mail = game.animations.get("mail");
+		var vid = game.animations.get("vid");
+		var photo = game.animations.get("photo");
+		var door = game.images.get("bg-wall");
+
+		this.drawables = [
+			new Splat.AnimatedEntity(244, 31, conveyorPicture.width, conveyorPicture.height - 38, conveyorPicture, 0, 0),
+			new Splat.AnimatedEntity(244, 157, conveyorVideo.width, conveyorVideo.height - 30, conveyorVideo, 0, 0),
+			new Splat.AnimatedEntity(243, 432, conveyorEmail.width, conveyorEmail.height - 40, conveyorEmail, 0, 0),
+			new Splat.AnimatedEntity(774, 462, shredder.width, shredder.height, shredder, 0, 0),
+			new Splat.AnimatedEntity(345, 432, mail.width, mail.height, mail, 0, 0),
+			new Splat.AnimatedEntity(345, 30, photo.width, photo.height, photo, 0, 0),
+			new Splat.AnimatedEntity(345, 153, vid.width, vid.height, vid, 0, 0),
+			new Splat.AnimatedEntity(0, 34, door.width, 21, door, 0, -174),
+			this.player
+		];
+
+		var self = this;
+		console.log(this);
+		var manualOn = true;
+		//anthony
+		if (!soundToggle) {
+			soundToggle = new ToggleButton(168, 0, 30, 30, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
+
+				game.sounds.muted = !toggled;
+				if (game.sounds.muted) {
+					game.sounds.stop("main");
+				} else {
 					game.sounds.play("main", true);
 				}
-			} else {
-				state = "paused";
-				console.log(manualOn);
-				//handles pause
-				Splat.ads.hide();
-				self.pausedTimers = [];
-				for (var timer in self.timers) {
-					if (self.timers.hasOwnProperty(timer)) {
-						if (self.timers[timer].running) {
-							self.pausedTimers.push(self.timers[timer]);
-							self.timers[timer].stop();
+			});
+
+		}
+		if (!pauseToggle) {
+			pauseToggle = new ToggleButton(938, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
+				if (state === "dead") {
+					return false;
+				}
+				if (toggled) {
+					state = "running";
+					//handles pausing timers
+					for (var timer in self.pausedTimers) {
+						if (self.pausedTimers.hasOwnProperty(timer)) {
+							self.pausedTimers[timer].start();
 						}
 					}
-				}
+					self.pausedTimers = [];
+					Splat.ads.show(false);
+					//handles sound
+					if (soundToggle.toggled) {
+						game.sounds.play("main", true);
+					}
+				} else {
+					state = "paused";
+					console.log(manualOn);
+					//handles pause
+					Splat.ads.hide();
+					self.pausedTimers = [];
+					for (var timer in self.timers) {
+						if (self.timers.hasOwnProperty(timer)) {
+							if (self.timers[timer].running) {
+								self.pausedTimers.push(self.timers[timer]);
+								self.timers[timer].stop();
+							}
+						}
+					}
 
-				//handles sound
-				if(soundToggle.toggled){
+					//handles sound
+					if (soundToggle.toggled) {
 
-					game.sounds.stop("main");
+						game.sounds.stop("main");
+					}
+
+
 				}
-				
-				
+			});
+			//pauseToggle.attachToRight(canvas, 12);
+		}
+		pauseToggle.toggled = true;
+
+		var scene = this;
+
+		this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
+
+			var file = getNextFile();
+
+			if (file) {
+				if (addFileToConveyor(file, conveyors[0], true)) {
+					if (conveyors[0].files.length == 14) {
+						game.sounds.play("roar");
+					}
+				} else {
+					batchedFiles.push(file);
+					console.log()
+
+				}
 			}
+
+
+			this.reset();
+
+			this.start();
 		});
-		//pauseToggle.attachToRight(canvas, 12);
-	}
-	pauseToggle.toggled = true;
 
-	var scene = this;
-	
-	this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
+		this.timers.fileSpawner.start();
 
-		var file = getNextFile();
-
-		if (file) {
-			if (addFileToConveyor(file, conveyors[0], true)) {
-				if (conveyors[0].files.length == 14) {
-					game.sounds.play("roar");
+		this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
+			var tote = getNextTote();
+			if (tote) {
+				if (!addFileToConveyor(tote, conveyors[4], true)) {
+					batchedTotes.push(tote);
 				}
-			} else {
-				batchedFiles.push(file);
-				console.log()
-				
 			}
-		}
+			this.reset();
+			this.start();
+		});
+		this.timers.toteSpawner.start();
 
-
-		this.reset();
-
-		this.start();
-	});
-
-	this.timers.fileSpawner.start();
-
-	this.timers.toteSpawner = new Splat.Timer(undefined, 3000, function() {
-		var tote = getNextTote();
-		if (tote) {
-			if (!addFileToConveyor(tote, conveyors[4], true)) {
-				batchedTotes.push(tote);
-			}
-		}
-		this.reset();
-		this.start();
-	});
-	this.timers.toteSpawner.start();
-
-	this.timers.timeBar = new Splat.Timer(undefined, 1000, function() {
-		scene.timeLeft--;
-		if (scene.timeLeft < 0) {
-			game.scenes.switchTo("end");
-			return;
-		}
-		this.reset();
-		this.start();
-	});
-	this.timers.timeBar.start();
-
-	this.timers.playStep = new Splat.Timer(undefined, 100, function() {
-		game.sounds.play(randomElement(stepSounds));
-		this.reset();
-		this.start();
-	});
-
-	this.timers.shredder = new Splat.Timer(undefined, 2000, undefined);
-	this.timers.mail = new Splat.Timer(undefined, 2000, undefined);
-	this.timers.vid = new Splat.Timer(undefined, 4500, undefined);
-	this.timers.photo = new Splat.Timer(undefined, 8500, undefined);
-	this.timers.flash = new Splat.Timer(undefined, 200, undefined);
-	this.timers.waveStart = new Splat.Timer(undefined, 2000, generateBatch);
-	this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
-	this.aStar.scaleX = 3;
-	this.aStar.scaleY = 3;
-	this.timers.waveStart.start();
-},
-function(elapsedMillis) {
-	// simulation
-
-	pauseToggle.move(elapsedMillis);
-	soundToggle.move(elapsedMillis);
-
-	if (state == "running"){
-		this.levelTime += elapsedMillis;
-
-		var wasRunning = clockInScript.running;
-		clockInScript.move(elapsedMillis, this);
-		if (!clockInScript.running) {
-			if (wasRunning) {
-				var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
-				obstacle.adjustClick = adjustDown;
-				floorObstacles.push(obstacle);
-			}
-			this.camera.locked = true;
-			if (game.mouse.consumePressed(0)) {
-				this.timers.path.stop();
-				this.nextPaths = [];
-				var targetX = game.mouse.x - (this.player.width / 2 | 0) + this.camera.x;
-				var targetY = game.mouse.y - (this.player.height / 2 | 0) + this.camera.y;
-				movePlayerToPoint(this, this.player, targetX, targetY);
-			}
-
-			if (game.keyboard.isPressed("r")) {
-				playerSpeed = 0.7;
-			} else {
-				playerSpeed = 0.4;
-			}
-			if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
-				if (this.timers.path) {
-					this.timers.path.stop();
-				}
-				this.player.vx = -playerSpeed;
-			}
-			if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
-				if (this.timers.path) {
-					this.timers.path.stop();
-				}
-				this.player.vx = playerSpeed;
-			}
-			if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
-				if (this.timers.path) {
-					this.timers.path.stop();
-				}
-				this.player.vy = -playerSpeed;
-			}
-			if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
-				if (this.timers.path) {
-					this.timers.path.stop();
-				}
-				this.player.vy = playerSpeed;
-			}
-		}
-
-		var animationTolerance = 0.1;
-		if (this.player.vy < -animationTolerance) {
-			this.playerWalk.current = "up";
-			this.playerCarry.current = "up";
-		}
-		if (this.player.vx < -animationTolerance) {
-			this.playerWalk.current = "left";
-			this.playerCarry.current = "left";
-		}
-		if (this.player.vx > animationTolerance) {
-			this.playerWalk.current = "right";
-			this.playerCarry.current = "right";
-		}
-		if (this.player.vy > animationTolerance) {
-			this.playerWalk.current = "down";
-			this.playerCarry.current = "down";
-		}
-		var currAnim;
-		if (typeof this.player.sprite.getCurrent === "function") {
-			currAnim = this.player.sprite.getCurrent();
-			this.player.width = currAnim.setWidth;
-			this.player.height = currAnim.setHeight;
-			this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
-			this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
-		} else {
-			currAnim = this.player.sprite;
-		}
-
-		if (!this.player.moved()) {
-			this.playerWalk.reset();
-			this.playerCarry.reset();
-			this.timers.playStep.stop();
-		} else {
-			this.timers.playStep.start();
-		}
-		if (!this.timers.animation || !this.timers.animation.running) {
-			this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
-		}
-
-		for (var i = 0; i < conveyors.length; i++) {
-			conveyors[i].move(elapsedMillis);
-		}
-
-		validateAndMove(this.player, elapsedMillis, floorObstacles);
-
-		var dir = this.player.sprite.current;
-		if (dir === "up") {
-			this.playerHands.width = 24;
-			this.playerHands.height = 70;
-			this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
-			this.playerHands.y = this.player.y - this.playerHands.height - 13;
-		}
-		if (dir === "down") {
-			this.playerHands.width = 24;
-			this.playerHands.height = 70;
-			this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
-			this.playerHands.y = this.player.y - 13;
-		}
-		if (dir === "left") {
-			this.playerHands.width = 70;
-			this.playerHands.height = 14;
-			this.playerHands.x = this.player.x - this.playerHands.width + 30;
-			this.playerHands.y = this.player.y - 13;
-		}
-		if (dir === "right") {
-			this.playerHands.width = 70;
-			this.playerHands.height = 14;
-			this.playerHands.x = this.player.x + this.player.width - 30;
-			this.playerHands.y = this.player.y - 13;
-		}
-
-		var me = this.player;
-		var myHands = this.playerHands;
-
-		// Pick up files
-		var pickUpFile = function(other) {
-			if (me.file) {
+		this.timers.timeBar = new Splat.Timer(undefined, 1000, function() {
+			scene.timeLeft--;
+			if (scene.timeLeft < 0) {
+				game.scenes.switchTo("end");
 				return;
 			}
+			this.reset();
+			this.start();
+		});
+		this.timers.timeBar.start();
 
-			if (!canPickupFile(other, conveyors[i])) {
-				return;
-			}
+		this.timers.playStep = new Splat.Timer(undefined, 100, function() {
+			game.sounds.play(randomElement(stepSounds));
+			this.reset();
+			this.start();
+		});
 
-			var canPutOnMachine = false;
-			for (var j = 0; j < conveyors.length; j++) {
-				canPutOnMachine = canAddFileToConveyor(other, conveyors[j], false);
-				if (canPutOnMachine) {
-					break;
+		this.timers.shredder = new Splat.Timer(undefined, 2000, undefined);
+		this.timers.mail = new Splat.Timer(undefined, 2000, undefined);
+		this.timers.vid = new Splat.Timer(undefined, 4500, undefined);
+		this.timers.photo = new Splat.Timer(undefined, 8500, undefined);
+		this.timers.flash = new Splat.Timer(undefined, 200, undefined);
+		this.timers.waveStart = new Splat.Timer(undefined, 2000, generateBatch);
+		this.aStar = new Splat.AStar(makeIsWalkableForObstacles(this.player, floorObstacles));
+		this.aStar.scaleX = 3;
+		this.aStar.scaleY = 3;
+		this.timers.waveStart.start();
+	},
+	function(elapsedMillis) {
+		// simulation
+
+		pauseToggle.move(elapsedMillis);
+		soundToggle.move(elapsedMillis);
+
+		if (state == "running") {
+			this.levelTime += elapsedMillis;
+
+			var wasRunning = clockInScript.running;
+			clockInScript.move(elapsedMillis, this);
+			if (!clockInScript.running) {
+				if (wasRunning) {
+					var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
+					obstacle.adjustClick = adjustDown;
+					floorObstacles.push(obstacle);
+				}
+				this.camera.locked = true;
+				if (game.mouse.consumePressed(0)) {
+					this.timers.path.stop();
+					this.nextPaths = [];
+					var targetX = game.mouse.x - (this.player.width / 2 | 0) + this.camera.x;
+					var targetY = game.mouse.y - (this.player.height / 2 | 0) + this.camera.y;
+					movePlayerToPoint(this, this.player, targetX, targetY);
+				}
+
+				if (game.keyboard.isPressed("r")) {
+					playerSpeed = 0.7;
+				} else {
+					playerSpeed = 0.4;
+				}
+				if (game.keyboard.isPressed("left") || game.keyboard.isPressed("a")) {
+					if (this.timers.path) {
+						this.timers.path.stop();
+					}
+					this.player.vx = -playerSpeed;
+				}
+				if (game.keyboard.isPressed("right") || game.keyboard.isPressed("d")) {
+					if (this.timers.path) {
+						this.timers.path.stop();
+					}
+					this.player.vx = playerSpeed;
+				}
+				if (game.keyboard.isPressed("up") || game.keyboard.isPressed("w")) {
+					if (this.timers.path) {
+						this.timers.path.stop();
+					}
+					this.player.vy = -playerSpeed;
+				}
+				if (game.keyboard.isPressed("down") || game.keyboard.isPressed("s")) {
+					if (this.timers.path) {
+						this.timers.path.stop();
+					}
+					this.player.vy = playerSpeed;
 				}
 			}
-			if (!canPutOnMachine) {
-				for (var f = 0; f < conveyors[4].files.length; f++) {
-					if (other.type === conveyors[4].files[f].type && !conveyors[4].files[f].filled) {
-						canPutOnMachine = true;
+
+			var animationTolerance = 0.1;
+			if (this.player.vy < -animationTolerance) {
+				this.playerWalk.current = "up";
+				this.playerCarry.current = "up";
+			}
+			if (this.player.vx < -animationTolerance) {
+				this.playerWalk.current = "left";
+				this.playerCarry.current = "left";
+			}
+			if (this.player.vx > animationTolerance) {
+				this.playerWalk.current = "right";
+				this.playerCarry.current = "right";
+			}
+			if (this.player.vy > animationTolerance) {
+				this.playerWalk.current = "down";
+				this.playerCarry.current = "down";
+			}
+			var currAnim;
+			if (typeof this.player.sprite.getCurrent === "function") {
+				currAnim = this.player.sprite.getCurrent();
+				this.player.width = currAnim.setWidth;
+				this.player.height = currAnim.setHeight;
+				this.player.spriteOffsetX = currAnim.setSpriteOffsetX;
+				this.player.spriteOffsetY = currAnim.setSpriteOffsetY;
+			} else {
+				currAnim = this.player.sprite;
+			}
+
+			if (!this.player.moved()) {
+				this.playerWalk.reset();
+				this.playerCarry.reset();
+				this.timers.playStep.stop();
+			} else {
+				this.timers.playStep.start();
+			}
+			if (!this.timers.animation || !this.timers.animation.running) {
+				this.player.sprite = this.player.file ? this.playerCarry : this.playerWalk;
+			}
+
+			for (var i = 0; i < conveyors.length; i++) {
+				conveyors[i].move(elapsedMillis);
+			}
+
+			validateAndMove(this.player, elapsedMillis, floorObstacles);
+
+			var dir = this.player.sprite.current;
+			if (dir === "up") {
+				this.playerHands.width = 24;
+				this.playerHands.height = 70;
+				this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
+				this.playerHands.y = this.player.y - this.playerHands.height - 13;
+			}
+			if (dir === "down") {
+				this.playerHands.width = 24;
+				this.playerHands.height = 70;
+				this.playerHands.x = this.player.x + (this.player.width / 2) - 12;
+				this.playerHands.y = this.player.y - 13;
+			}
+			if (dir === "left") {
+				this.playerHands.width = 70;
+				this.playerHands.height = 14;
+				this.playerHands.x = this.player.x - this.playerHands.width + 30;
+				this.playerHands.y = this.player.y - 13;
+			}
+			if (dir === "right") {
+				this.playerHands.width = 70;
+				this.playerHands.height = 14;
+				this.playerHands.x = this.player.x + this.player.width - 30;
+				this.playerHands.y = this.player.y - 13;
+			}
+
+			var me = this.player;
+			var myHands = this.playerHands;
+
+			// Pick up files
+			var pickUpFile = function(other) {
+				if (me.file) {
+					return;
+				}
+
+				if (!canPickupFile(other, conveyors[i])) {
+					return;
+				}
+
+				var canPutOnMachine = false;
+				for (var j = 0; j < conveyors.length; j++) {
+					canPutOnMachine = canAddFileToConveyor(other, conveyors[j], false);
+					if (canPutOnMachine) {
 						break;
 					}
 				}
-			}
-			if (!canPutOnMachine) {
-				canPutOnMachine = other.type.indexOf("-bad") > 0;
-			}
-			if (!canPutOnMachine) {
-				return;
-			}
-
-			var pos = conveyors[i].files.indexOf(other);
-			conveyors[i].files.splice(pos, 1);
-			me.file = other;
-			game.sounds.play("pickUpFile");
-		};
-		for (i = 0; i < conveyors.length; i++) {
-			collidesWithAny(this.playerHands, conveyors[i].files, pickUpFile);
-		}
-
-		// Drop off files
-		if (this.player.file) {
-			collidesWithAny(this.playerHands, conveyors, function(other) {
-				if (canDropOff(myHands, other) && addFileToConveyor(me.file, other)) {
-					me.file = undefined;
-					game.sounds.play("placeFileOnConveyor");
+				if (!canPutOnMachine) {
+					for (var f = 0; f < conveyors[4].files.length; f++) {
+						if (other.type === conveyors[4].files[f].type && !conveyors[4].files[f].filled) {
+							canPutOnMachine = true;
+							break;
+						}
+					}
 				}
-			});
-		}
-
-		// Out Conveyor
-		if (this.player.file) {
-			collidesWithAny(this.playerHands, conveyors[4].files, function(other) {
-				if (me.file && me.file.type === other.type && !other.filled) {
-					me.file = undefined;
-					other.filled = true;
-					game.sounds.play("placeFileOnConveyor");
+				if (!canPutOnMachine) {
+					canPutOnMachine = other.type.indexOf("-bad") > 0;
 				}
-			});
+				if (!canPutOnMachine) {
+					return;
+				}
+
+				var pos = conveyors[i].files.indexOf(other);
+				conveyors[i].files.splice(pos, 1);
+				me.file = other;
+				game.sounds.play("pickUpFile");
+			};
+			for (i = 0; i < conveyors.length; i++) {
+				collidesWithAny(this.playerHands, conveyors[i].files, pickUpFile);
+			}
+
+			// Drop off files
+			if (this.player.file) {
+				collidesWithAny(this.playerHands, conveyors, function(other) {
+					if (canDropOff(myHands, other) && addFileToConveyor(me.file, other)) {
+						me.file = undefined;
+						game.sounds.play("placeFileOnConveyor");
+					}
+				});
+			}
+
+			// Out Conveyor
+			if (this.player.file) {
+				collidesWithAny(this.playerHands, conveyors[4].files, function(other) {
+					if (me.file && me.file.type === other.type && !other.filled) {
+						me.file = undefined;
+						other.filled = true;
+						game.sounds.play("placeFileOnConveyor");
+					}
+				});
+			}
+
+			// Shredder
+			if (this.player.file && this.playerHands.collides(shredder) && this.player.file.type.indexOf("-bad") > 0) {
+				this.player.file = undefined;
+				game.sounds.play("shred");
+				this.timers.shredder.reset();
+				this.timers.shredder.start();
+			}
+
+			// player holding file
+			if (this.player.file) {
+				this.player.file.x = this.player.x + this.player.sprite.getCurrent().carryOffsetX;
+				this.player.file.y = this.player.y + this.player.sprite.getCurrent().carryOffsetY;
+			}
+
+			game.animations.get("conveyor-left").move(elapsedMillis);
+			game.animations.get("conveyor-right").move(elapsedMillis);
+			game.animations.get("conveyor-picture").move(elapsedMillis);
+			game.animations.get("conveyor-video").move(elapsedMillis);
+			game.animations.get("conveyor-email").move(elapsedMillis);
+			if (this.timers.shredder.running) {
+				game.animations.get("shredder").move(elapsedMillis);
+			}
+			if (this.timers.mail.running) {
+				game.animations.get("mail").move(elapsedMillis);
+			} else {
+				game.animations.get("mail").reset();
+			}
+			if (this.timers.vid.running) {
+				game.animations.get("vid").move(elapsedMillis);
+			} else {
+				game.animations.get("vid").reset();
+			}
+			if (this.timers.photo.running) {
+				game.animations.get("photo").move(elapsedMillis);
+			} else {
+				game.animations.get("photo").reset();
+			}
+			game.animations.get("warning").move(elapsedMillis);
+		}
+	},
+	function(context) {
+		// draw
+		this.camera.drawAbsolute(context, function() {
+			context.fillStyle = "#000";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+		});
+		context.drawImage(game.images.get("bg"), 0, -497);
+		if (lockerOpen) {
+			context.drawImage(game.images.get("locker-open"), 99, -446);
 		}
 
-		// Shredder
-		if (this.player.file && this.playerHands.collides(shredder) && this.player.file.type.indexOf("-bad") > 0) {
-			this.player.file = undefined;
-			game.sounds.play("shred");
-			this.timers.shredder.reset();
-			this.timers.shredder.start();
-		}
+		game.animations.get("conveyor-left").draw(context, 0, 0);
+		var anim = game.animations.get("conveyor-right");
+		anim.draw(context, canvas.width - anim.width, 0);
 
-		// player holding file
-		if (this.player.file) {
-			this.player.file.x = this.player.x + this.player.sprite.getCurrent().carryOffsetX;
-			this.player.file.y = this.player.y + this.player.sprite.getCurrent().carryOffsetY;
-		}
-	
-		game.animations.get("conveyor-left").move(elapsedMillis);
-		game.animations.get("conveyor-right").move(elapsedMillis);
-		game.animations.get("conveyor-picture").move(elapsedMillis);
-		game.animations.get("conveyor-video").move(elapsedMillis);
-		game.animations.get("conveyor-email").move(elapsedMillis);
-		if (this.timers.shredder.running) {
-			game.animations.get("shredder").move(elapsedMillis);
-		}
-		if (this.timers.mail.running) {
-			game.animations.get("mail").move(elapsedMillis);
-		} else {
-			game.animations.get("mail").reset();
-		}
-		if (this.timers.vid.running) {
-			game.animations.get("vid").move(elapsedMillis);
-		} else {
-			game.animations.get("vid").reset();
-		}
-		if (this.timers.photo.running) {
-			game.animations.get("photo").move(elapsedMillis);
-		} else {
-			game.animations.get("photo").reset();
-		}
-		game.animations.get("warning").move(elapsedMillis);
-	}
-},
-function(context) {
-	// draw
-	this.camera.drawAbsolute(context, function() {
-		context.fillStyle = "#000";
-		context.fillRect(0, 0, canvas.width, canvas.height);
-	});
-	context.drawImage(game.images.get("bg"), 0, -497);
-	if (lockerOpen) {
-		context.drawImage(game.images.get("locker-open"), 99, -446);
-	}
-
-	game.animations.get("conveyor-left").draw(context, 0, 0);
-	var anim = game.animations.get("conveyor-right");
-	anim.draw(context, canvas.width - anim.width, 0);
-
-	var tubeTopRightImage = game.images.get("tube-top-right");
-	var tubeTopLeftImage = game.images.get("tube-top-left");
-	var drawables = this.drawables.slice(0);
-	drawables = drawables.concat(conveyors);
-	drawEntities(context, drawables);
+		var tubeTopRightImage = game.images.get("tube-top-right");
+		var tubeTopLeftImage = game.images.get("tube-top-left");
+		var drawables = this.drawables.slice(0);
+		drawables = drawables.concat(conveyors);
+		drawEntities(context, drawables);
 
 
-	var tubeTopLeft = new Splat.AnimatedEntity(0, 0, tubeTopLeftImage.width, tubeTopLeftImage.height, tubeTopLeftImage, 0, 0);
-	var tubeTopRight = new Splat.AnimatedEntity(canvas.width - tubeTopRightImage.width, 0, tubeTopRightImage.width, tubeTopRightImage.height, tubeTopRightImage, 0, 0);
-	tubeTopRight.draw(context);
-	tubeTopLeft.draw(context);
+		var tubeTopLeft = new Splat.AnimatedEntity(0, 0, tubeTopLeftImage.width, tubeTopLeftImage.height, tubeTopLeftImage, 0, 0);
+		var tubeTopRight = new Splat.AnimatedEntity(canvas.width - tubeTopRightImage.width, 0, tubeTopRightImage.width, tubeTopRightImage.height, tubeTopRightImage, 0, 0);
+		tubeTopRight.draw(context);
+		tubeTopLeft.draw(context);
 
-	var tubeBottomLeft = game.images.get("tube-bottom-right");
-	context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
+		var tubeBottomLeft = game.images.get("tube-bottom-right");
+		context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
 
-	var scene = this;
-//anthony draw
-	this.camera.drawAbsolute(context, function() {
-		soundToggle.draw(context);
-		pauseToggle.draw(context);
+		var scene = this;
+		//anthony draw
+		this.camera.drawAbsolute(context, function() {
+			soundToggle.draw(context);
+			pauseToggle.draw(context);
 
-		context.fillStyle = "black";
-		context.fillRect((canvas.width / 2) - (timeBarWidth / 2), 0, timeBarWidth, timeBarHeight);
+			context.fillStyle = "black";
+			context.fillRect((canvas.width / 2) - (timeBarWidth / 2), 0, timeBarWidth, timeBarHeight);
 
-		var barX = (canvas.width / 2) - (timeBarWidth / 2);
-		var barImage = game.images.get("time-bar");
-		var maxBars = timeBarWidth / barImage.width;
-		for (var i = 0; i < Math.min(scene.timeLeft, maxBars); i++) {
-			context.drawImage(barImage, barX + (i * barImage.width), 0, barImage.width, barImage.height);
-		}
+			var barX = (canvas.width / 2) - (timeBarWidth / 2);
+			var barImage = game.images.get("time-bar");
+			var maxBars = timeBarWidth / barImage.width;
+			for (var i = 0; i < Math.min(scene.timeLeft, maxBars); i++) {
+				context.drawImage(barImage, barX + (i * barImage.width), 0, barImage.width, barImage.height);
+			}
 
-		if (scene.timers.waveStart.running) {
-			var alpha = Splat.math.oscillate(scene.timers.waveStart.time, 2000);
-			context.fillStyle = "rgba(50,50,50," + alpha + ")";
-			context.fillRect(0, (canvas.height / 2) - 30, canvas.width, 60);
+			if (scene.timers.waveStart.running) {
+				var alpha = Splat.math.oscillate(scene.timers.waveStart.time, 2000);
+				context.fillStyle = "rgba(50,50,50," + alpha + ")";
+				context.fillRect(0, (canvas.height / 2) - 30, canvas.width, 60);
 
-			context.font = "50px pixelmix1";
-			context.fillStyle = "rgba(255,255,255," + alpha + ")";
-			var waveText = "Shift " + (currentWave + 1);
-			centerText(context, waveText, 0, (canvas.height / 2) + 20);
-		}
+				context.font = "50px pixelmix1";
+				context.fillStyle = "rgba(255,255,255," + alpha + ")";
+				var waveText = "Shift " + (currentWave + 1);
+				centerText(context, waveText, 0, (canvas.height / 2) + 20);
+			}
 
-		if (conveyors[0].files.length >= 14) {
-			game.animations.get("warning").draw(context, 630, canvas.height - 120);
-		}
-		drawFlash(context, scene);
-	});
-}));
+			if (conveyors[0].files.length >= 14) {
+				game.animations.get("warning").draw(context, 630, canvas.height - 120);
+			}
+			drawFlash(context, scene);
+		});
+	}));
 
 function drawFlash(context, scene) {
 	var flashTime = scene.timers.flash.time;
