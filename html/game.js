@@ -23,6 +23,7 @@ var manifest = {
 		"play": "img/play-icon.png",
 		"sound-off": "img/sound-off-icon.png",
 		"sound-on": "img/sound-on-icon.png",
+		"time-bar": "img/time-bar.png",
 		"tote-email-good": "img/tote-mail.png",
 		"tote-email-good-full": "img/tote-mail-full.png",
 		"tote-video-good": "img/tote-video.png",
@@ -894,7 +895,7 @@ function makeConveyor(scene, x, y, width, height, horizontal, type, dropOffWidth
 				this.files.splice(i, 1);
 				i--;
 
-				scene.secondsLeft += 10;
+				scene.timeLeft += 10;
 				game.sounds.play("goodSound");
 
 				if (this.files.length === 0) {
@@ -1078,7 +1079,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	for (var i = 0; i < conveyors.length; i++) {
 		conveyors[i].files = [];
 	}
-	this.secondsLeft = 40;
+	this.timeLeft = 40;
 
 	// derive conveyor speed from conveyor animation speed
 	conveyorSpeed = 3 / game.animations.get("conveyor-left").frames[0].time;
@@ -1308,8 +1309,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.toteSpawner.start();
 
 	this.timers.timeBar = new Splat.Timer(undefined, 1000, function() {
-		scene.secondsLeft--;
-		if (scene.secondsLeft < 0) {
+		scene.timeLeft--;
+		if (scene.timeLeft < 0) {
 			game.scenes.switchTo("end");
 			return;
 		}
@@ -1606,8 +1607,13 @@ function(context) {
 
 		context.fillStyle = "black";
 		context.fillRect((canvas.width / 2) - (timeBarWidth / 2), 0, timeBarWidth, timeBarHeight);
-		context.fillStyle = "red";
-		context.fillRect((canvas.width / 2) - (timeBarWidth / 2), 0, scene.secondsLeft * (timeBarWidth / timeBarChunks), timeBarHeight);
+
+		var barX = (canvas.width / 2) - (timeBarWidth / 2);
+		var barImage = game.images.get("time-bar");
+		var maxBars = timeBarWidth / barImage.width;
+		for (var i = 0; i < Math.min(scene.timeLeft, maxBars); i++) {
+			context.drawImage(barImage, barX + (i * barImage.width), 0, barImage.width, barImage.height);
+		}
 
 		if (scene.timers.waveStart.running) {
 			var alpha = Splat.math.oscillate(scene.timers.waveStart.time, 2000);
