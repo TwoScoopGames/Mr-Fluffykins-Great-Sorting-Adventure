@@ -31,11 +31,15 @@ var manifest = {
 		"tube-top-right": "img/tube-top-right.png",
 		"tube-top-left": "img/tube-top-left.png",
 		"level-select": "img/level-select.png",
-		"level-icon-unbeaten": "img/level-icon-unbeaten.png",
 		"level-icon-locked": "img/level-icon-locked.png",
+		"level-icon-unbeaten": "img/level-icon-unbeaten.png",
+		"level-icon-unbeaten-pressed": "img/level-icon-unbeaten-pressed.png",
 		"level-icon-1star": "img/level-icon-1star.png",
+		"level-icon-1star-pressed": "img/level-icon-1star-pressed.png",
 		"level-icon-2stars": "img/level-icon-2stars.png",
-		"level-icon-3stars": "img/level-icon-3stars.png"
+		"level-icon-2stars-pressed": "img/level-icon-2stars-pressed.png",
+		"level-icon-3stars": "img/level-icon-3stars.png",
+		"level-icon-3stars-pressed": "img/level-icon-3stars-pressed.png"
 	},
 	"sounds": {
 		"clock-in": "sound/clock-in.mp3",
@@ -1082,12 +1086,26 @@ game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	this.levelButtons = [];
 	for (var y = 0; y < 3; y++) {
 		for (var x = 0; x < 5; x++) {
-			this.levelButtons.push({ x: startX + (spanX * x), y: startY + (spanY * y), status: "locked" });
+			this.levelButtons.push({
+				x: startX + (spanX * x),
+				y: startY + (spanY * y),
+				status: "unbeaten"
+			});
 		}
 	}
+	this.somethingPressed = false;
 }, function(elapsedMillis) {
 	// simulation
-	if (game.mouse.consumePressed(0)) {
+	var buttonImage = game.images.get("level-icon-unbeaten");
+	for (var l = 0; l < this.levelButtons.length; l++) {
+		var button = this.levelButtons[l];
+		if (game.mouse.consumePressed(0, button.x, button.y, buttonImage.width, buttonImage.height)) {
+			button.pressed = true;
+			this.somethingPressed = true;
+			console.log(l);
+		}
+	}
+	if (this.somethingPressed && !game.mouse.isPressed(0)) {
 		game.scenes.switchTo("main");
 	}
 }, function(context) {
@@ -1096,47 +1114,53 @@ game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	context.drawImage(game.images.get("level-select"), 0, 0);
 
-	drawLevelButtons(context, this.levelButtons);
-	drawLevelNumbers(context, this.levelButtons);
+	var buttonImage = game.images.get("level-icon-unbeaten");
+	for (var i = 0; i < this.levelButtons.length; i++) {
+		var button = this.levelButtons[i];
+		var pressed = this.somethingPressed && game.mouse.isPressed(0, button.x, button.y, buttonImage.width, buttonImage.height);
+		var image = getLevelImage(button.status, pressed);
+		context.drawImage(image, button.x, button.y);
+		drawLevelNumber(context, button, i);
+	}
 }));
 
-function drawLevelButtons(context, locations) {
-	var image = "";
-	for (var i = 0; i < locations.length; i++) {
-
-		if (locations[i].status === "unbeaten") {
-			image = game.images.get("level-icon-unbeaten");
-		} else if (locations[i].status === "1star") {
-			image = game.images.get("level-icon-1star");
-		} else if (locations[i].status === "2stars") {
-			image = game.images.get("level-icon-2stars");
-		} else if (locations[i].status === "3stars") {
-			image = game.images.get("level-icon-3stars");
-		} else {
-			image = game.images.get("level-icon-locked");
-		}
-		context.drawImage(image, locations[i].x, locations[i].y);
+function getLevelImage(status, pressed) {
+	var name;
+	if (status === "unbeaten") {
+		name = "level-icon-unbeaten";
+	} else if (status === "1star") {
+		name = "level-icon-1star";
+	} else if (status === "2stars") {
+		name = "level-icon-2stars";
+	} else if (status === "3stars") {
+		name = "level-icon-3stars";
+	} else {
+		return game.images.get("level-icon-locked");
 	}
+	if (pressed) {
+		name += "-pressed";
+	}
+	return game.images.get(name);
 }
 
-function drawLevelNumbers(context, locations) {
-	for (var i = 0; i < locations.length; i++) {
-		if (locations[i].status === "locked") {
-			continue;
-		}
-		var levelNumber = i + 1;
-		var btn = locations[i];
-		context.font = "70px pixelmix1";
-		context.fillStyle = "#fff";
-		if (levelNumber == 1) {
-			context.fillText(levelNumber, (btn.x + 46), (btn.y + 78));
-		} else if (levelNumber < 10) {
-			context.fillText(levelNumber, (btn.x + 36), (btn.y + 78));
-		} else if (levelNumber === 11) {
-			context.fillText(levelNumber, (btn.x + 30), (btn.y + 78));
-		} else {
-			context.fillText(levelNumber, (btn.x + 18), (btn.y + 78));
-		}
+function drawLevelNumber(context, button, i) {
+	if (button.status === "locked") {
+		return;
+	}
+	context.font = "70px pixelmix1";
+	context.fillStyle = "#fff";
+	var levelNumber = i + 1;
+	context.fillText(levelNumber, (button.x + getLevelNumberXOffset(levelNumber)), (button.y + 78));
+}
+function getLevelNumberXOffset(levelNumber) {
+	if (levelNumber == 1) {
+		return 46;
+	} else if (levelNumber < 10) {
+		return 36;
+	} else if (levelNumber === 11) {
+		return 30;
+	} else {
+		return 18;
 	}
 }
 
@@ -1294,7 +1318,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		
 	}
 	if (!pauseToggle) {
-		pauseToggle = new ToggleButton(916, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
+		pauseToggle = new ToggleButton(938, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
 			if (state === "dead") {
 				return false;
 			}
