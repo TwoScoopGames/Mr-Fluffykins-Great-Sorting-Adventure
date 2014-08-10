@@ -1280,65 +1280,64 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		var self = this;
 		console.log(this);
 		var manualOn = true;
-		//anthony
-		if (!soundToggle) {
-			soundToggle = new ToggleButton(168, 0, 30, 30, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
+	if (!soundToggle) {
+		soundToggle = new ToggleButton(168, 0, 30, 30, game.images.get("sound-on"), game.images.get("sound-off"), "m", function(toggled) {
 
-				game.sounds.muted = !toggled;
-				if (game.sounds.muted) {
-					game.sounds.stop("main");
-				} else {
-					game.sounds.play("main", true);
+			if(toggled && pauseToggle.toggled){
+				game.sounds.unmute();
+			}
+			else{
+				game.sounds.mute();
+			}
+			
+		});
+		
+	}
+	if (!pauseToggle) {
+		pauseToggle = new ToggleButton(916, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
+			if (state === "dead") {
+				return false;
+			}
+			if (toggled) {
+				state = "running";
+				//handles pausing timers
+				for (var timer in self.pausedTimers) {
+					if (self.pausedTimers.hasOwnProperty(timer)) {
+						self.pausedTimers[timer].start();
+					}
 				}
-			});
-
-		}
-		if (!pauseToggle) {
-			pauseToggle = new ToggleButton(938, 0, 30, 30, game.images.get("pause"), game.images.get("play"), "escape", function(toggled) {
-				if (state === "dead") {
-					return false;
+				self.pausedTimers = [];
+				Splat.ads.show(false);
+				//handles sound
+				if(soundToggle.toggled){
+					game.sounds.unmute();
 				}
-				if (toggled) {
-					state = "running";
-					//handles pausing timers
-					for (var timer in self.pausedTimers) {
-						if (self.pausedTimers.hasOwnProperty(timer)) {
-							self.pausedTimers[timer].start();
+			} else {
+				state = "paused";
+				//handles pause
+				Splat.ads.hide();
+				self.pausedTimers = [];
+				for (var timer in self.timers) {
+					if (self.timers.hasOwnProperty(timer)) {
+						if (self.timers[timer].running) {
+							self.pausedTimers.push(self.timers[timer]);
+							self.timers[timer].stop();
 						}
 					}
-					self.pausedTimers = [];
-					Splat.ads.show(false);
-					//handles sound
-					if (soundToggle.toggled) {
-						game.sounds.play("main", true);
-					}
-				} else {
-					state = "paused";
-					console.log(manualOn);
-					//handles pause
-					Splat.ads.hide();
-					self.pausedTimers = [];
-					for (var timer in self.timers) {
-						if (self.timers.hasOwnProperty(timer)) {
-							if (self.timers[timer].running) {
-								self.pausedTimers.push(self.timers[timer]);
-								self.timers[timer].stop();
-							}
-						}
-					}
-
-					//handles sound
-					if (soundToggle.toggled) {
-
-						game.sounds.stop("main");
-					}
-
-
 				}
-			});
-			//pauseToggle.attachToRight(canvas, 12);
-		}
-		pauseToggle.toggled = true;
+
+				//handles sound
+				if(soundToggle.toggled){
+
+					game.sounds.mute();
+				}
+				
+				
+			}
+		});
+		//pauseToggle.attachToRight(canvas, 12);
+	}
+	pauseToggle.toggled = true;
 
 		var scene = this;
 

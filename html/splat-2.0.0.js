@@ -1,6 +1,6 @@
 /*
 
-Splat 1.1.0
+Splat 2.0.0
 Copyright (c) 2014 Eric Lathrop
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -66,11 +66,40 @@ var platform = _dereq_("./platform");
 
 if (platform.isEjecta()) {
 	var adBanner = new window.Ejecta.AdBanner();
+
+	var isLandscape = window.innerWidth > window.innerHeight;
+
+	var sizes = {
+		"iPhone": {
+			"portrait": {
+				"width": 320,
+				"height": 50
+			},
+			"landscape": {
+				"width": 480,
+				"height": 32
+			}
+		},
+		"iPad": {
+			"portrait": {
+				"width": 768,
+				"height": 66
+			},
+			"landscape": {
+				"width": 1024,
+				"height": 66
+			}
+		}
+	};
+
+	var device = window.navigator.userAgent.indexOf("iPad") >= 0 ? "iPad" : "iPhone";
+	var size = sizes[device][isLandscape ? "landscape" : "portrait"];
+
 	module.exports = {
 		/**
 		 * Show an advertisement.
 		 * @alias Splat.ads.show
-		 * @param {boolean} isAtBottom true if the ads should be shown at the bottom of the screen. false if it should be shown at the top
+		 * @param {boolean} isAtBottom true if the ad should be shown at the bottom of the screen. false if it should be shown at the top.
 		 */
 		"show": function(isAtBottom) {
 			adBanner.isAtBottom = isAtBottom;
@@ -82,16 +111,28 @@ if (platform.isEjecta()) {
 		 */
 		"hide": function() {
 			adBanner.hide();
-		}
+		},
+		/**
+		 * The width of the ad that will show.
+		 * @alias Splat.ads#width
+		 */
+		"width": size.width,
+		/**
+		 * The height of the ad that will show.
+		 * @alias Splat.ads#height
+		 */
+		"height": size.height
 	};
 } else {
 	module.exports = {
 		"show": function() {},
-		"hide": function() {}
+		"hide": function() {},
+		"width": 0,
+		"height": 0,
 	};
 }
 
-},{"./platform":21}],3:[function(_dereq_,module,exports){
+},{"./platform":22}],3:[function(_dereq_,module,exports){
 "use strict";
 
 var Entity = _dereq_("./entity");
@@ -870,7 +911,7 @@ module.exports = {
 	flipBufferVertically: flipBufferVertically
 };
 
-},{"./platform":21}],9:[function(_dereq_,module,exports){
+},{"./platform":22}],9:[function(_dereq_,module,exports){
 "use strict";
 
 var Entity = _dereq_("./entity");
@@ -1183,8 +1224,6 @@ function EntityBoxCamera(entity, width, height, screenCenterX, screenCenterY) {
 	 */
 	this.entity = entity;
 	/**
-	 */
-	/**
 	 * The center of the invisible box on the screen along the x axis.
 	 * @member {number}
 	 */
@@ -1351,7 +1390,7 @@ if (platform.isEjecta()) {
 	module.exports = FontLoader;
 }
 
-},{"../vendor/FontLoader.js":28,"./platform":21}],13:[function(_dereq_,module,exports){
+},{"../vendor/FontLoader.js":29,"./platform":22}],13:[function(_dereq_,module,exports){
 "use strict";
 
 var Scene = _dereq_("./scene");
@@ -1549,7 +1588,7 @@ Game.prototype.isChromeApp = function() {
 
 module.exports = Game;
 
-},{"./accelerometer":1,"./animation_loader":5,"./font_loader":12,"./image_loader":14,"./key_map":15,"./keyboard":16,"./mouse":19,"./platform":21,"./scene":23,"./scene_manager":24,"./sound_loader":25}],14:[function(_dereq_,module,exports){
+},{"./accelerometer":1,"./animation_loader":5,"./font_loader":12,"./image_loader":14,"./key_map":15,"./keyboard":16,"./mouse":19,"./platform":22,"./scene":24,"./scene_manager":25,"./sound_loader":26}],14:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -1821,13 +1860,14 @@ module.exports = {
 	EntityBoxCamera: _dereq_("./entity_box_camera"),
 	Game: _dereq_("./game"),
 	math: _dereq_("./math"),
+	openUrl: _dereq_("./openUrl"),
 	NinePatch: _dereq_("./ninepatch"),
 	saveData: _dereq_("./save_data"),
 	Scene: _dereq_("./scene"),
 	Timer: _dereq_("./timer"),
 };
 
-},{"./ads":2,"./animated_entity":3,"./astar":6,"./binary_heap":7,"./buffer":8,"./camera":9,"./entity":10,"./entity_box_camera":11,"./game":13,"./math":18,"./ninepatch":20,"./save_data":22,"./scene":23,"./timer":26}],18:[function(_dereq_,module,exports){
+},{"./ads":2,"./animated_entity":3,"./astar":6,"./binary_heap":7,"./buffer":8,"./camera":9,"./entity":10,"./entity_box_camera":11,"./game":13,"./math":18,"./ninepatch":20,"./openUrl":21,"./save_data":23,"./scene":24,"./timer":27}],18:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -1865,7 +1905,7 @@ var val = rand.random();
 	Random: _dereq_("mersenne-twister")
 };
 
-},{"mersenne-twister":27}],19:[function(_dereq_,module,exports){
+},{"mersenne-twister":28}],19:[function(_dereq_,module,exports){
 "use strict";
 
 var platform = _dereq_("./platform");
@@ -1944,6 +1984,19 @@ function Mouse(canvas) {
 	 */
 	this.touches = [];
 
+	/**
+	 * A function that is called when a mouse button or touch is released.
+	 * @callback onmouseupHandler
+	 * @param {number} x The x coordinate of the mouse or touch that was released.
+	 * @param {number} y The y coordinate of the mouse or touch that was released.
+	 */
+	/**
+	 * A function that will be called when a mouse button is released, or a touch has stopped.
+	 * This is useful for opening a URL with {@link Splat.openUrl} to avoid popup blockers.
+	 * @member {onmouseupHandler}
+	 */
+	this.onmouseup = undefined;
+
 	var self = this;
 	canvas.addEventListener("mousedown", function(event) {
 		var m = relMouseCoords(canvas, event);
@@ -1958,6 +2011,9 @@ function Mouse(canvas) {
 		self.y = m.y;
 		self.buttons[event.button] = 0;
 		updateTouchFromMouse();
+		if (self.onmouseup) {
+			self.onmouseup(self.x, self.y);
+		}
 	});
 	canvas.addEventListener("mousemove", function(event) {
 		var m = relMouseCoords(canvas, event);
@@ -2043,6 +2099,9 @@ function Mouse(canvas) {
 					updateMouseFromTouch(self.touches[0]);
 				}
 			}
+			if (self.onmouseup) {
+				self.onmouseup(t.x, t.y);
+			}
 		});
 	});
 }
@@ -2056,10 +2115,18 @@ Mouse.prototype.supportsTouch = function() {
 /**
  * Test if a mouse button is currently pressed.
  * @param {number} button The button number to test. Button 0 is typically the left mouse button, as well as the first touch location.
+ * @param {number} [x] The left edge of a rectangle to restrict the test to. If the mouse position is outside of this rectangle, the button will not be considered pressed.
+ * @param {number} [y] The top edge of a rectangle to restrict the test to. If the mouse position is outside of this rectangle, the button will not be considered pressed.
+ * @param {number} [width] The width of a rectangle to restrict the test to. If the mouse position is outside of this rectangle, the button will not be considered pressed.
+ * @param {number} [height] The height of a rectangle to restrict the test to. If the mouse position is outside of this rectangle, the button will not be considered pressed.
  * @returns {boolean}
  */
-Mouse.prototype.isPressed = function(button) {
-	return this.buttons[button] >= 1;
+Mouse.prototype.isPressed = function(button, x, y, width, height) {
+	var b = this.buttons[button] >= 1;
+	if (arguments.length > 1 && (this.x < x || this.x > x + width || this.y < y || this.y > y + height)) {
+		b = false;
+	}
+	return b;
 };
 /**
  * Test if a mouse button is currently pressed, and was newly pressed down since the last call to consumePressed.
@@ -2089,7 +2156,7 @@ Mouse.prototype.consumePressed = function(button, x, y, width, height) {
 
 module.exports = Mouse;
 
-},{"./platform":21}],20:[function(_dereq_,module,exports){
+},{"./platform":22}],20:[function(_dereq_,module,exports){
 "use strict";
 
 var buffer = _dereq_("./buffer");
@@ -2211,6 +2278,26 @@ module.exports = NinePatch;
 },{"./buffer":8}],21:[function(_dereq_,module,exports){
 "use strict";
 
+var platform = _dereq_("./platform");
+
+/**
+ * Open a url in a new window.
+ * @alias Splat.openUrl
+ * @param {string} url The url to open in a new window.
+ */
+module.exports = function(url) {
+	window.open(url);
+};
+
+if (platform.isEjecta()) {
+	module.exports = function(url) {
+		window.ejecta.openURL(url);
+	};
+}
+
+},{"./platform":22}],22:[function(_dereq_,module,exports){
+"use strict";
+
 module.exports = {
 	isChromeApp: function() {
 		return window.chrome && window.chrome.app && window.chrome.app.runtime;
@@ -2220,7 +2307,7 @@ module.exports = {
 	}
 };
 
-},{}],22:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 "use strict";
 /**
  * @namespace Splat.saveData
@@ -2350,7 +2437,7 @@ if (platform.isChromeApp()) {
 	module.exports = cookieSaveData;
 }
 
-},{"./platform":21}],23:[function(_dereq_,module,exports){
+},{"./platform":22}],24:[function(_dereq_,module,exports){
 "use strict";
 
 var Camera = _dereq_("./camera");
@@ -2509,7 +2596,7 @@ function drawFrameRate(scene, elapsedMillis) {
 
 module.exports = Scene;
 
-},{"./camera":9}],24:[function(_dereq_,module,exports){
+},{"./camera":9}],25:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -2558,7 +2645,7 @@ SceneManager.prototype.switchTo = function(name) {
 
 module.exports = SceneManager;
 
-},{}],25:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 "use strict";
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -2588,10 +2675,9 @@ function SoundLoader() {
 	 */
 	this.loadedSounds = 0;
 	/**
-	 * A flag signifying if sounds are muted and should not be played.
-	 * This only stops new sounds from being played, and doesn't actually mute the volume.
-	 * Patches appreciated.
+	 * A flag signifying if sounds have been muted through {@link SoundLoader#mute}.
 	 * @member {boolean}
+	 * @private
 	 */
 	this.muted = false;
 	/**
@@ -2607,6 +2693,10 @@ function SoundLoader() {
 	 * @private
 	 */
 	this.context = new window.AudioContext();
+
+	this.gainNode = this.context.createGain();
+	this.gainNode.connect(this.context.destination);
+	this.volume = this.gainNode.gain.value;
 }
 /**
  * Load an audio file.
@@ -2625,7 +2715,7 @@ SoundLoader.prototype.load = function(name, path) {
 			window.removeEventListener("touchstart", firstTouchHandler);
 
 			var source = self.context.createOscillator();
-			source.connect(self.context.destination);
+			source.connect(self.gainNode);
 			source.start(0);
 			source.stop(0);
 
@@ -2634,7 +2724,6 @@ SoundLoader.prototype.load = function(name, path) {
 			} else {
 				self.firstPlay = "workaround";
 			}
-
 		};
 		window.addEventListener("click", firstTouchHandler);
 		window.addEventListener("keydown", firstTouchHandler);
@@ -2692,16 +2781,13 @@ SoundLoader.prototype.play = function(name, loop) {
 		this.firstPlayLoop = loop;
 		return;
 	}
-	if (this.muted) {
-		return;
-	}
 	var snd = this.sounds[name];
 	if (snd === undefined) {
 		console.error("Unknown sound: " + name);
 	}
 	var source = this.context.createBufferSource();
 	source.buffer = snd;
-	source.connect(this.context.destination);
+	source.connect(this.gainNode);
 	if (loop) {
 		source.loop = true;
 		this.looping[name] = source;
@@ -2719,6 +2805,36 @@ SoundLoader.prototype.stop = function(name) {
 	this.looping[name].stop();
 	delete this.looping[name];
 };
+/**
+ * Silence all sounds. Sounds keep playing, but at zero volume. Call {@link SoundLoader#unmute} to restore the previous volume level.
+ */
+SoundLoader.prototype.mute = function() {
+	this.gainNode.gain.value = 0;
+	this.muted = true;
+};
+/**
+ * Restore volume to whatever value it was before {@link SoundLoader#mute} was called.
+ */
+SoundLoader.prototype.unmute = function() {
+	this.gainNode.gain.value = this.volume;
+	this.muted = false;
+};
+/**
+ * Set the volume of all sounds.
+ * @param {number} gain The desired volume level. A number between 0.0 and 1.0, with 0.0 being silent, and 1.0 being maximum volume.
+ */
+SoundLoader.prototype.setVolume = function(gain) {
+	this.volume = gain;
+	this.gainNode.gain  = gain;
+	this.muted = false;
+};
+/**
+ * Test if the volume is currently muted.
+ * @return {boolean} True if the volume is currently muted.
+ */
+SoundLoader.prototype.isMuted = function() {
+	return this.muted;
+};
 
 function AudioTagSoundLoader() {
 	this.sounds = {};
@@ -2726,6 +2842,7 @@ function AudioTagSoundLoader() {
 	this.loadedSounds = 0;
 	this.muted = false;
 	this.looping = {};
+	this.volume = new Audio().volume;
 }
 AudioTagSoundLoader.prototype.load = function(name, path) {
 	this.totalSounds++;
@@ -2739,6 +2856,7 @@ AudioTagSoundLoader.prototype.load = function(name, path) {
 		self.sounds[name] = audio;
 		self.loadedSounds++;
 	});
+	audio.volume = this.volume;
 	audio.src = path;
 	audio.load();
 };
@@ -2747,9 +2865,6 @@ AudioTagSoundLoader.prototype.allLoaded = function() {
 };
 AudioTagSoundLoader.prototype.play = function(name, loop) {
 	if (loop && this.looping[name]) {
-		return;
-	}
-	if (this.muted) {
 		return;
 	}
 	var snd = this.sounds[name];
@@ -2772,11 +2887,42 @@ AudioTagSoundLoader.prototype.stop = function(name) {
 	snd.currentTime = 0;
 	delete this.looping[name];
 };
+function setAudioTagVolume(sounds, gain) {
+	for (var name in sounds) {
+		if (sounds.hasOwnProperty(name)) {
+			sounds[name].volume = gain;
+		}
+	}
+}
+AudioTagSoundLoader.prototype.mute = function() {
+	setAudioTagVolume(this.sounds, 0);
+	this.muted = true;
+};
+AudioTagSoundLoader.prototype.unmute = function() {
+	setAudioTagVolume(this.sounds, this.volume);
+	this.muted = false;
+};
+AudioTagSoundLoader.prototype.setVolume = function(gain) {
+	this.volume = gain;
+	setAudioTagVolume(this.sounds, gain);
+	this.muted = false;
+};
+AudioTagSoundLoader.prototype.isMuted = function() {
+	return this.muted;
+};
+
 
 function FakeSoundLoader() {}
 FakeSoundLoader.prototype.load = function() {};
 FakeSoundLoader.prototype.allLoaded = function() { return true; };
 FakeSoundLoader.prototype.play = function() {};
+FakeSoundLoader.prototype.stop = function() {};
+FakeSoundLoader.prototype.mute = function() {};
+FakeSoundLoader.prototype.unmute = function() {};
+FakeSoundLoader.prototype.setVolume = function() {};
+FakeSoundLoader.prototype.isMuted = function() {
+	return true;
+};
 
 if (window.AudioContext) {
 	module.exports = SoundLoader;
@@ -2787,7 +2933,7 @@ if (window.AudioContext) {
 	module.exports = FakeSoundLoader;
 }
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 "use strict";
 
 /**
@@ -2884,7 +3030,7 @@ Timer.prototype.expired = function() {
 
 module.exports = Timer;
 
-},{}],27:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 /*
   https://github.com/banksean wrapped Makoto Matsumoto and Takuji Nishimura's code in a namespace
   so it's better encapsulated. Now you can have multiple random number generators
@@ -3091,7 +3237,7 @@ MersenneTwister.prototype.random_long = function() {
 
 module.exports = MersenneTwister;
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 (function(namespace) {
 	
 	var isIE = /MSIE/i.test(navigator.userAgent),
