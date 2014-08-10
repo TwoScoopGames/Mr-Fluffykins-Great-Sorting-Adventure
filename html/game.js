@@ -1075,68 +1075,16 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	// init
-	this.levelButtons = [{
-		x: 194,
-		y: 118,
-		status: "3stars"
-	}, {
-		x: 353,
-		y: 118,
-		status: "2stars"
-	}, {
-		x: 509,
-		y: 118,
-		status: "1star"
-	}, {
-		x: 670,
-		y: 118,
-		status: "unbeaten"
-	}, {
-		x: 828,
-		y: 118,
-		status: "locked"
-	}, {
-		x: 194,
-		y: 285,
-		status: "locked"
-	}, {
-		x: 353,
-		y: 285,
-		status: "locked"
-	}, {
-		x: 509,
-		y: 285,
-		status: "locked"
-	}, {
-		x: 670,
-		y: 285,
-		status: "locked"
-	}, {
-		x: 828,
-		y: 285,
-		status: "locked"
-	}, {
-		x: 194,
-		y: 452,
-		status: "locked"
-	}, {
-		x: 353,
-		y: 452,
-		status: "locked"
-	}, {
-		x: 509,
-		y: 452,
-		status: "locked"
-	}, {
-		x: 670,
-		y: 452,
-		status: "locked"
-	}, {
-		x: 828,
-		y: 452,
-		status: "locked"
-	}];
-
+	var startX = 194;
+	var spanX = 159;
+	var startY = 140;
+	var spanY = 158;
+	this.levelButtons = [];
+	for (var y = 0; y < 3; y++) {
+		for (var x = 0; x < 5; x++) {
+			this.levelButtons.push({ x: startX + (spanX * x), y: startY + (spanY * y), status: "locked" });
+		}
+	}
 }, function(elapsedMillis) {
 	// simulation
 	if (game.mouse.consumePressed(0)) {
@@ -1144,12 +1092,10 @@ game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	}
 }, function(context) {
 	// draw
-	context.fillStyle = "282828";
+	context.fillStyle = "#282828";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	context.drawImage(game.images.get("level-select"), 0, 0);
-	context.font = "50px pixelmix1";
-	context.fillStyle = "#fff";
-	centerText(context, "Work Days", 0, 85);
+
 	drawLevelButtons(context, this.levelButtons);
 	drawLevelNumbers(context, this.levelButtons);
 }));
