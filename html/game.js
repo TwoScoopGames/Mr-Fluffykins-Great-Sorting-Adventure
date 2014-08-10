@@ -1078,19 +1078,19 @@ game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	this.levelButtons = [{
 		x: 194,
 		y: 118,
-		status: "unbeaten"
+		status: "3stars"
 	}, {
 		x: 353,
 		y: 118,
-		status: "locked"
+		status: "2stars"
 	}, {
 		x: 509,
 		y: 118,
-		status: "locked"
+		status: "1star"
 	}, {
 		x: 670,
 		y: 118,
-		status: "locked"
+		status: "unbeaten"
 	}, {
 		x: 828,
 		y: 118,
@@ -1147,6 +1147,9 @@ game.scenes.add("level-select", new Splat.Scene(canvas, function() {
 	context.fillStyle = "282828";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	context.drawImage(game.images.get("level-select"), 0, 0);
+	context.font = "50px pixelmix1";
+	context.fillStyle = "#fff";
+	centerText(context, "Work Days", 0, 85);
 	drawLevelButtons(context, this.levelButtons);
 	drawLevelNumbers(context, this.levelButtons);
 }));
