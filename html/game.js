@@ -40,6 +40,10 @@ var manifest = {
 		"level-icon-2stars-pressed": "img/level-icon-2stars-pressed.png",
 		"level-icon-3stars": "img/level-icon-3stars.png",
 		"level-icon-3stars-pressed": "img/level-icon-3stars-pressed.png"
+		"score-screen": "img/score-screen-bg.png",
+		"next-button": "img/next-button.png",
+		"menue-button": "img/menu-button.png",
+		"replay-button": "img/replay-button.png"
 	},
 	"sounds": {
 		"clock-in": "sound/clock-in.mp3",
@@ -237,7 +241,6 @@ var manifest = {
 		}
 	}
 };
-//anthony
 function ToggleButton(x, y, width, height, onIcon, offIcon, key, onToggle) {
 	this.x = x;
 	this.y = y;
@@ -412,9 +415,12 @@ var conveyors = [];
 
 var shredder = new Splat.Entity(776, 521, 108, 80);
 
-//anthony
 var soundToggle;
 var pauseToggle;
+var shiftEnd;
+var nextLevelToggle;
+var replayToggle;
+var lvlSelectToggle;
 
 var waves = [{
 	"video": 1,
@@ -971,6 +977,8 @@ function drawEntities(context, entities) {
 		entities[i].draw(context);
 	}
 }
+//anthony current
+
 
 var files = [];
 var fileWidth = 45;
@@ -1400,10 +1408,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			this.start();
 		});
 		this.timers.toteSpawner.start();
-
+			//anthony current
 		this.timers.timeBar = new Splat.Timer(undefined, 1000, function() {
 			scene.timeLeft--;
 			if (scene.timeLeft < 0) {
+				//displayShiftEnd(context);
 				game.scenes.switchTo("end");
 				return;
 			}
@@ -1693,7 +1702,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		context.drawImage(tubeBottomLeft, canvas.width - tubeBottomLeft.width, canvas.height - tubeBottomLeft.height);
 
 		var scene = this;
-		//anthony draw
 		this.camera.drawAbsolute(context, function() {
 			soundToggle.draw(context);
 			pauseToggle.draw(context);
@@ -1724,6 +1732,11 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			}
 			drawFlash(context, scene);
 		});
+		if (scene.timeLeft < 0) {
+			//displayShiftEnd(context);
+			game.scenes.switchTo("end");
+			return;
+		}
 	}));
 
 function drawFlash(context, scene) {
@@ -1742,19 +1755,28 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	game.sounds.stop("main");
 	game.sounds.play("fail");
 
-	this.timers.done = new Splat.Timer(undefined, 6000, function() {
+	this.timers.done = new Splat.Timer(undefined, 20000, function() {
 		game.scenes.switchTo("title");
 	});
 	this.timers.done.start();
 }, function(elapsedMillis) {
 	// simulation
+	if (!replayToggle) {
+		replayToggle = new ToggleButton(500,500,105,108,game.images.get("replay-button"),game.images.get("replay-button"),"space",function(toggled) {
+
+		});//x, y, width, height, onIcon, offIcon, key, onToggle
+	}
 }, function(context) {
 	// draw
-	context.fillRect(0, 0, canvas.width, canvas.height);
+	//context.fillRect(0, 0, canvas.width, canvas.height);
 
-	context.font = "70px pixelmix1";
-	context.fillStyle = "#fff";
-	centerText(context, "Game Over", 0, (canvas.height / 2) - 70);
+	//context.font = "70px pixelmix1";
+	//context.fillStyle = "#fff";
+	//centerText(context, "Game Over", 0, (canvas.height / 2) - 70);
+	context.drawImage(game.images.get("score-screen"), (canvas.width/2 - (game.images.get("score-screen").width/2)), canvas.height-game.images.get("score-screen").height);
+	replayToggle.draw(context);
+	//lvlSelectToggle.draw(context);
+	//nextLevelToggle.draw(context);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
