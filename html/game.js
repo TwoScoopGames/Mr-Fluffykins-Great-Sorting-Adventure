@@ -39,7 +39,7 @@ var manifest = {
 		"level-icon-2stars": "img/level-icon-2stars.png",
 		"level-icon-2stars-pressed": "img/level-icon-2stars-pressed.png",
 		"level-icon-3stars": "img/level-icon-3stars.png",
-		"level-icon-3stars-pressed": "img/level-icon-3stars-pressed.png"
+		"level-icon-3stars-pressed": "img/level-icon-3stars-pressed.png",
 		"score-screen": "img/score-screen-bg.png",
 		"next-button": "img/next-button.png",
 		"menue-button": "img/menu-button.png",
