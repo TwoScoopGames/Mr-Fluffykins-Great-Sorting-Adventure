@@ -42,7 +42,7 @@ var manifest = {
 		"level-icon-3stars-pressed": "img/level-icon-3stars-pressed.png",
 		"score-screen": "img/score-screen-bg.png",
 		"next-button": "img/next-button.png",
-		"menue-button": "img/menu-button.png",
+		"menu-button": "img/menu-button.png",
 		"replay-button": "img/replay-button.png"
 	},
 	"sounds": {
@@ -497,7 +497,6 @@ function generateSpecificWave(currentWaveInt, intFileType) {
 }
 
 function generateGenericWave(currentWaveInt) {
-	console.log('generating Generic Wave');
 	var ranVid = Math.floor(Math.random() * (currentWaveInt + 2)) + 1;
 	var ranPic = Math.floor(Math.random() * (currentWaveInt + 2)) + 1;
 	var ranEMail = Math.floor(Math.random() * (currentWaveInt + 2)) + 1;
@@ -1449,6 +1448,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 			var wasRunning = clockInScript.running;
 			clockInScript.move(elapsedMillis, this);
+			//console.log("clockInScript.running:"+clockInScript.running);	
 			if (!clockInScript.running) {
 				if (wasRunning) {
 					var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
@@ -1762,8 +1762,18 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 }, function(elapsedMillis) {
 	// simulation
 	if (!replayToggle) {
-		replayToggle = new ToggleButton(500,500,105,108,game.images.get("replay-button"),game.images.get("replay-button"),"space",function(toggled) {
+		replayToggle = new ToggleButton(520,500,105,108,game.images.get("replay-button"),game.images.get("replay-button"),"space",function(toggled) {
 
+		});//x, y, width, height, onIcon, offIcon, key, onToggle
+	}
+	if (!lvlSelectToggle) {
+		lvlSelectToggle = new ToggleButton(332,500,105,108,game.images.get("menu-button"),game.images.get("menu-button"),"space",function(toggled) {
+		
+		});//x, y, width, height, onIcon, offIcon, key, onToggle
+	}
+	if (!nextLevelToggle) {
+		nextLevelToggle = new ToggleButton(708,500,105,108,game.images.get("next-button"),game.images.get("next-button"),"space",function(toggled) {
+		
 		});//x, y, width, height, onIcon, offIcon, key, onToggle
 	}
 }, function(context) {
@@ -1775,8 +1785,8 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	//centerText(context, "Game Over", 0, (canvas.height / 2) - 70);
 	context.drawImage(game.images.get("score-screen"), (canvas.width/2 - (game.images.get("score-screen").width/2)), canvas.height-game.images.get("score-screen").height);
 	replayToggle.draw(context);
-	//lvlSelectToggle.draw(context);
-	//nextLevelToggle.draw(context);
+	lvlSelectToggle.draw(context);
+	nextLevelToggle.draw(context);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
