@@ -879,6 +879,9 @@ function collidesWithAny(item, otherItems, collisionHandler) {
 }
 
 var conveyorSpeed = 0.03;
+function waveEnd(){
+	game.scenes.switchTo("end");
+}
 
 function makeConveyor(scene, x, y, width, height, horizontal, type, dropOffWidth, enclosedWidth) {
 	var conveyor = new Splat.Entity(x, y, width, height);
@@ -911,9 +914,12 @@ function makeConveyor(scene, x, y, width, height, horizontal, type, dropOffWidth
 				game.sounds.play("goodSound");
 
 				if (this.files.length === 0) {
-					currentWave += 1;
+					//anthony
 					scene.timers.waveStart.reset();
-					scene.timers.waveStart.start();
+					waveEnd();
+									//currentWave += 1;
+					
+					//scene.timers.waveStart.start();
 				}
 			}
 			if (file.lastX < this.x + this.dropOffWidth && file.x >= this.x + this.dropOffWidth) {
@@ -1756,26 +1762,23 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	game.sounds.play("fail");
 
 	this.timers.done = new Splat.Timer(undefined, 20000, function() {
-		game.scenes.switchTo("title");
+		//game.scenes.switchTo("title");
+	});
+	this.replayToggle = new ToggleButton(520,500,105,108,game.images.get("replay-button"),game.images.get("replay-button"),"space",function(toggled) {
+		game.scenes.switchTo("main");
+	});
+	this.lvlSelectToggle = new ToggleButton(332,500,105,108,game.images.get("menu-button"),game.images.get("menu-button"),"space",function(toggled) {
+		game.scenes.switchTo("level-select");
+	});
+	this.nextLevelToggle = new ToggleButton(708,500,105,108,game.images.get("next-button"),game.images.get("next-button"),"space",function(toggled) {
+		game.scenes.switchTo("main");
 	});
 	this.timers.done.start();
 }, function(elapsedMillis) {
 	// simulation
-	if (!replayToggle) {
-		replayToggle = new ToggleButton(520,500,105,108,game.images.get("replay-button"),game.images.get("replay-button"),"space",function(toggled) {
-
-		});//x, y, width, height, onIcon, offIcon, key, onToggle
-	}
-	if (!lvlSelectToggle) {
-		lvlSelectToggle = new ToggleButton(332,500,105,108,game.images.get("menu-button"),game.images.get("menu-button"),"space",function(toggled) {
-		
-		});//x, y, width, height, onIcon, offIcon, key, onToggle
-	}
-	if (!nextLevelToggle) {
-		nextLevelToggle = new ToggleButton(708,500,105,108,game.images.get("next-button"),game.images.get("next-button"),"space",function(toggled) {
-		
-		});//x, y, width, height, onIcon, offIcon, key, onToggle
-	}
+	this.replayToggle.move(elapsedMillis);
+	this.lvlSelectToggle.move(elapsedMillis);
+	this.nextLevelToggle.move(elapsedMillis);
 }, function(context) {
 	// draw
 	//context.fillRect(0, 0, canvas.width, canvas.height);
@@ -1784,9 +1787,9 @@ game.scenes.add("end", new Splat.Scene(canvas, function() {
 	//context.fillStyle = "#fff";
 	//centerText(context, "Game Over", 0, (canvas.height / 2) - 70);
 	context.drawImage(game.images.get("score-screen"), (canvas.width/2 - (game.images.get("score-screen").width/2)), canvas.height-game.images.get("score-screen").height);
-	replayToggle.draw(context);
-	lvlSelectToggle.draw(context);
-	nextLevelToggle.draw(context);
+	this.replayToggle.draw(context);
+	this.lvlSelectToggle.draw(context);
+	this.nextLevelToggle.draw(context);
 }));
 
 function centerText(context, text, offsetX, offsetY) {
