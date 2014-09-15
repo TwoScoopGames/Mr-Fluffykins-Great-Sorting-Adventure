@@ -289,22 +289,25 @@ function drawEntities(context, entities) {
 		entities[i].draw(context);
 	}
 }
+function makeClockinScript(){
+	var clockInScript = new Script();
+	clockInScript.steps.push(WaitCommand(400));
+	clockInScript.steps.push(MoveCommand(160, -300));
+	clockInScript.steps.push(WaitCommand(300));
+	clockInScript.steps.push(SoundCommand("locker"));
+	clockInScript.steps.push(AnimationCommand("player-clock-in", 400));
+	clockInScript.steps.push(function() {
+		lockerOpen = false;
+		return false;
+	});
+	clockInScript.steps.push(MoveCommand(246, 60));
+	clockInScript.steps.push(WaitCommand(200));
+	clockInScript.steps.push(SoundCommand("clock-in"));
+	clockInScript.steps.push(AnimationCommand("player-clock-in", 700));
+	clockInScript.steps.push(MoveCommand(50, 300));
+	return clockInScript;
+}
 
-var clockInScript = new Script();
-clockInScript.steps.push(WaitCommand(400));
-clockInScript.steps.push(MoveCommand(160, -300));
-clockInScript.steps.push(WaitCommand(300));
-clockInScript.steps.push(SoundCommand("locker"));
-clockInScript.steps.push(AnimationCommand("player-clock-in", 400));
-clockInScript.steps.push(function() {
-	lockerOpen = false;
-	return false;
-});
-clockInScript.steps.push(MoveCommand(246, 60));
-clockInScript.steps.push(WaitCommand(200));
-clockInScript.steps.push(SoundCommand("clock-in"));
-clockInScript.steps.push(AnimationCommand("player-clock-in", 700));
-clockInScript.steps.push(MoveCommand(50, 300));
 
 function WaitCommand(durationMs) {
 	var t = 0;
@@ -372,6 +375,12 @@ Script.prototype.move = function(elapsedMillis, scene) {
 		}
 	}
 };
+
+Script.prototype.reset = function(){
+	this.current = 0;
+	this.running = true;
+	this.firstTimeOnStep = true;
+}
 
 var game = new Splat.Game(canvas, manifest);
 
@@ -880,6 +889,7 @@ function collidesWithAny(item, otherItems, collisionHandler) {
 
 var conveyorSpeed = 0.03;
 function waveEnd(){
+	floorObstacles.pop();
 	game.scenes.switchTo("end");
 }
 
@@ -1377,7 +1387,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	pauseToggle.toggled = true;
 
 		var scene = this;
-
+		this.clockInScript = makeClockinScript();
 		this.timers.fileSpawner = new Splat.Timer(undefined, 3000, function() {
 
 			var file = getNextFile();
@@ -1418,6 +1428,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 			scene.timeLeft--;
 			if (scene.timeLeft < 0) {
 				//displayShiftEnd(context);
+				floorObstacles.pop();
 				game.scenes.switchTo("end");
 				return;
 			}
@@ -1452,10 +1463,10 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		if (state == "running") {
 			this.levelTime += elapsedMillis;
 
-			var wasRunning = clockInScript.running;
-			clockInScript.move(elapsedMillis, this);
-			//console.log("clockInScript.running:"+clockInScript.running);	
-			if (!clockInScript.running) {
+			var wasRunning = this.clockInScript.running;
+			this.clockInScript.move(elapsedMillis, this);
+			console.log("clockInScript.running:"+this.clockInScript.running);	
+			if (!this.clockInScript.running) {
 				if (wasRunning) {
 					var obstacle = new Splat.Entity(0, 34, canvas.width, 21); // door
 					obstacle.adjustClick = adjustDown;
@@ -1740,6 +1751,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		});
 		if (scene.timeLeft < 0) {
 			//displayShiftEnd(context);
+			floorObstacles.pop();
 			game.scenes.switchTo("end");
 			return;
 		}
